@@ -3,6 +3,21 @@ import { getAuthSession } from "@/lib/auth-server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 
+// Helper to safely parse images JSON field
+function parseImages(images: any): string[] {
+  if (!images) return [];
+  if (Array.isArray(images)) return images.filter((img): img is string => typeof img === "string");
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) ? parsed.filter((img): img is string => typeof img === "string") : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 // Initialize Stripe only if secret key is available
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecretKey
@@ -56,12 +71,13 @@ export async function POST(request: NextRequest) {
         const itemTotal = product.price * item.quantity;
         subtotal += itemTotal;
 
+        const images = parseImages(product.images);
         lineItems.push({
           price_data: {
             currency: "eur",
             product_data: {
               name: product.name,
-              images: product.images.slice(0, 1),
+              images: images.slice(0, 1),
             },
             unit_amount: Math.round(product.price * 100), // Convert to cents
           },

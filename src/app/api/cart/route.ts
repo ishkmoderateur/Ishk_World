@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
+// Helper to safely parse images JSON field
+function parseImages(images: any): string[] {
+  if (!images) return [];
+  if (Array.isArray(images)) return images.filter((img): img is string => typeof img === "string");
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) ? parsed.filter((img): img is string => typeof img === "string") : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 // GET - Fetch user's cart
 export async function GET(request: NextRequest) {
   try {
@@ -26,16 +41,19 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    const items = cartItems.map((item) => ({
-      id: item.id,
-      productId: item.productId,
-      name: item.product.name,
-      price: item.product.price,
-      quantity: item.quantity,
-      size: item.size,
-      color: item.color,
-      image: item.product.images[0],
-    }));
+    const items = cartItems.map((item) => {
+      const images = parseImages(item.product.images);
+      return {
+        id: item.id,
+        productId: item.productId,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        size: item.size,
+        color: item.color,
+        image: images[0] || null,
+      };
+    });
 
     return NextResponse.json({ items });
   } catch (error) {
