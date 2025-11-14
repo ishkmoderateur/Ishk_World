@@ -1,0 +1,106 @@
+[33m83f43ec[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Clean repository: remove markdown files and scripts
+ .env.production                                    |  27 [32m+[m
+ .gitignore                                         |  29 [32m+[m[31m-[m
+ README.md                                          |  36 [31m-[m
+ ... way too long in my camera. #yourshotp (1).jpg" | Bin [31m0[m -> [32m149555[m bytes
+ ... way too long in my camera. #yourshotp (2).jpg" | Bin [31m0[m -> [32m176088[m bytes
+ ...ayed way too long in my camera. #yourshotp.jpg" | Bin [31m0[m -> [32m215079[m bytes
+ ...om ........#enduro #enduromountainbike #ktm.jpg | Bin [31m0[m -> [32m54535[m bytes
+ afaf Pics/bike desert.jpg                          | Bin [31m0[m -> [32m66924[m bytes
+ afaf Pics/bit f jbel.jpg                           | Bin [31m0[m -> [32m185715[m bytes
+ afaf Pics/bit f jbiyel.jpg                         | Bin [31m0[m -> [32m216733[m bytes
+ afaf Pics/bit n3ass f jbel.jpg                     | Bin [31m0[m -> [32m120517[m bytes
+ afaf Pics/cosy lighting.jpg                        | Bin [31m0[m -> [32m74003[m bytes
+ afaf Pics/jbel.jpg                                 | Bin [31m0[m -> [32m155389[m bytes
+ afaf Pics/old lady.jpg                             | Bin [31m0[m -> [32m285933[m bytes
+ afaf Pics/pont.jpg                                 | Bin [31m0[m -> [32m143450[m bytes
+ afaf Pics/qhwa f jbel.jpg                          | Bin [31m0[m -> [32m125492[m bytes
+ afaf Pics/sand storm (2).jpg                       | Bin [31m0[m -> [32m92800[m bytes
+ afaf Pics/sand storm (3).jpg                       | Bin [31m0[m -> [32m119777[m bytes
+ afaf Pics/sand storm (4).jpg                       | Bin [31m0[m -> [32m105468[m bytes
+ afaf Pics/sand storm with crew.jpg                 | Bin [31m0[m -> [32m77042[m bytes
+ afaf Pics/sand storm.jpg                           | Bin [31m0[m -> [32m69424[m bytes
+ afaf Pics/tableau.jpg                              | Bin [31m0[m -> [32m132554[m bytes
+ afaf Pics/triq f jbel.jpg                          | Bin [31m0[m -> [32m174221[m bytes
+ afaf Pics/truck road.jpg                           | Bin [31m0[m -> [32m162438[m bytes
+ components.json                                    |  22 [32m+[m
+ ecosystem.config.js                                |  25 [32m+[m
+ next.config.ts                                     |  10 [32m+[m[31m-[m
+ package-lock.json                                  | 956 [32m++++++++++++++++++++[m[31m-[m
+ package.json                                       |  36 [32m+[m[31m-[m
+ prisma.config.ts                                   |  12 [32m+[m
+ prisma/schema.prisma                               | 306 [32m+++++++[m
+ ...lately \360\237\224\201 #cinematicfeel (1).jpg" | Bin [31m0[m -> [32m68546[m bytes
+ ...ife lately \360\237\224\201 #cinematicfeel.jpg" | Bin [31m0[m -> [32m59837[m bytes
+ ... way too long in my camera. #yourshotp (1).jpg" | Bin [31m0[m -> [32m149555[m bytes
+ ... way too long in my camera. #yourshotp (2).jpg" | Bin [31m0[m -> [32m176088[m bytes
+ ...ayed way too long in my camera. #yourshotp.jpg" | Bin [31m0[m -> [32m215079[m bytes
+ ...om ........#enduro #enduromountainbike #ktm.jpg | Bin [31m0[m -> [32m54535[m bytes
+ ...lately \360\237\224\201 #cinematicfeel (1).jpg" | Bin [31m0[m -> [32m68546[m bytes
+ ...ife lately \360\237\224\201 #cinematicfeel.jpg" | Bin [31m0[m -> [32m59837[m bytes
+ ... way too long in my camera. #yourshotp (1).jpg" | Bin [31m0[m -> [32m149555[m bytes
+ ... way too long in my camera. #yourshotp (2).jpg" | Bin [31m0[m -> [32m176088[m bytes
+ ...ayed way too long in my camera. #yourshotp.jpg" | Bin [31m0[m -> [32m215079[m bytes
+ ...d-way-too-long-in-my-camera.--yourshotp--1-.jpg | Bin [31m0[m -> [32m149555[m bytes
+ ...d-way-too-long-in-my-camera.--yourshotp--2-.jpg | Bin [31m0[m -> [32m176088[m bytes
+ ...tayed-way-too-long-in-my-camera.--yourshotp.jpg | Bin [31m0[m -> [32m215079[m bytes
+ ...om ........#enduro #enduromountainbike #ktm.jpg | Bin [31m0[m -> [32m54535[m bytes
+ ...44640_749473589809454_3150065497059521760_n.jpg | Bin [31m0[m -> [32m69424[m bytes
+ ...58631_797175361278497_4156943208252385210_n.jpg | Bin [31m0[m -> [32m92800[m bytes
+ ...29915_139955931962559_4114156546180902768_n.jpg | Bin [31m0[m -> [32m119777[m bytes
+ ...64897_166436049179832_8576628153007616255_n.jpg | Bin [31m0[m -> [32m77042[m bytes
+ ...5359_1010442232943605_1364096570174400269_n.jpg | Bin [31m0[m -> [32m66924[m bytes
+ ...96297_347472930853333_5959751300077876313_n.jpg | Bin [31m0[m -> [32m105468[m bytes
+ ...2759_1118041429586596_6948911033448556305_n.jpg | Bin [31m0[m -> [32m162438[m bytes
+ ...01697_804820757676409_5029574931353129042_n.jpg | Bin [31m0[m -> [32m285933[m bytes
+ ...2222_1952458561772876_2037669789508555136_n.jpg | Bin [31m0[m -> [32m155389[m bytes
+ ...32367_282667814105577_2350016748184074076_n.jpg | Bin [31m0[m -> [32m174221[m bytes
+ ...0293_3378731082437356_2040821813781284353_n.jpg | Bin [31m0[m -> [32m185715[m bytes
+ ...1194_1225548718839850_3622562154938087237_n.jpg | Bin [31m0[m -> [32m216733[m bytes
+ ...5380_1673584376500810_7947164182321983601_n.jpg | Bin [31m0[m -> [32m125492[m bytes
+ ...13449_339403928453340_1402748163538938923_n.jpg | Bin [31m0[m -> [32m120517[m bytes
+ ...92195_325629423471897_1987290720100708418_n.jpg | Bin [31m0[m -> [32m132554[m bytes
+ ...52302_320581647291316_5138119132852301915_n.jpg | Bin [31m0[m -> [32m74003[m bytes
+ ...39034_975640473681383_3714742764191781847_n.jpg | Bin [31m0[m -> [32m143450[m bytes
+ public/photography/sandstorm-aesthetics-enduro.jpg | Bin [31m0[m -> [32m54535[m bytes
+ src/app/api/auth/[...nextauth]/route.ts            |   5 [32m+[m
+ src/app/api/cart/item/route.ts                     | 158 [32m++++[m
+ src/app/api/cart/route.ts                          | 127 [32m+++[m
+ src/app/api/checkout/route.ts                      | 125 [32m+++[m
+ src/app/api/orders/route.ts                        | 124 [32m+++[m
+ src/app/api/venues/inquiry/route.ts                | 116 [32m+++[m
+ src/app/api/webhooks/stripe/route.ts               | 105 [32m+++[m
+ src/app/association/page.tsx                       | 347 [32m++++++++[m
+ src/app/boutique/page.tsx                          | 399 [32m+++++++++[m
+ src/app/cart/page.tsx                              | 219 [32m+++++[m
+ src/app/globals.css                                | 267 [32m+++++[m[31m-[m
+ src/app/layout.tsx                                 |  33 [32m+[m[31m-[m
+ src/app/news/page.tsx                              | 308 [32m+++++++[m
+ src/app/page.tsx                                   |  78 [32m+[m[31m-[m
+ src/app/party/page.tsx                             | 426 [32m+++++++++[m
+ src/app/photography/page.tsx                       | 614 [32m+++++++++++++[m
+ src/app/profile/page.tsx                           | 242 [32m++++++[m
+ src/components/cta-section.tsx                     |  87 [32m++[m
+ src/components/features-section.tsx                | 138 [32m+++[m
+ src/components/footer.tsx                          | 135 [32m+++[m
+ src/components/hero-section.tsx                    | 186 [32m++++[m
+ src/components/image-gallery.tsx                   | 125 [32m+++[m
+ src/components/language-provider-wrapper.tsx       |  13 [32m+[m
+ src/components/navbar.tsx                          | 173 [32m++++[m
+ src/components/philosophy-section.tsx              | 117 [32m+++[m
+ src/components/providers.tsx                       |  20 [32m+[m
+ src/components/service-cards.tsx                   | 165 [32m++++[m
+ src/contexts/cart-context.tsx                      | 196 [32m+++++[m
+ src/contexts/language-context.tsx                  |  95 [32m++[m
+ src/lib/auth-server.ts                             |  20 [32m+[m
+ src/lib/auth.ts                                    | 124 [32m+++[m
+ src/lib/prisma.ts                                  |  14 [32m+[m
+ src/lib/utils.ts                                   |   6 [32m+[m
+ src/locales/ar.json                                |  48 [32m++[m
+ src/locales/de.json                                |  48 [32m++[m
+ src/locales/en.json                                |  48 [32m++[m
+ src/locales/es.json                                |  48 [32m++[m
+ src/locales/fr.json                                |  48 [32m++[m
+ src/types/next-auth.d.ts                           |  17 [32m+[m
+ tsconfig.json                                      |  17 [32m+[m[31m-[m
+ 104 files changed, 6873 insertions(+), 167 deletions(-)

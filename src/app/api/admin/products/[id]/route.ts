@@ -58,7 +58,7 @@ export async function PUT(
     if (comparePrice !== undefined) updateData.comparePrice = comparePrice ? parseFloat(comparePrice) : null;
     if (category) updateData.category = category;
     if (isIshkOriginal !== undefined) updateData.isIshkOriginal = isIshkOriginal;
-    if (images) updateData.images = JSON.stringify(images);
+    if (images) updateData.images = images;
     if (inStock !== undefined) updateData.inStock = inStock;
     if (stockCount !== undefined) updateData.stockCount = parseInt(stockCount);
     if (featured !== undefined) updateData.featured = featured;

@@ -303,3 +303,18 @@ model NewsBrief {
   
   @@map("news_briefs")
 }
+
+// Photography Portfolio
+model Photography {
+  id          String   @id @default(cuid())
+  title       String
+  category    String   // "Cultural", "Adventure", "Social Media", etc.
+  image       String   // Image URL or path
+  description String?
+  featured    Boolean  @default(false)
+  order       Int      @default(0) // For custom ordering
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("photography")
+}

@@ -229,44 +229,68 @@ export default function AdminDashboard() {
               })}
             </div>
 
-            {/* Quick Actions */}
+            {/* Panel Links */}
             <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
-              <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Quick Actions</h2>
+              <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Content Panels</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link
-                  href="/admin/products/new"
+                  href="/admin/news-panel"
+                  className="flex items-center gap-3 p-4 bg-sky/10 hover:bg-sky/20 rounded-xl transition-colors group"
+                >
+                  <div className="w-12 h-12 bg-sky rounded-xl flex items-center justify-center">
+                    <Newspaper className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-charcoal group-hover:text-sky transition-colors">News Panel</h3>
+                    <p className="text-sm text-charcoal/60">Manage news briefs</p>
+                  </div>
+                </Link>
+                <Link
+                  href="/admin/photography-panel"
+                  className="flex items-center gap-3 p-4 bg-gold/10 hover:bg-gold/20 rounded-xl transition-colors group"
+                >
+                  <div className="w-12 h-12 bg-gold rounded-xl flex items-center justify-center">
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-charcoal group-hover:text-gold transition-colors">Photography Panel</h3>
+                    <p className="text-sm text-charcoal/60">Manage portfolio</p>
+                  </div>
+                </Link>
+                <Link
+                  href="/admin/boutique-panel"
                   className="flex items-center gap-3 p-4 bg-sage/10 hover:bg-sage/20 rounded-xl transition-colors group"
                 >
                   <div className="w-12 h-12 bg-sage rounded-xl flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-white" />
+                    <Package className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-sage transition-colors">Add Product</h3>
-                    <p className="text-sm text-charcoal/60">Create a new boutique item</p>
+                    <h3 className="font-semibold text-charcoal group-hover:text-sage transition-colors">Boutique Panel</h3>
+                    <p className="text-sm text-charcoal/60">Manage products</p>
                   </div>
                 </Link>
                 <Link
-                  href="/admin/venues/new"
+                  href="/admin/party-panel"
                   className="flex items-center gap-3 p-4 bg-amber/10 hover:bg-amber/20 rounded-xl transition-colors group"
                 >
                   <div className="w-12 h-12 bg-amber rounded-xl flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-white" />
+                    <MapPin className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-amber transition-colors">Add Venue</h3>
-                    <p className="text-sm text-charcoal/60">Add a new party venue</p>
+                    <h3 className="font-semibold text-charcoal group-hover:text-amber transition-colors">Party Panel</h3>
+                    <p className="text-sm text-charcoal/60">Manage venues</p>
                   </div>
                 </Link>
                 <Link
-                  href="/admin/campaigns/new"
+                  href="/admin/association-panel"
                   className="flex items-center gap-3 p-4 bg-coral/10 hover:bg-coral/20 rounded-xl transition-colors group"
                 >
                   <div className="w-12 h-12 bg-coral rounded-xl flex items-center justify-center">
-                    <Plus className="w-6 h-6 text-white" />
+                    <Heart className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-coral transition-colors">New Campaign</h3>
-                    <p className="text-sm text-charcoal/60">Launch a new cause</p>
+                    <h3 className="font-semibold text-charcoal group-hover:text-coral transition-colors">Association Panel</h3>
+                    <p className="text-sm text-charcoal/60">Manage campaigns</p>
                   </div>
                 </Link>
               </div>

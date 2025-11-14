@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         comparePrice: comparePrice ? parseFloat(comparePrice) : null,
         category,
         isIshkOriginal: isIshkOriginal || false,
-        images: images ? JSON.stringify(images) : JSON.stringify([]),
+        images: images || [],
         inStock: inStock !== undefined ? inStock : true,
         stockCount: stockCount ? parseInt(stockCount) : 0,
         featured: featured || false,
