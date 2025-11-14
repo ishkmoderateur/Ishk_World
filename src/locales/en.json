@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "subtitle": "'išq",
+    "tagline": "Slow living closer to what really matters",
+    "cta": "Begin Your Journey"
+  },
+  "nav": {
+    "home": "Home",
+    "news": "News",
+    "party": "Party",
+    "boutique": "Boutique",
+    "association": "Association",
+    "photography": "Photography"
+  },
+  "services": {
+    "news": {
+      "title": "Ishk World News",
+      "subtitle": "Interactive globe + curated briefs",
+      "description": "Stay informed, not overwhelmed. AI-powered news briefs that respect your time."
+    },
+    "party": {
+      "title": "Ishk Party",
+      "subtitle": "Book party-friendly venues & services",
+      "description": "Celebrate life's moments in beautiful spaces. Curated venues & services."
+    },
+    "boutique": {
+      "title": "Ishk Boutique",
+      "subtitle": "Give, reuse, and support causes",
+      "description": "Conscious choices, curated with care. Sustainable products & Ishk originals."
+    },
+    "association": {
+      "title": "Ishk Association",
+      "subtitle": "Non-profit actions & transparency",
+      "description": "Small actions, big impact. Join a community that cares."
+    },
+    "photography": {
+      "title": "Photography & Editing",
+      "subtitle": "Shoots, edits, retouching",
+      "description": "Let us capture the beauty in your story."
+    }
+  }
+}
+
+
+
+
+
+

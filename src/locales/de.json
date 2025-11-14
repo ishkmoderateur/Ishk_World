@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "subtitle": "'išq",
+    "tagline": "Langsames Leben näher an dem, was wirklich wichtig ist",
+    "cta": "Beginne Deine Reise"
+  },
+  "nav": {
+    "home": "Startseite",
+    "news": "Nachrichten",
+    "party": "Feier",
+    "boutique": "Boutique",
+    "association": "Verein",
+    "photography": "Fotografie"
+  },
+  "services": {
+    "news": {
+      "title": "Ishk Weltnachrichten",
+      "subtitle": "Interaktiver Globus + kuratierte Zusammenfassungen",
+      "description": "Bleiben Sie informiert, ohne überwältigt zu werden. KI-gestützte Nachrichtenzusammenfassungen, die Ihre Zeit respektieren."
+    },
+    "party": {
+      "title": "Ishk Feier",
+      "subtitle": "Buchen Sie feierfreundliche Orte und Dienstleistungen",
+      "description": "Feiern Sie die Momente des Lebens in schönen Räumen. Kuratierte Orte und Dienstleistungen."
+    },
+    "boutique": {
+      "title": "Ishk Boutique",
+      "subtitle": "Geben, wiederverwenden und Ursachen unterstützen",
+      "description": "Bewusste Entscheidungen, mit Sorgfalt kuratiert. Nachhaltige Produkte und Ishk-Originale."
+    },
+    "association": {
+      "title": "Ishk Verein",
+      "subtitle": "Gemeinnützige Aktionen und Transparenz",
+      "description": "Kleine Aktionen, große Wirkung. Treten Sie einer Gemeinschaft bei, die sich kümmert."
+    },
+    "photography": {
+      "title": "Fotografie und Bearbeitung",
+      "subtitle": "Aufnahmen, Bearbeitungen, Retuschen",
+      "description": "Lassen Sie uns die Schönheit Ihrer Geschichte einfangen."
+    }
+  }
+}
+
+
+
+
+
+

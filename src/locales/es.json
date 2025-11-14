@@ -1,0 +1,48 @@
+{
+  "hero": {
+    "subtitle": "'išq",
+    "tagline": "Vida lenta más cerca de lo que realmente importa",
+    "cta": "Comienza Tu Viaje"
+  },
+  "nav": {
+    "home": "Inicio",
+    "news": "Noticias",
+    "party": "Fiesta",
+    "boutique": "Boutique",
+    "association": "Asociación",
+    "photography": "Fotografía"
+  },
+  "services": {
+    "news": {
+      "title": "Ishk Noticias Mundiales",
+      "subtitle": "Globo interactivo + resúmenes seleccionados",
+      "description": "Mantente informado, sin abrumarte. Resúmenes de noticias con IA que respetan tu tiempo."
+    },
+    "party": {
+      "title": "Ishk Fiesta",
+      "subtitle": "Reserva lugares y servicios para fiestas",
+      "description": "Celebra los momentos de la vida en hermosos espacios. Lugares y servicios seleccionados."
+    },
+    "boutique": {
+      "title": "Boutique Ishk",
+      "subtitle": "Da, reutiliza y apoya causas",
+      "description": "Elecciones conscientes, seleccionadas con cuidado. Productos sostenibles e originales Ishk."
+    },
+    "association": {
+      "title": "Asociación Ishk",
+      "subtitle": "Acciones sin ánimo de lucro y transparencia",
+      "description": "Pequeñas acciones, gran impacto. Únete a una comunidad que se preocupa."
+    },
+    "photography": {
+      "title": "Fotografía y Edición",
+      "subtitle": "Sesiones, ediciones, retoques",
+      "description": "Déjanos capturar la belleza de tu historia."
+    }
+  }
+}
+
+
+
+
+
+

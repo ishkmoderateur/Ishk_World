@@ -1,0 +1,306 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Authentication & Profile
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  phone         String?
+  password      String?   // For credentials login
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+  inquiries     VenueInquiry[]
+  donations     Donation[]
+  
+  @@map("users")
+}
+
+// NextAuth Account Model
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// NextAuth Session Model
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// NextAuth Verification Token
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Products (Boutique)
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String    @db.Text
+  price       Float
+  comparePrice Float?   // Original price for discounts
+  category    String
+  isIshkOriginal Boolean @default(false)
+  images      String[]  // Array of image URLs
+  inStock     Boolean   @default(true)
+  stockCount  Int       @default(0)
+  rating      Float     @default(0)
+  reviewCount Int       @default(0)
+  badge       String?   // "Bestseller", "New", etc.
+  featured    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+  wishlistItems WishlistItem[]
+  
+  @@map("products")
+}
+
+// Shopping Cart Items
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  size      String?
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, productId, size, color])
+  @@map("cart_items")
+}
+
+// Orders
+model Order {
+  id              String      @id @default(cuid())
+  userId          String
+  orderNumber     String      @unique
+  status          OrderStatus @default(PENDING)
+  total           Float
+  subtotal        Float
+  shipping        Float
+  tax             Float       @default(0)
+  shippingAddress Json        // Full address object
+  billingAddress  Json
+  paymentMethod   String?
+  paymentIntentId String?     // Stripe payment intent ID
+  trackingNumber  String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Relations
+  user       User       @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
+  
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// Order Items
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float    // Price at time of order
+  size      String?
+  color     String?
+  
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@map("order_items")
+}
+
+// Wishlist
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+// Venues (Party Service)
+model Venue {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  location    String
+  city        String
+  country     String
+  address     String
+  capacity    String   // "30-50 guests"
+  minCapacity Int
+  maxCapacity Int
+  price       Float    // Starting price
+  currency    String   @default("EUR")
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  images      String[] // Array of image URLs
+  features    String[] // ["Garden", "Terrace", "Parking"]
+  amenities   Json?    // Detailed amenities object
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  inquiries VenueInquiry[]
+  
+  @@map("venues")
+}
+
+// Venue Inquiries (Lead Generation)
+model VenueInquiry {
+  id          String            @id @default(cuid())
+  userId      String?
+  venueId     String
+  name        String
+  email       String
+  phone       String?
+  eventDate   DateTime
+  guestCount  Int
+  message     String?           @db.Text
+  status      InquiryStatus    @default(NEW)
+  respondedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  // Relations
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  venue Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  
+  @@map("venue_inquiries")
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  QUOTED
+  BOOKED
+  DECLINED
+}
+
+// Campaigns (Association)
+model Campaign {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  category    String   // "Environment", "Community", "Education", "Wildlife"
+  goal        Float
+  raised      Float    @default(0)
+  image       String?
+  impact      String?  // "🌳 7,500 trees planted"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  donations Donation[]
+  
+  @@map("campaigns")
+}
+
+// Donations
+model Donation {
+  id            String   @id @default(cuid())
+  userId        String?
+  campaignId    String
+  amount        Float
+  currency      String   @default("EUR")
+  paymentIntentId String? // Stripe payment intent ID
+  anonymous     Boolean  @default(false)
+  message       String?  @db.Text
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  campaign Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@map("donations")
+}
+
+// News Briefs (optional - for saving user preferences)
+model NewsBrief {
+  id        String   @id @default(cuid())
+  userId    String?
+  title     String
+  summary   String   @db.Text
+  region    String
+  topics    String[]
+  sourceUrl String?
+  savedAt   DateTime @default(now())
+  
+  @@map("news_briefs")
+}
