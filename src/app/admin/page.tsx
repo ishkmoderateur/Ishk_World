@@ -18,6 +18,8 @@ import {
   Trash2,
   Eye,
   Camera,
+  MessageSquare,
+  Newspaper,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -44,7 +46,7 @@ export default function AdminDashboard() {
     pendingInquiries: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users" | "inquiries" | "donations" | "news">("overview");
 
   useEffect(() => {
     fetchStats();
@@ -170,6 +172,9 @@ export default function AdminDashboard() {
               { id: "campaigns", label: "Campaigns", icon: Heart },
               { id: "orders", label: "Orders", icon: ShoppingBag },
               { id: "users", label: "Users", icon: Users },
+              { id: "inquiries", label: "Inquiries", icon: MessageSquare },
+              { id: "donations", label: "Donations", icon: DollarSign },
+              { id: "news", label: "News", icon: Newspaper },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -333,6 +338,39 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Users Management</h2>
             <UsersManager />
+          </div>
+        )}
+
+        {/* Inquiries Tab */}
+        {activeTab === "inquiries" && (
+          <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Venue Inquiries</h2>
+            <InquiriesManager />
+          </div>
+        )}
+
+        {/* Donations Tab */}
+        {activeTab === "donations" && (
+          <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Donations Management</h2>
+            <DonationsManager />
+          </div>
+        )}
+
+        {/* News Tab */}
+        {activeTab === "news" && (
+          <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-charcoal">News Briefs</h2>
+              <button
+                onClick={() => {/* TODO: Add news brief modal */}}
+                className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Add News Brief
+              </button>
+            </div>
+            <NewsManager />
           </div>
         )}
       </div>
@@ -740,6 +778,291 @@ function UsersManager() {
                       <Eye className="w-4 h-4" />
                     </button>
                     <button className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Inquiries Manager Component
+function InquiriesManager() {
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchInquiries();
+  }, []);
+
+  const fetchInquiries = async () => {
+    try {
+      const response = await fetch("/api/admin/inquiries");
+      if (response.ok) {
+        const data = await response.json();
+        setInquiries(data);
+      }
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (id: string, status: string) => {
+    try {
+      const response = await fetch("/api/admin/inquiries", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      if (response.ok) {
+        fetchInquiries();
+      }
+    } catch (error) {
+      console.error("Error updating inquiry:", error);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-12 text-charcoal/60">Loading inquiries...</div>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-sage/10">
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Venue</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Contact</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Event Date</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Guests</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Status</th>
+            <th className="text-right py-3 px-4 font-semibold text-charcoal">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {inquiries.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center py-12 text-charcoal/60">
+                No inquiries found.
+              </td>
+            </tr>
+          ) : (
+            inquiries.map((inquiry) => (
+              <tr key={inquiry.id} className="border-b border-sage/5 hover:bg-sage/5 transition-colors">
+                <td className="py-4 px-4 font-medium text-charcoal">{inquiry.venue?.name || "N/A"}</td>
+                <td className="py-4 px-4 text-charcoal/70">
+                  <div>{inquiry.name}</div>
+                  <div className="text-sm text-charcoal/50">{inquiry.email}</div>
+                </td>
+                <td className="py-4 px-4 text-charcoal/70">
+                  {new Date(inquiry.eventDate).toLocaleDateString()}
+                </td>
+                <td className="py-4 px-4 text-charcoal">{inquiry.guestCount}</td>
+                <td className="py-4 px-4">
+                  <select
+                    value={inquiry.status}
+                    onChange={(e) => updateStatus(inquiry.id, e.target.value)}
+                    className="px-3 py-1 rounded-lg border border-sage/20 text-sm focus:outline-none focus:ring-2 focus:ring-sage"
+                  >
+                    <option value="NEW">New</option>
+                    <option value="CONTACTED">Contacted</option>
+                    <option value="QUOTED">Quoted</option>
+                    <option value="BOOKED">Booked</option>
+                    <option value="DECLINED">Declined</option>
+                  </select>
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <button className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Donations Manager Component
+function DonationsManager() {
+  const [donations, setDonations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDonations();
+  }, []);
+
+  const fetchDonations = async () => {
+    try {
+      const response = await fetch("/api/admin/donations");
+      if (response.ok) {
+        const data = await response.json();
+        setDonations(data);
+      }
+    } catch (error) {
+      console.error("Error fetching donations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-12 text-charcoal/60">Loading donations...</div>;
+  }
+
+  const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-sage/10 rounded-xl p-6">
+        <div className="text-sm text-charcoal/60 mb-1">Total Donations</div>
+        <div className="text-3xl font-bold text-charcoal">€{totalAmount.toFixed(2)}</div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-sage/10">
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Campaign</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Donor</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Amount</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Date</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Anonymous</th>
+            </tr>
+          </thead>
+          <tbody>
+            {donations.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="text-center py-12 text-charcoal/60">
+                  No donations found.
+                </td>
+              </tr>
+            ) : (
+              donations.map((donation) => (
+                <tr key={donation.id} className="border-b border-sage/5 hover:bg-sage/5 transition-colors">
+                  <td className="py-4 px-4 font-medium text-charcoal">{donation.campaign?.title || "N/A"}</td>
+                  <td className="py-4 px-4 text-charcoal/70">
+                    {donation.anonymous ? "Anonymous" : donation.user?.name || donation.user?.email || "Guest"}
+                  </td>
+                  <td className="py-4 px-4 font-semibold text-charcoal">€{donation.amount.toFixed(2)}</td>
+                  <td className="py-4 px-4 text-charcoal/70">
+                    {new Date(donation.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="py-4 px-4">
+                    {donation.anonymous ? (
+                      <span className="px-2 py-1 bg-sage/20 text-sage rounded-lg text-xs">Yes</span>
+                    ) : (
+                      <span className="text-charcoal/40 text-xs">No</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// News Manager Component
+function NewsManager() {
+  const [newsBriefs, setNewsBriefs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    try {
+      const response = await fetch("/api/admin/news");
+      if (response.ok) {
+        const data = await response.json();
+        setNewsBriefs(data);
+      }
+    } catch (error) {
+      console.error("Error fetching news briefs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteNews = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this news brief?")) return;
+    try {
+      const response = await fetch(`/api/admin/news?id=${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchNews();
+      }
+    } catch (error) {
+      console.error("Error deleting news brief:", error);
+    }
+  };
+
+  if (loading) {
+    return <div className="text-center py-12 text-charcoal/60">Loading news briefs...</div>;
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-sage/10">
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Title</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Region</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Topics</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Saved By</th>
+            <th className="text-left py-3 px-4 font-semibold text-charcoal">Date</th>
+            <th className="text-right py-3 px-4 font-semibold text-charcoal">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {newsBriefs.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="text-center py-12 text-charcoal/60">
+                No news briefs found.
+              </td>
+            </tr>
+          ) : (
+            newsBriefs.map((brief) => (
+              <tr key={brief.id} className="border-b border-sage/5 hover:bg-sage/5 transition-colors">
+                <td className="py-4 px-4 font-medium text-charcoal">{brief.title}</td>
+                <td className="py-4 px-4 text-charcoal/70">{brief.region}</td>
+                <td className="py-4 px-4 text-charcoal/70">
+                  <div className="flex flex-wrap gap-1">
+                    {Array.isArray(brief.topics) && brief.topics.slice(0, 3).map((topic: string, i: number) => (
+                      <span key={i} className="px-2 py-1 bg-sage/20 text-sage rounded-lg text-xs">
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td className="py-4 px-4 text-charcoal/70">{brief.user?.name || brief.user?.email || "Guest"}</td>
+                <td className="py-4 px-4 text-charcoal/70">
+                  {new Date(brief.savedAt).toLocaleDateString()}
+                </td>
+                <td className="py-4 px-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <button className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteNews(brief.id)}
+                      className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
