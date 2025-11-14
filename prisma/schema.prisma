@@ -42,12 +42,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -82,12 +82,12 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   slug        String    @unique
-  description String    @db.Text
+  description String
   price       Float
   comparePrice Float?   // Original price for discounts
   category    String
   isIshkOriginal Boolean @default(false)
-  images      String[]  // Array of image URLs
+  images      Json      // Array of image URLs (stored as JSON)
   inStock     Boolean   @default(true)
   stockCount  Int       @default(0)
   rating      Float     @default(0)
@@ -207,8 +207,8 @@ model Venue {
   currency    String   @default("EUR")
   rating      Float    @default(0)
   reviewCount Int      @default(0)
-  images      String[] // Array of image URLs
-  features    String[] // ["Garden", "Terrace", "Parking"]
+  images      Json     // Array of image URLs (stored as JSON)
+  features    Json     // ["Garden", "Terrace", "Parking"] (stored as JSON)
   amenities   Json?    // Detailed amenities object
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -230,7 +230,7 @@ model VenueInquiry {
   phone       String?
   eventDate   DateTime
   guestCount  Int
-  message     String?           @db.Text
+  message     String?
   status      InquiryStatus    @default(NEW)
   respondedAt DateTime?
   createdAt   DateTime         @default(now())
@@ -296,9 +296,9 @@ model NewsBrief {
   id        String   @id @default(cuid())
   userId    String?
   title     String
-  summary   String   @db.Text
+  summary   String
   region    String
-  topics    String[]
+  topics    Json     // Array of topics (stored as JSON)
   sourceUrl String?
   savedAt   DateTime @default(now())
   
