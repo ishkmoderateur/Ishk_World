@@ -195,7 +195,7 @@ model Venue {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
-  description String   @db.Text
+  description String
   location    String
   city        String
   country     String
@@ -256,7 +256,7 @@ model Campaign {
   id          String   @id @default(cuid())
   title       String
   slug        String   @unique
-  description String   @db.Text
+  description String
   category    String   // "Environment", "Community", "Education", "Wildlife"
   goal        Float
   raised      Float    @default(0)
@@ -281,7 +281,7 @@ model Donation {
   currency      String   @default("EUR")
   paymentIntentId String? // Stripe payment intent ID
   anonymous     Boolean  @default(false)
-  message       String?  @db.Text
+  message       String?
   createdAt     DateTime @default(now())
   
   // Relations
