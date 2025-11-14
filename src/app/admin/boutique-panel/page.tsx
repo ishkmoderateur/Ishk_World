@@ -202,6 +202,16 @@ export default function BoutiquePanel() {
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
               {editing ? "Edit Product" : "Create Product"}
             </h2>
+            {error && (
+              <div className="mb-4 p-4 bg-coral/10 border border-coral/20 rounded-xl text-coral">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="mb-4 p-4 bg-sage/10 border border-sage/20 rounded-xl text-sage">
+                {success}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
