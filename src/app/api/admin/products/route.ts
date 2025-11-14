@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       images,
       inStock,
       stockCount,
+      badge,
       featured,
     } = body;
 
@@ -59,6 +60,7 @@ export async function POST(request: NextRequest) {
         images: images || [],
         inStock: inStock !== undefined ? inStock : true,
         stockCount: stockCount ? parseInt(stockCount) : 0,
+        badge: badge || null,
         featured: featured || false,
       },
     });

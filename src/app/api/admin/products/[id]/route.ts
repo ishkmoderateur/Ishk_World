@@ -47,6 +47,7 @@ export async function PUT(
       images,
       inStock,
       stockCount,
+      badge,
       featured,
     } = body;
 
@@ -58,9 +59,10 @@ export async function PUT(
     if (comparePrice !== undefined) updateData.comparePrice = comparePrice ? parseFloat(comparePrice) : null;
     if (category) updateData.category = category;
     if (isIshkOriginal !== undefined) updateData.isIshkOriginal = isIshkOriginal;
-    if (images) updateData.images = images;
+    if (images !== undefined) updateData.images = images;
     if (inStock !== undefined) updateData.inStock = inStock;
     if (stockCount !== undefined) updateData.stockCount = parseInt(stockCount);
+    if (badge !== undefined) updateData.badge = badge || null;
     if (featured !== undefined) updateData.featured = featured;
 
     const product = await prisma.product.update({

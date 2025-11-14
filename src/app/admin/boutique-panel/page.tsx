@@ -10,6 +10,8 @@ export default function BoutiquePanel() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<any>(null);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -45,6 +47,8 @@ export default function BoutiquePanel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
     try {
       const url = editing
         ? `/api/admin/products/${editing.id}`
@@ -66,11 +70,19 @@ export default function BoutiquePanel() {
       });
 
       if (response.ok) {
+        setSuccess(editing ? "Product updated successfully!" : "Product created successfully!");
         fetchProducts();
-        resetForm();
+        setTimeout(() => {
+          resetForm();
+          setSuccess("");
+        }, 2000);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to save product");
       }
     } catch (error) {
       console.error("Error saving product:", error);
+      setError("An error occurred while saving the product");
     }
   };
 
