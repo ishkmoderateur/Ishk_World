@@ -3,75 +3,96 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { PartyPopper, MapPin, Star, Users, Calendar, Mail, Phone, ArrowRight, Search, Filter } from "lucide-react";
+import { PartyPopper, Music, UtensilsCrossed, Wine, Sparkles, Calendar, Mail, Phone, ArrowRight, Search, Filter, Headphones, Star } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function PartyPage() {
-  const venues = [
+  const { t } = useLanguage();
+  
+  const services = [
     {
       id: 1,
-      name: "Villa Sunset",
-      location: "Paris, France",
-      rating: 4.8,
-      reviews: 127,
-      capacity: "30-50 guests",
-      price: "From €500",
+      name: t("party.services.dj.name"),
+      description: t("party.services.dj.description"),
+      rating: 4.9,
+      reviews: 203,
+      price: `${t("party.from")} €300`,
       image: "bg-gradient-to-br from-amber/20 to-coral/20",
-      features: ["Garden", "Terrace", "Parking"],
+      features: [
+        t("party.services.dj.features.soundSystem"),
+        t("party.services.dj.features.lighting"),
+        t("party.services.dj.features.playlistCreation")
+      ],
     },
     {
       id: 2,
-      name: "Garden Pavilion",
-      location: "Barcelona, Spain",
-      rating: 4.9,
-      reviews: 89,
-      capacity: "50-100 guests",
-      price: "From €800",
+      name: t("party.services.bartending.name"),
+      description: t("party.services.bartending.description"),
+      rating: 4.8,
+      reviews: 156,
+      price: `${t("party.from")} €250`,
       image: "bg-gradient-to-br from-amber/20 to-gold/20",
-      features: ["Outdoor", "Catering", "Music"],
+      features: [
+        t("party.services.bartending.features.cocktailMenu"),
+        t("party.services.bartending.features.barSetup"),
+        t("party.services.bartending.features.staffIncluded")
+      ],
     },
     {
       id: 3,
-      name: "Riverside Loft",
-      location: "Amsterdam, Netherlands",
-      rating: 4.7,
-      reviews: 156,
-      capacity: "20-40 guests",
-      price: "From €600",
+      name: t("party.services.catering.name"),
+      description: t("party.services.catering.description"),
+      rating: 4.9,
+      reviews: 289,
+      price: `${t("party.from")} €500`,
       image: "bg-gradient-to-br from-coral/20 to-amber/20",
-      features: ["Waterfront", "Modern", "Sound System"],
+      features: [
+        t("party.services.catering.features.customMenu"),
+        t("party.services.catering.features.dietaryOptions"),
+        t("party.services.catering.features.setupCleanup")
+      ],
     },
     {
       id: 4,
-      name: "Historic Manor",
-      location: "London, UK",
+      name: t("party.services.planning.name"),
+      description: t("party.services.planning.description"),
       rating: 4.9,
-      reviews: 203,
-      capacity: "100-200 guests",
-      price: "From €1,200",
+      reviews: 127,
+      price: `${t("party.from")} €800`,
       image: "bg-gradient-to-br from-gold/20 to-amber/20",
-      features: ["Historic", "Elegant", "Full Service"],
+      features: [
+        t("party.services.planning.features.coordination"),
+        t("party.services.planning.features.timelineManagement"),
+        t("party.services.planning.features.vendorLiaison")
+      ],
     },
     {
       id: 5,
-      name: "Beach House",
-      location: "Nice, France",
-      rating: 4.8,
+      name: t("party.services.lighting.name"),
+      description: t("party.services.lighting.description"),
+      rating: 4.7,
       reviews: 94,
-      capacity: "40-80 guests",
-      price: "From €900",
+      price: `${t("party.from")} €350`,
       image: "bg-gradient-to-br from-sky/20 to-amber/20",
-      features: ["Beachfront", "Outdoor", "Bar"],
+      features: [
+        t("party.services.lighting.features.soundSystem"),
+        t("party.services.lighting.features.lightingDesign"),
+        t("party.services.lighting.features.technicalSupport")
+      ],
     },
     {
       id: 6,
-      name: "Urban Rooftop",
-      location: "Berlin, Germany",
-      rating: 4.6,
-      reviews: 78,
-      capacity: "30-60 guests",
-      price: "From €700",
+      name: t("party.services.decoration.name"),
+      description: t("party.services.decoration.description"),
+      rating: 4.8,
+      reviews: 178,
+      price: `${t("party.from")} €200`,
       image: "bg-gradient-to-br from-coral/20 to-gold/20",
-      features: ["City View", "Modern", "DJ Setup"],
+      features: [
+        t("party.services.decoration.features.themeDesign"),
+        t("party.services.decoration.features.floralArrangements"),
+        t("party.services.decoration.features.setupRemoval")
+      ],
     },
   ];
 
@@ -92,17 +113,17 @@ export default function PartyPage() {
               <PartyPopper className="w-12 h-12 text-amber" />
             </div>
             <h1 className="text-5xl md:text-6xl font-heading font-bold text-charcoal mb-6">
-              Where Memories Are Made
+              {t("party.hero.title")}
             </h1>
             <p className="text-xl md:text-2xl text-charcoal/70 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Find the perfect space for life's most beautiful moments. Curated venues & services.
+              {t("party.hero.description")}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors flex items-center gap-2 mx-auto"
             >
-              Start Your Search
+              {t("party.hero.startSearch")}
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>
@@ -148,19 +169,19 @@ export default function PartyPage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal/40" />
               <input
                 type="text"
-                placeholder="Search venues, locations..."
+                placeholder={t("party.search.placeholder")}
                 className="w-full pl-12 pr-4 py-3 rounded-full border border-amber/20 bg-white focus:outline-none focus:ring-2 focus:ring-amber/50"
               />
             </div>
             <button className="px-6 py-3 rounded-full border border-amber/20 bg-white hover:bg-amber/5 transition-colors flex items-center gap-2 text-charcoal">
               <Filter className="w-5 h-5" />
-              Filters
+              {t("party.search.filter")}
             </button>
           </div>
         </div>
       </section>
 
-      {/* Venues Grid */}
+      {/* Services Grid */}
       <section className="py-16 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
@@ -171,79 +192,91 @@ export default function PartyPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Curated Venues
+              {t("party.sectionTitle")}
             </h2>
             <p className="text-charcoal/60 text-lg">
-              Beautiful spaces for your special moments
+              {t("party.sectionDescription")}
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {venues.map((venue, index) => (
-              <motion.div
-                key={venue.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all cursor-pointer border border-amber/10"
-              >
-                {/* Image Placeholder */}
-                <div className={`h-48 ${venue.image} relative`}>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <PartyPopper className="w-16 h-16 text-white/30" />
-                  </div>
-                </div>
+            {services.map((service, index) => {
+              const getIcon = () => {
+                switch(service.id) {
+                  case 1: return <Music className="w-16 h-16 text-white/30" />;
+                  case 2: return <Wine className="w-16 h-16 text-white/30" />;
+                  case 3: return <UtensilsCrossed className="w-16 h-16 text-white/30" />;
+                  case 4: return <Sparkles className="w-16 h-16 text-white/30" />;
+                  case 5: return <Headphones className="w-16 h-16 text-white/30" />;
+                  case 6: return <Sparkles className="w-16 h-16 text-white/30" />;
+                  default: return <PartyPopper className="w-16 h-16 text-white/30" />;
+                }
+              };
 
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-2xl font-heading font-bold text-charcoal">
-                      {venue.name}
-                    </h3>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-amber fill-amber" />
-                      <span className="text-sm font-medium text-charcoal">
-                        {venue.rating}
-                      </span>
+              return (
+                <motion.div
+                  key={service.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all cursor-pointer border border-amber/10"
+                >
+                  {/* Image Placeholder */}
+                  <div className={`h-48 ${service.image} relative`}>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {getIcon()}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 text-charcoal/60 mb-4">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm">{venue.location}</span>
-                  </div>
-
-                  <div className="flex items-center gap-4 mb-4 text-sm text-charcoal/60">
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {venue.capacity}
+                  {/* Content */}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="text-2xl font-heading font-bold text-charcoal">
+                        {service.name}
+                      </h3>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-amber fill-amber" />
+                        <span className="text-sm font-medium text-charcoal">
+                          {service.rating}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-amber font-semibold">{venue.price}</div>
-                  </div>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {venue.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="text-xs text-charcoal/60 bg-amber/10 px-2 py-1 rounded"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
+                    <p className="text-charcoal/60 mb-4 text-sm">
+                      {service.description}
+                    </p>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors"
-                  >
-                    Get Quote
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
+                    <div className="flex items-center gap-4 mb-4 text-sm text-charcoal/60">
+                      <div className="flex items-center gap-1">
+                        <span>{service.reviews} {t("party.reviews")}</span>
+                      </div>
+                      <div className="text-amber font-semibold">{service.price}</div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {service.features.map((feature) => (
+                        <span
+                          key={feature}
+                          className="text-xs text-charcoal/60 bg-amber/10 px-2 py-1 rounded"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-3 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors"
+                    >
+                      {t("party.getQuote")}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -262,10 +295,10 @@ export default function PartyPage() {
               <Mail className="w-8 h-8 text-amber" />
             </div>
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Let's Plan Your Event
+              {t("party.inquiry.title")}
             </h2>
             <p className="text-charcoal/60 text-lg">
-              Tell us about your celebration and we'll find the perfect venue
+              {t("party.inquiry.description")}
             </p>
           </motion.div>
 
@@ -280,7 +313,7 @@ export default function PartyPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Your Name
+                    {t("party.inquiry.name")}
                   </label>
                   <input
                     type="text"
@@ -290,7 +323,7 @@ export default function PartyPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Email Address
+                    {t("party.inquiry.email")}
                   </label>
                   <input
                     type="email"
@@ -302,7 +335,7 @@ export default function PartyPage() {
 
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Phone Number
+                  {t("party.inquiry.phone")}
                 </label>
                 <input
                   type="tel"
@@ -314,7 +347,7 @@ export default function PartyPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Event Date
+                    {t("party.inquiry.eventDate")}
                   </label>
                   <input
                     type="date"
@@ -323,7 +356,7 @@ export default function PartyPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Number of Guests
+                    {t("party.inquiry.guests")}
                   </label>
                   <input
                     type="number"
@@ -335,12 +368,12 @@ export default function PartyPage() {
 
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Tell us about your event
+                  {t("party.inquiry.message")}
                 </label>
                 <textarea
                   rows={4}
                   className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
-                  placeholder="What kind of event are you planning? Any special requirements?"
+                  placeholder={t("party.inquiry.messagePlaceholder")}
                 />
               </div>
 
@@ -350,11 +383,11 @@ export default function PartyPage() {
                 type="submit"
                 className="w-full py-4 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors"
               >
-                Send Inquiry
+                {t("party.inquiry.submit")}
               </motion.button>
 
               <p className="text-center text-sm text-charcoal/60">
-                We'll respond within 2 hours during business hours
+                {t("party.inquiry.responseTime")}
               </p>
             </form>
           </motion.div>
@@ -376,10 +409,10 @@ export default function PartyPage() {
                 <Calendar className="w-8 h-8 text-amber" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Easy Booking
+                {t("party.features.easyBooking.title")}
               </h3>
               <p className="text-charcoal/60">
-                Simple inquiry process, personalized service, and quick responses
+                {t("party.features.easyBooking.description")}
               </p>
             </motion.div>
             <motion.div
@@ -393,10 +426,10 @@ export default function PartyPage() {
                 <Star className="w-8 h-8 text-amber" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Curated Selection
+                {t("party.features.curatedSelection.title")}
               </h3>
               <p className="text-charcoal/60">
-                Only the most beautiful, well-maintained venues make our list
+                {t("party.features.curatedSelection.description")}
               </p>
             </motion.div>
             <motion.div
@@ -410,10 +443,10 @@ export default function PartyPage() {
                 <Phone className="w-8 h-8 text-amber" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Personal Service
+                {t("party.features.personalService.title")}
               </h3>
               <p className="text-charcoal/60">
-                Direct communication with venue owners for the best experience
+                {t("party.features.personalService.description")}
               </p>
             </motion.div>
           </div>

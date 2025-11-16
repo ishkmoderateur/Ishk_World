@@ -2,35 +2,38 @@
 
 import Link from "next/link";
 import { Instagram, Facebook, Twitter, Mail, Heart } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function Footer() {
+  const { t } = useLanguage();
+  
   const footerLinks = {
     services: [
-      { href: "/news", label: "World News" },
-      { href: "/party", label: "Party" },
-      { href: "/boutique", label: "Boutique" },
-      { href: "/association", label: "Association" },
-      { href: "/photography", label: "Photography" },
+      { href: "/news", label: t("footer.links.worldNews") },
+      { href: "/party", label: t("footer.links.party") },
+      { href: "/boutique", label: t("footer.links.boutique") },
+      { href: "/association", label: t("footer.links.association") },
+      { href: "/photography", label: t("footer.links.photography") },
     ],
     company: [
-      { href: "/about", label: "About Us" },
-      { href: "/philosophy", label: "Philosophy" },
-      { href: "/contact", label: "Contact" },
-      { href: "/careers", label: "Careers" },
+      { href: "/about", label: t("footer.links.aboutUs") },
+      { href: "/philosophy", label: t("footer.links.philosophy") },
+      { href: "/contact", label: t("footer.links.contact") },
+      { href: "/careers", label: t("footer.links.careers") },
     ],
     legal: [
-      { href: "/privacy", label: "Privacy Policy" },
-      { href: "/terms", label: "Terms of Service" },
-      { href: "/shipping", label: "Shipping Info" },
-      { href: "/returns", label: "Returns" },
+      { href: "/privacy", label: t("footer.links.privacyPolicy") },
+      { href: "/terms", label: t("footer.links.termsOfService") },
+      { href: "/shipping", label: t("footer.links.shippingInfo") },
+      { href: "/returns", label: t("footer.links.returns") },
     ],
   };
 
   const socialLinks = [
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Mail, href: "mailto:hello@ishk.com", label: "Email" },
+    { icon: Instagram, href: "#", label: t("footer.social.instagram") },
+    { icon: Facebook, href: "#", label: t("footer.social.facebook") },
+    { icon: Twitter, href: "#", label: t("footer.social.twitter") },
+    { icon: Mail, href: "mailto:hello@ishk.com", label: t("footer.social.email") },
   ];
 
   return (
@@ -41,8 +44,7 @@ export default function Footer() {
           <div className="lg:col-span-2">
             <h3 className="text-3xl font-display font-bold mb-4">ishk.</h3>
             <p className="text-white/70 mb-6 leading-relaxed">
-              Slow living closer to what really matters. Join us in creating a
-              more conscious, connected, and meaningful way of life.
+              {t("footer.tagline")}
             </p>
             <div className="flex gap-4">
               {socialLinks.map((social) => {
@@ -63,7 +65,7 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="font-heading font-semibold mb-4">Services</h4>
+            <h4 className="font-heading font-semibold mb-4">{t("footer.services")}</h4>
             <ul className="space-y-2">
               {footerLinks.services.map((link) => (
                 <li key={link.href}>
@@ -80,7 +82,7 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="font-heading font-semibold mb-4">Company</h4>
+            <h4 className="font-heading font-semibold mb-4">{t("footer.company")}</h4>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -97,7 +99,7 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-heading font-semibold mb-4">Legal</h4>
+            <h4 className="font-heading font-semibold mb-4">{t("footer.legal")}</h4>
             <ul className="space-y-2">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
@@ -116,16 +118,19 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-white/60 text-sm">
-            © {new Date().getFullYear()} ishk. All rights reserved.
+            © {new Date().getFullYear()} ishk. {t("footer.copyright")}
           </p>
           <p className="text-white/60 text-sm flex items-center gap-2">
-            Made with <Heart className="w-4 h-4 text-coral" /> for mindful living
+            {t("footer.madeWith")} <Heart className="w-4 h-4 text-coral" /> {t("footer.forMindfulLiving")}
           </p>
         </div>
       </div>
     </footer>
   );
 }
+
+
+
 
 
 

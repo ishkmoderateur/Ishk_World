@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth-server";
+import { requireAdmin } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    // TODO: Add admin authorization check
-    // const session = await getAuthSession();
-    // if (!session?.user || !isAdmin(session.user)) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    // Require admin access
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Admin access required" },
+        { status: 401 }
+      );
+    }
 
     const [products, venues, campaigns, orders, users, donations, inquiries] = await Promise.all([
       prisma.product.count(),
@@ -44,4 +47,7 @@ export async function GET() {
     );
   }
 }
+
+
+
 

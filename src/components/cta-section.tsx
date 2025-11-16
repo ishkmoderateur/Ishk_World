@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function CTASection() {
+  const { t } = useLanguage();
   return (
     <section className="py-24 px-4 md:px-8 bg-gradient-to-br from-sage/20 via-cream to-sand/20">
       <div className="max-w-4xl mx-auto text-center">
@@ -15,11 +17,10 @@ export default function CTASection() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-6">
-            Ready to Begin Your Journey?
+            {t("cta.title")}
           </h2>
           <p className="text-xl text-charcoal/70 mb-8 leading-relaxed">
-            Join thousands of people who have chosen to live more intentionally.
-            Start exploring our services today.
+            {t("cta.description")}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -36,7 +37,7 @@ export default function CTASection() {
                 }}
                 className="group inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Explore Services
+                {t("cta.exploreServices")}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </motion.div>
@@ -49,7 +50,7 @@ export default function CTASection() {
                 href="/boutique"
                 className="inline-flex items-center gap-2 px-8 py-4 bg-white text-charcoal rounded-2xl font-medium text-lg border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 shadow-sm hover:shadow-md"
               >
-                Shop Boutique
+                {t("cta.shopBoutique")}
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
@@ -78,6 +79,9 @@ export default function CTASection() {
     </section>
   );
 }
+
+
+
 
 
 

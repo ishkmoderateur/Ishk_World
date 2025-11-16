@@ -5,133 +5,136 @@ import Image from "next/image";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Camera, Calendar, Star, ArrowRight, Mail, Phone, Image as ImageIcon, Video, Edit } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function PhotographyPage() {
+  const { t } = useLanguage();
+  
   const portfolio = [
     {
       id: 1,
       title: "Moroccan Equestrian Art",
-      category: "Cultural",
+      category: t("photography.categories.cultural"),
       image: "/photography/Moroccan-equestrian-art--tbourida----and-shots-that-stayed-way-too-long-in-my-camera.--yourshotp.jpg",
     },
     {
       id: 2,
       title: "Tbourida Art",
-      category: "Cultural",
+      category: t("photography.categories.cultural"),
       image: "/photography/Moroccan-equestrian-art--tbourida----and-shots-that-stayed-way-too-long-in-my-camera.--yourshotp--1-.jpg",
     },
     {
       id: 3,
       title: "Equestrian Photography",
-      category: "Cultural",
+      category: t("photography.categories.cultural"),
       image: "/photography/Moroccan-equestrian-art--tbourida----and-shots-that-stayed-way-too-long-in-my-camera.--yourshotp--2-.jpg",
     },
     {
       id: 4,
       title: "Sandstorm Aesthetics",
-      category: "Adventure",
+      category: t("photography.categories.adventure"),
       image: "/photography/sandstorm-aesthetics-enduro.jpg",
     },
     {
       id: 5,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_285944640_749473589809454_3150065497059521760_n.jpg",
     },
     {
       id: 6,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_285958631_797175361278497_4156943208252385210_n.jpg",
     },
     {
       id: 7,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_286229915_139955931962559_4114156546180902768_n.jpg",
     },
     {
       id: 8,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_286264897_166436049179832_8576628153007616255_n.jpg",
     },
     {
       id: 9,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_286395359_1010442232943605_1364096570174400269_n.jpg",
     },
     {
       id: 10,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_286596297_347472930853333_5959751300077876313_n.jpg",
     },
     {
       id: 11,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_348482759_1118041429586596_6948911033448556305_n.jpg",
     },
     {
       id: 12,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_348501697_804820757676409_5029574931353129042_n.jpg",
     },
     {
       id: 13,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_348502222_1952458561772876_2037669789508555136_n.jpg",
     },
     {
       id: 14,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_348832367_282667814105577_2350016748184074076_n.jpg",
     },
     {
       id: 15,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_383210293_3378731082437356_2040821813781284353_n.jpg",
     },
     {
       id: 16,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_384121194_1225548718839850_3622562154938087237_n.jpg",
     },
     {
       id: 17,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_384225380_1673584376500810_7947164182321983601_n.jpg",
     },
     {
       id: 18,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_384513449_339403928453340_1402748163538938923_n.jpg",
     },
     {
       id: 19,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_384692195_325629423471897_1987290720100708418_n.jpg",
     },
     {
       id: 20,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_385152302_320581647291316_5138119132852301915_n.jpg",
     },
     {
       id: 21,
       title: "Instagram Story",
-      category: "Social Media",
+      category: t("photography.categories.socialMedia"),
       image: "/photography/SnapInsta.to_434839034_975640473681383_3714742764191781847_n.jpg",
     },
   ];
@@ -139,53 +142,53 @@ export default function PhotographyPage() {
   const services = [
     {
       id: 1,
-      name: "Portrait Session",
+      name: t("photography.services.portrait.name"),
       price: "€300",
-      duration: "2 hours",
+      duration: t("photography.services.portrait.duration"),
       includes: [
-        "Professional photo shoot",
-        "30 edited high-res images",
-        "Online gallery",
-        "Basic retouching",
+        t("photography.services.portrait.includes.shoot"),
+        t("photography.services.portrait.includes.images"),
+        t("photography.services.portrait.includes.gallery"),
+        t("photography.services.portrait.includes.retouching"),
       ],
       icon: Camera,
     },
     {
       id: 2,
-      name: "Event Photography",
+      name: t("photography.services.event.name"),
       price: "€500",
-      duration: "4 hours",
+      duration: t("photography.services.event.duration"),
       includes: [
-        "Full event coverage",
-        "100+ edited images",
-        "Online gallery",
-        "Same-day preview",
+        t("photography.services.event.includes.coverage"),
+        t("photography.services.event.includes.images"),
+        t("photography.services.event.includes.gallery"),
+        t("photography.services.event.includes.preview"),
       ],
       icon: Calendar,
     },
     {
       id: 3,
-      name: "Commercial Shoot",
+      name: t("photography.services.commercial.name"),
       price: "€800",
-      duration: "Full day",
+      duration: t("photography.services.commercial.duration"),
       includes: [
-        "Product/lifestyle photography",
-        "200+ edited images",
-        "Multiple angles",
-        "Brand-ready files",
+        t("photography.services.commercial.includes.shoot"),
+        t("photography.services.commercial.includes.images"),
+        t("photography.services.commercial.includes.angles"),
+        t("photography.services.commercial.includes.files"),
       ],
       icon: ImageIcon,
     },
     {
       id: 4,
-      name: "Wedding Package",
+      name: t("photography.services.wedding.name"),
       price: "€1,200",
-      duration: "Full day",
+      duration: t("photography.services.wedding.duration"),
       includes: [
-        "Ceremony & reception",
-        "300+ edited images",
-        "Engagement session",
-        "Premium album",
+        t("photography.services.wedding.includes.coverage"),
+        t("photography.services.wedding.includes.images"),
+        t("photography.services.wedding.includes.session"),
+        t("photography.services.wedding.includes.album"),
       ],
       icon: Star,
     },
@@ -232,17 +235,17 @@ export default function PhotographyPage() {
               <Camera className="w-12 h-12 text-gold" />
             </div>
             <h1 className="text-5xl md:text-6xl font-heading font-bold text-charcoal mb-6">
-              Let Us Capture the Beauty in Your Story
+              {t("photography.hero.title")}
             </h1>
             <p className="text-xl md:text-2xl text-charcoal/70 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Professional photography services, shoots, edits, and retouching. Every moment deserves to be remembered beautifully.
+              {t("photography.hero.description")}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors flex items-center gap-2 mx-auto"
             >
-              Book a Session
+              {t("photography.hero.bookSession")}
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>
@@ -277,10 +280,10 @@ export default function PhotographyPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Our Portfolio
+              {t("photography.portfolio.title")}
             </h2>
             <p className="text-charcoal/60 text-lg">
-              A glimpse into the stories we've captured
+              {t("photography.portfolio.description")}
             </p>
           </motion.div>
 
@@ -330,10 +333,10 @@ export default function PhotographyPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Our Services
+              {t("photography.services.title")}
             </h2>
             <p className="text-charcoal/60 text-lg">
-              Professional packages tailored to your needs
+              {t("photography.services.description")}
             </p>
           </motion.div>
 
@@ -375,7 +378,7 @@ export default function PhotographyPage() {
                     whileTap={{ scale: 0.98 }}
                     className="w-full py-3 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors"
                   >
-                    Book Now
+                    {t("photography.services.bookNow")}
                   </motion.button>
                 </motion.div>
               );
@@ -395,7 +398,7 @@ export default function PhotographyPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              What Our Clients Say
+              {t("photography.testimonials.title")}
             </h2>
           </motion.div>
 
@@ -448,10 +451,10 @@ export default function PhotographyPage() {
               <Calendar className="w-8 h-8 text-gold" />
             </div>
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Book Your Session
+              {t("photography.booking.title")}
             </h2>
             <p className="text-charcoal/60 text-lg">
-              Let's discuss your vision and create something beautiful together
+              {t("photography.booking.description")}
             </p>
           </motion.div>
 
@@ -466,7 +469,7 @@ export default function PhotographyPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Your Name
+                    {t("photography.booking.name")}
                   </label>
                   <input
                     type="text"
@@ -476,7 +479,7 @@ export default function PhotographyPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Email Address
+                    {t("photography.booking.email")}
                   </label>
                   <input
                     type="email"
@@ -488,7 +491,7 @@ export default function PhotographyPage() {
 
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Phone Number
+                  {t("photography.booking.phone")}
                 </label>
                 <input
                   type="tel"
@@ -500,7 +503,7 @@ export default function PhotographyPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Preferred Date
+                    {t("photography.booking.preferredDate")}
                   </label>
                   <input
                     type="date"
@@ -509,26 +512,26 @@ export default function PhotographyPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Service Type
+                    {t("photography.booking.serviceType")}
                   </label>
                   <select className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50">
-                    <option>Portrait Session</option>
-                    <option>Event Photography</option>
-                    <option>Commercial Shoot</option>
-                    <option>Wedding Package</option>
-                    <option>Other</option>
+                    <option>{t("photography.booking.serviceTypes.portrait")}</option>
+                    <option>{t("photography.booking.serviceTypes.event")}</option>
+                    <option>{t("photography.booking.serviceTypes.commercial")}</option>
+                    <option>{t("photography.booking.serviceTypes.wedding")}</option>
+                    <option>{t("photography.booking.serviceTypes.other")}</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Tell us about your project
+                  {t("photography.booking.message")}
                 </label>
                 <textarea
                   rows={4}
                   className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
-                  placeholder="What kind of photography do you need? Any specific requirements or ideas?"
+                  placeholder={t("photography.booking.messagePlaceholder")}
                 />
               </div>
 
@@ -538,11 +541,11 @@ export default function PhotographyPage() {
                 type="submit"
                 className="w-full py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors"
               >
-                Send Inquiry
+                {t("photography.booking.submit")}
               </motion.button>
 
               <p className="text-center text-sm text-charcoal/60">
-                We'll respond within 24 hours to discuss your project
+                {t("photography.booking.responseTime")}
               </p>
             </form>
           </motion.div>
@@ -564,10 +567,10 @@ export default function PhotographyPage() {
                 <Edit className="w-8 h-8 text-gold" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Professional Editing
+                {t("photography.features.editing.title")}
               </h3>
               <p className="text-charcoal/60">
-                Every image is carefully edited to perfection, ensuring the highest quality results
+                {t("photography.features.editing.description")}
               </p>
             </motion.div>
             <motion.div
@@ -581,10 +584,10 @@ export default function PhotographyPage() {
                 <ImageIcon className="w-8 h-8 text-gold" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                High-Resolution Files
+                {t("photography.features.resolution.title")}
               </h3>
               <p className="text-charcoal/60">
-                Receive all images in high-resolution format, perfect for printing and sharing
+                {t("photography.features.resolution.description")}
               </p>
             </motion.div>
             <motion.div
@@ -598,10 +601,10 @@ export default function PhotographyPage() {
                 <Video className="w-8 h-8 text-gold" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Video Services
+                {t("photography.features.video.title")}
               </h3>
               <p className="text-charcoal/60">
-                We also offer video production services for events, commercials, and more
+                {t("photography.features.video.description")}
               </p>
             </motion.div>
           </div>

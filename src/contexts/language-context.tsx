@@ -58,20 +58,31 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     const keys = key.split(".");
     let value: any = translations[language];
     
+    // Try to get translation from current language
     for (const k of keys) {
       if (value && typeof value === "object" && k in value) {
         value = value[k];
       } else {
-        // Fallback to English if translation not found
-        value = translations.EN;
-        for (const fallbackKey of keys) {
-          if (value && typeof value === "object" && fallbackKey in value) {
-            value = value[fallbackKey];
-          } else {
-            return key; // Return key if translation not found
-          }
-        }
+        value = null;
         break;
+      }
+    }
+    
+    // If translation found and valid, return it
+    if (typeof value === "string" && value.length > 0) {
+      // Check for encoding issues (common corrupted characters)
+      if (!value.includes("Ã") && !value.includes("Å")) {
+        return value;
+      }
+    }
+    
+    // Fallback to English if translation not found or corrupted
+    value = translations.EN;
+    for (const fallbackKey of keys) {
+      if (value && typeof value === "object" && fallbackKey in value) {
+        value = value[fallbackKey];
+      } else {
+        return key; // Return key if translation not found
       }
     }
     

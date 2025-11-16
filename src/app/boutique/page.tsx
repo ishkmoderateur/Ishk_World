@@ -4,14 +4,17 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ShoppingBag, Leaf, Heart, Star, ArrowRight, Filter, Search, ShoppingCart } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function BoutiquePage() {
+  const { t } = useLanguage();
+  
   const categories = [
-    { name: "All Products", icon: ShoppingBag, active: true },
-    { name: "Home & Living", icon: Leaf },
-    { name: "Wellness", icon: Heart },
-    { name: "Books", icon: ShoppingBag },
-    { name: "🌟 Ishk Originals", icon: Star, highlight: true },
+    { name: t("boutique.categories.all"), icon: ShoppingBag, active: true },
+    { name: t("boutique.categories.homeLiving"), icon: Leaf },
+    { name: t("boutique.categories.wellness"), icon: Heart },
+    { name: t("boutique.categories.books"), icon: ShoppingBag },
+    { name: t("boutique.categories.originals"), icon: Star, highlight: true },
   ];
 
   const products = [
@@ -110,17 +113,17 @@ export default function BoutiquePage() {
               <ShoppingBag className="w-12 h-12 text-sage" />
             </div>
             <h1 className="text-5xl md:text-6xl font-heading font-bold text-charcoal mb-6">
-              Curated with Consciousness
+              {t("boutique.hero.title")}
             </h1>
             <p className="text-xl md:text-2xl text-charcoal/70 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Every product tells a story of care, craft, and purpose. Sustainable products & Ishk originals.
+              {t("boutique.hero.description")}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-sage text-white rounded-full font-medium hover:bg-sage/90 transition-colors flex items-center gap-2 mx-auto"
             >
-              Explore Collection
+              {t("boutique.hero.exploreCollection")}
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>
@@ -157,11 +160,11 @@ export default function BoutiquePage() {
             <div className="inline-flex items-center justify-center gap-2 mb-4">
               <Star className="w-8 h-8 text-amber" />
               <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal">
-                Ishk Originals
+                {t("boutique.originals.title")}
               </h2>
             </div>
             <p className="text-charcoal/60 text-lg max-w-2xl mx-auto">
-              Wear your values. Live the philosophy. Premium sustainable merchandise designed with care.
+              {t("boutique.originals.description")}
             </p>
           </motion.div>
 
@@ -179,7 +182,7 @@ export default function BoutiquePage() {
                 <div className={`h-64 ${product.image} relative`}>
                   {product.badge && (
                     <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {product.badge}
+                      {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
                     </div>
                   )}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -216,7 +219,7 @@ export default function BoutiquePage() {
             className="text-center mt-12"
           >
             <button className="px-8 py-3 bg-sage text-white rounded-full font-medium hover:bg-sage/90 transition-colors">
-              View All Ishk Originals
+              {t("boutique.originals.viewAll")}
             </button>
           </motion.div>
         </div>
@@ -230,7 +233,7 @@ export default function BoutiquePage() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-charcoal/40" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={t("boutique.search.placeholder")}
                 className="w-full pl-12 pr-4 py-3 rounded-full border border-sage/20 bg-white focus:outline-none focus:ring-2 focus:ring-sage/50"
               />
             </div>
@@ -270,15 +273,15 @@ export default function BoutiquePage() {
           >
             <div>
               <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-2">
-                All Products
+                {t("boutique.products.title")}
               </h2>
               <p className="text-charcoal/60">
-                {products.length} carefully curated items
+                {products.length} {t("boutique.products.description")}
               </p>
             </div>
             <button className="px-6 py-3 rounded-full border border-sage/20 bg-white hover:bg-sage/5 transition-colors flex items-center gap-2 text-charcoal">
               <Filter className="w-5 h-5" />
-              Sort
+              {t("boutique.search.sort")}
             </button>
           </motion.div>
 
@@ -296,10 +299,10 @@ export default function BoutiquePage() {
                 <div className={`h-64 ${product.image} relative`}>
                   {product.badge && (
                     <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {product.badge}
+                      {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
                     </div>
                   )}
-                  {product.category === "Ishk Originals" && (
+                  {product.category === t("boutique.categories.originals") && (
                     <div className="absolute top-4 right-4 bg-amber/20 backdrop-blur-sm rounded-full px-3 py-1">
                       <Star className="w-4 h-4 text-amber" />
                     </div>
@@ -349,10 +352,10 @@ export default function BoutiquePage() {
                 <Leaf className="w-8 h-8 text-sage" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Sustainable Materials
+                {t("boutique.features.sustainable.title")}
               </h3>
               <p className="text-charcoal/60">
-                Organic, recycled, and ethically sourced materials only
+                {t("boutique.features.sustainable.description")}
               </p>
             </motion.div>
             <motion.div
@@ -366,10 +369,10 @@ export default function BoutiquePage() {
                 <Heart className="w-8 h-8 text-sage" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Ethical Production
+                {t("boutique.features.ethical.title")}
               </h3>
               <p className="text-charcoal/60">
-                Fair wages, safe working conditions, and transparent supply chains
+                {t("boutique.features.ethical.description")}
               </p>
             </motion.div>
             <motion.div
@@ -383,10 +386,10 @@ export default function BoutiquePage() {
                 <ShoppingBag className="w-8 h-8 text-sage" />
               </div>
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Carbon Neutral
+                {t("boutique.features.carbonNeutral.title")}
               </h3>
               <p className="text-charcoal/60">
-                Every order plants a tree. Free shipping over €75
+                {t("boutique.features.carbonNeutral.description")}
               </p>
             </motion.div>
           </div>

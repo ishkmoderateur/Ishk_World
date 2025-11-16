@@ -1,48 +1,494 @@
 {
   "hero": {
     "subtitle": "'išq",
-    "tagline": "Vida lenta más cerca de lo que realmente importa",
-    "cta": "Comienza Tu Viaje"
+    "tagline": "Vivir despacio, más cerca de lo que realmente importa",
+    "cta": "Comienza tu viaje"
   },
   "nav": {
-    "home": "Inicio",
+    "home": "Hogar",
     "news": "Noticias",
     "party": "Fiesta",
     "boutique": "Boutique",
     "association": "Asociación",
-    "photography": "Fotografía"
+    "photography": "Fotografía y edición",
+    "services": "Servicios",
+    "housing": "Alojamiento"
+  },
+  "footer": {
+    "tagline": "Vive despacio y conéctate con lo que de verdad importa. Únete a nosotros para crear una vida más consciente, conectada y significativa.",
+    "services": "Servicios",
+    "company": "Compañía",
+    "legal": "Legal",
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "twitter": "Gorjeo",
+      "email": "Correo electrónico"
+    },
+    "links": {
+      "worldNews": "Noticias del mundo",
+      "party": "Fiesta",
+      "boutique": "Boutique",
+      "association": "Asociación",
+      "photography": "Fotografía",
+      "aboutUs": "Sobre nosotros",
+      "philosophy": "Filosofía",
+      "contact": "Contacto",
+      "careers": "Carreras",
+      "privacyPolicy": "política de privacidad",
+      "termsOfService": "Condiciones del servicio",
+      "shippingInfo": "Información de envío",
+      "returns": "Devoluciones"
+    },
+    "copyright": "Reservados todos los derechos.",
+    "madeWith": "Hecho con",
+    "forMindfulLiving": "para una vida consciente"
+  },
+  "philosophy": {
+    "title": "Qué es",
+    "subtitle": "¿",
+    "paragraph1": "En un mundo que se mueve demasiado rápido,",
+    "paragraph1Bold": "Nos recuerda que debemos hacer una pausa, respirar y reconectar con lo que realmente importa: la naturaleza, la comunidad, una vida consciente.",
+    "paragraph2": "No se trata de hacer menos, sino de hacer lo que importa. Elegir la calidad en lugar de la cantidad. Construir relaciones en lugar de transacciones. Vivir con intención, no de forma reactiva.",
+    "paragraph3": "Únete a nosotros para crear un movimiento hacia una forma de vida más consciente, conectada y significativa.",
+    "values": {
+      "natureFirst": {
+        "title": "La naturaleza primero",
+        "description": "Creemos en vivir en armonía con la naturaleza, respetando la tierra que nos sustenta."
+      },
+      "mindfulLiving": {
+        "title": "Vida consciente",
+        "description": "Cada elección importa. Seleccionamos experiencias y productos que se alinean con valores conscientes."
+      },
+      "community": {
+        "title": "Comunidad",
+        "description": "Construyendo conexiones que importan, apoyándonos mutuamente en nuestro camino hacia una vida más pausada."
+      },
+      "authenticity": {
+        "title": "Autenticidad",
+        "description": "Aceptar lo que es real, significativo y fiel a quienes somos y a nuestros valores."
+      }
+    }
+  },
+  "cta": {
+    "title": "¿Listo para comenzar tu viaje?",
+    "description": "Únete a miles de personas que han elegido vivir con mayor consciencia. Empieza a explorar nuestros servicios hoy mismo.",
+    "exploreServices": "Explora nuestros servicios",
+    "shopBoutique": "Tienda Boutique"
+  },
+  "party": {
+    "hero": {
+      "title": "Planificación integral de eventos",
+      "description": "DJ, comida, bebidas y organización integral del evento. Planificación y ejecución completa del evento.",
+      "startSearch": "Comienza tu búsqueda"
+    },
+    "search": {
+      "placeholder": "Servicios de búsqueda, DJ, catering...",
+      "filter": "Filtrar"
+    },
+    "sectionTitle": "Servicios para fiestas",
+    "sectionDescription": "Todo lo que necesitas para una celebración memorable",
+    "services": {
+      "dj": {
+        "name": "Servicios de DJ",
+        "description": "DJs profesionales para cualquier estilo de evento",
+        "features": {
+          "soundSystem": "Sistema de sonido",
+          "lighting": "Iluminación",
+          "playlistCreation": "Creación de listas de reproducción"
+        }
+      },
+      "bartending": {
+        "name": "Servicios de barman",
+        "description": "Cocteleros expertos y servicio de bar",
+        "features": {
+          "cocktailMenu": "Carta de cócteles",
+          "barSetup": "Configuración de la barra",
+          "staffIncluded": "Personal incluido"
+        }
+      },
+      "catering": {
+        "name": "Catering y comida",
+        "description": "Servicio completo de catering para su evento",
+        "features": {
+          "customMenu": "Menú personalizado",
+          "dietaryOptions": "Opciones dietéticas",
+          "setupCleanup": "Instalación y limpieza"
+        }
+      },
+      "planning": {
+        "name": "Planificación de eventos",
+        "description": "Coordinación integral de eventos",
+        "features": {
+          "coordination": "Coordinación",
+          "timelineManagement": "Gestión de plazos",
+          "vendorLiaison": "Enlace con el proveedor"
+        }
+      },
+      "lighting": {
+        "name": "Iluminación y sonido",
+        "description": "Configuración audiovisual profesional",
+        "features": {
+          "soundSystem": "Sistema de sonido",
+          "lightingDesign": "Diseño de iluminación",
+          "technicalSupport": "Apoyo técnico"
+        }
+      },
+      "decoration": {
+        "name": "Servicios de decoración",
+        "description": "Transforma tu espacio de forma hermosa",
+        "features": {
+          "themeDesign": "Diseño de temas",
+          "floralArrangements": "Arreglos florales",
+          "setupRemoval": "Instalación y desmontaje"
+        }
+      }
+    },
+    "from": "De",
+    "reviews": "reseñas",
+    "getQuote": "Solicitar presupuesto",
+    "inquiry": {
+      "title": "Planifiquemos tu evento",
+      "description": "Cuéntanos sobre tu celebración y te ayudaremos a organizarlo todo.",
+      "name": "Su nombre",
+      "email": "Dirección de correo electrónico",
+      "phone": "Número de teléfono",
+      "eventDate": "Fecha del evento",
+      "guests": "Número de huéspedes",
+      "message": "Cuéntanos sobre tu evento",
+      "messagePlaceholder": "¿Qué tipo de evento está planeando? ¿Algún requisito especial?",
+      "submit": "Enviar consulta",
+      "responseTime": "Le responderemos en un plazo de 2 horas durante el horario laboral."
+    },
+    "features": {
+      "easyBooking": {
+        "title": "Reserva fácil",
+        "description": "Proceso de consulta sencillo, servicio personalizado y respuestas rápidas."
+      },
+      "curatedSelection": {
+        "title": "Selección escogida",
+        "description": "Solo los lugares más hermosos y mejor mantenidos figuran en nuestra lista."
+      },
+      "personalService": {
+        "title": "Servicio personalizado",
+        "description": "Comunicación directa con los propietarios del local para la mejor experiencia"
+      }
+    }
+  },
+  "boutique": {
+    "hero": {
+      "title": "Seleccionado con Conciencia",
+      "description": "Cada producto cuenta una historia de cuidado, artesanía y propósito. Productos sostenibles y originales de Ishk.",
+      "exploreCollection": "Explora la colección"
+    },
+    "originals": {
+      "title": "Originales de Ishk",
+      "description": "Viste tus valores. Vive la filosofía. Productos sostenibles de primera calidad diseñados con esmero.",
+      "viewAll": "Ver todos los originales de Ishk"
+    },
+    "search": {
+      "placeholder": "Buscar productos...",
+      "filter": "Filtrar",
+      "sort": "Clasificar"
+    },
+    "categories": {
+      "all": "Todos los productos",
+      "homeLiving": "Hogar y vida",
+      "wellness": "Bienestar",
+      "books": "Libros",
+      "originals": "🌟 Originales de Ishk"
+    },
+    "products": {
+      "title": "Todos los productos",
+      "description": "artículos cuidadosamente seleccionados",
+      "bestseller": "Mejor vendido",
+      "new": "Nuevo",
+      "addToCart": "añadir a la cesta",
+      "reviews": "reseñas"
+    },
+    "features": {
+      "sustainable": {
+        "title": "Materiales sostenibles",
+        "description": "Solo materiales orgánicos, reciclados y de origen ético."
+      },
+      "ethical": {
+        "title": "Producción ética",
+        "description": "Salarios justos, condiciones de trabajo seguras y cadenas de suministro transparentes"
+      },
+      "carbonNeutral": {
+        "title": "Neutralidad de carbono",
+        "description": "Con cada pedido se planta un árbol. Envío gratuito para pedidos superiores a 75 €."
+      }
+    },
+    "cart": {
+      "title": "Carro de la compra",
+      "empty": "Tu carrito está vacío",
+      "continueShopping": "Continúa comprando",
+      "subtotal": "Total parcial",
+      "shipping": "Envío",
+      "total": "Total",
+      "checkout": "Verificar"
+    }
+  },
+  "photography": {
+    "hero": {
+      "title": "Permítenos capturar la belleza de tu historia",
+      "description": "Servicios profesionales de fotografía: sesiones, edición y retoque. Cada momento merece ser recordado con belleza.",
+      "bookSession": "Reserva una sesión"
+    },
+    "portfolio": {
+      "title": "Nuestro portafolio",
+      "description": "Un vistazo a las historias que hemos capturado",
+      "all": "Todo",
+      "cultural": "Cultural",
+      "adventure": "Aventura",
+      "socialMedia": "Redes sociales"
+    },
+    "services": {
+      "title": "Nuestros servicios",
+      "description": "Paquetes profesionales adaptados a sus necesidades",
+      "portrait": {
+        "name": "Sesión de retratos",
+        "duration": "2 horas",
+        "includes": {
+          "shoot": "sesión de fotos profesional",
+          "images": "30 imágenes editadas de alta resolución",
+          "gallery": "Galería en línea",
+          "retouching": "Retoque básico"
+        }
+      },
+      "event": {
+        "name": "Fotografía de eventos",
+        "duration": "4 horas",
+        "includes": {
+          "coverage": "Cobertura completa del evento",
+          "images": "Más de 100 imágenes editadas",
+          "gallery": "Galería en línea",
+          "preview": "Vista previa del mismo día"
+        }
+      },
+      "commercial": {
+        "name": "Sesión de fotos comercial",
+        "duration": "Día completo",
+        "includes": {
+          "shoot": "Fotografía de producto/estilo de vida",
+          "images": "Más de 200 imágenes editadas",
+          "angles": "Múltiples ángulos",
+          "files": "Archivos listos para la marca"
+        }
+      },
+      "wedding": {
+        "name": "Paquete de boda",
+        "duration": "Día completo",
+        "includes": {
+          "coverage": "Ceremonia y recepción",
+          "images": "Más de 300 imágenes editadas",
+          "session": "Sesión de compromiso",
+          "album": "Álbum premium"
+        }
+      },
+      "bookNow": "Reserva ahora"
+    },
+    "testimonials": {
+      "title": "Lo que dicen nuestros clientes"
+    },
+    "booking": {
+      "title": "Reserva tu sesión",
+      "description": "Hablemos de tu visión y creemos algo hermoso juntos.",
+      "name": "Su nombre",
+      "email": "Dirección de correo electrónico",
+      "phone": "Número de teléfono",
+      "preferredDate": "Fecha preferida",
+      "serviceType": "Tipo de servicio",
+      "message": "Cuéntanos sobre tu proyecto.",
+      "messagePlaceholder": "¿Qué tipo de fotografía necesitas? ¿Algún requisito o idea específica?",
+      "submit": "Enviar consulta",
+      "responseTime": "Le responderemos en un plazo de 24 horas para hablar sobre su proyecto.",
+      "serviceTypes": {
+        "portrait": "Sesión de retratos",
+        "event": "Fotografía de eventos",
+        "commercial": "Sesión de fotos comercial",
+        "wedding": "Paquete de boda",
+        "other": "Otro"
+      }
+    },
+    "features": {
+      "editing": {
+        "title": "Edición profesional",
+        "description": "Cada imagen se edita cuidadosamente hasta alcanzar la perfección, garantizando resultados de la más alta calidad."
+      },
+      "resolution": {
+        "title": "Archivos de alta resolución",
+        "description": "Reciba todas las imágenes en formato de alta resolución, perfecto para imprimir y compartir."
+      },
+      "video": {
+        "title": "Servicios de vídeo",
+        "description": "También ofrecemos servicios de producción de vídeo para eventos, anuncios y mucho más."
+      }
+    },
+    "contact": {
+      "title": "Ponte en contacto",
+      "description": "¿Listo para contar tu historia? Hablemos de tu proyecto.",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "sendMessage": "Enviar mensaje"
+    },
+    "categories": {
+      "all": "Todo",
+      "cultural": "Cultural",
+      "adventure": "Aventura",
+      "socialMedia": "Redes sociales"
+    }
+  },
+  "association": {
+    "hero": {
+      "title": "Pequeñas acciones, gran impacto",
+      "description": "Únete a una comunidad solidaria. Acciones sin ánimo de lucro con total transparencia.",
+      "exploreCampaigns": "Explorar campañas"
+    },
+    "impact": {
+      "title": "Nuestro impacto",
+      "description": "Juntos, estamos marcando la diferencia.",
+      "stats": {
+        "treesPlanted": "Árboles plantados",
+        "livesImpacted": "Vidas afectadas",
+        "projectsCompleted": "Proyectos finalizados",
+        "countriesReached": "Países alcanzados"
+      }
+    },
+    "campaigns": {
+      "title": "Campañas activas",
+      "description": "Apoyamos causas que se alinean con nuestros valores.",
+      "treePlanting": {
+        "title": "Iniciativa de plantación de árboles",
+        "description": "Plantar árboles en zonas deforestadas para restaurar los ecosistemas y combatir el cambio climático.",
+        "category": "Ambiente",
+        "impact": "🌳 Se plantaron 7.500 árboles"
+      },
+      "cleanWater": {
+        "title": "Acceso a agua potable",
+        "description": "Proporcionar pozos de agua potable y sistemas de filtración a comunidades necesitadas.",
+        "category": "Comunidad",
+        "impact": "💧 Se instalaron 15 pozos"
+      },
+      "education": {
+        "title": "Educación para todos",
+        "description": "Apoyar a las escuelas y proporcionar materiales educativos a las comunidades desfavorecidas.",
+        "category": "Educación",
+        "impact": "📚 500 estudiantes apoyados"
+      },
+      "wildlife": {
+        "title": "Conservación de la vida silvestre",
+        "description": "Proteger las especies en peligro de extinción y sus hábitats mediante esfuerzos de conservación.",
+        "category": "Fauna",
+        "impact": "🦋 3 áreas protegidas"
+      }
+    },
+    "transparency": {
+      "title": "Transparencia total",
+      "description": "Cada donación se registra, cada impacto se mide y cada resultado se comparte.",
+      "trackImpact": {
+        "title": "Mide tu impacto",
+        "description": "Descubre exactamente a dónde va tu donación y el impacto que genera."
+      },
+      "verifiedPartners": {
+        "title": "Socios verificados",
+        "description": "Todas nuestras organizaciones asociadas son evaluadas y verificadas para lograr el máximo impacto."
+      },
+      "regularUpdates": {
+        "title": "Actualizaciones periódicas",
+        "description": "Reciba actualizaciones sobre el progreso de la campaña y vea el impacto en el mundo real."
+      }
+    },
+    "cta": {
+      "title": "Únete al movimiento",
+      "description": "Juntos podemos generar un cambio significativo. Cada contribución, por pequeña que sea, marca la diferencia.",
+      "startMakingImpact": "Comienza a generar un impacto"
+    },
+    "common": {
+      "donate": "Dona ahora",
+      "learnMore": "Más información",
+      "goal": "Meta",
+      "raised": "Aumentó",
+      "of": "de",
+      "complete": "completo"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión en tu cuenta",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "signIn": "Iniciar sesión",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUp": "Inscribirse"
+    },
+    "register": {
+      "title": "Crear una cuenta",
+      "subtitle": "Únete a nosotros para comprar, rastrear pedidos y mucho más.",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "createAccount": "Crear una cuenta",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Ahorrar",
+    "cancel": "Cancelar",
+    "delete": "Borrar",
+    "edit": "Editar",
+    "view": "Vista",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "close": "Cerca",
+    "back": "Atrás",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "submit": "Entregar",
+    "continue": "Continuar"
   },
   "services": {
     "news": {
-      "title": "Ishk Noticias Mundiales",
+      "title": "Noticias del mundo de Ishk",
       "subtitle": "Globo interactivo + resúmenes seleccionados",
-      "description": "Mantente informado, sin abrumarte. Resúmenes de noticias con IA que respetan tu tiempo."
+      "description": "Mantente informado, no abrumado. Noticias breves generadas por IA que respetan tu tiempo."
     },
     "party": {
-      "title": "Ishk Fiesta",
-      "subtitle": "Reserva lugares y servicios para fiestas",
-      "description": "Celebra los momentos de la vida en hermosos espacios. Lugares y servicios seleccionados."
+      "title": "Partido Ishk",
+      "subtitle": "planificación integral de eventos",
+      "description": "DJ, comida, bebidas y organización integral del evento. Planificación y ejecución completa del evento."
     },
     "boutique": {
       "title": "Boutique Ishk",
-      "subtitle": "Da, reutiliza y apoya causas",
-      "description": "Elecciones conscientes, seleccionadas con cuidado. Productos sostenibles e originales Ishk."
+      "subtitle": "Dona, reutiliza y apoya causas",
+      "description": "Elecciones conscientes, cuidadosamente seleccionadas. Productos sostenibles y diseños originales de Ishk."
     },
     "association": {
       "title": "Asociación Ishk",
-      "subtitle": "Acciones sin ánimo de lucro y transparencia",
-      "description": "Pequeñas acciones, gran impacto. Únete a una comunidad que se preocupa."
+      "subtitle": "Acciones y transparencia de las organizaciones sin ánimo de lucro",
+      "description": "Pequeñas acciones, gran impacto. Únete a una comunidad solidaria."
     },
     "photography": {
-      "title": "Fotografía y Edición",
-      "subtitle": "Sesiones, ediciones, retoques",
-      "description": "Déjanos capturar la belleza de tu historia."
+      "title": "Fotografía y edición",
+      "subtitle": "Fotografía, edición, retoque",
+      "description": "Permítanos capturar la belleza de su historia."
+    },
+    "housing": {
+      "title": "Vivienda ISHK",
+      "subtitle": "Alojamientos seleccionados",
+      "description": "Hermosos alojamientos cuidadosamente seleccionados para los invitados a su evento. Espacios confortables que complementan su celebración."
+    },
+    "partyServices": {
+      "title": "Partido ISHK",
+      "subtitle": "planificación integral de eventos",
+      "description": "DJ, comida, bebidas y organización integral del evento. Planificación y ejecución completa del evento."
     }
   }
 }
-
-
-
-
-
-

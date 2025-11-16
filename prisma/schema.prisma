@@ -10,6 +10,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Roles
+enum UserRole {
+  USER
+  SUPER_ADMIN
+  ADMIN_NEWS
+  ADMIN_PARTY
+  ADMIN_BOUTIQUE
+  ADMIN_ASSOCIATION
+  ADMIN_PHOTOGRAPHY
+}
+
 // User Authentication & Profile
 model User {
   id            String    @id @default(cuid())
@@ -19,6 +30,7 @@ model User {
   image         String?
   phone         String?
   password      String?   // For credentials login
+  role          UserRole  @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   

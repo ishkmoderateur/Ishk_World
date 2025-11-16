@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth-server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 // GET - Fetch all products
 export async function GET() {
   try {
-    // TODO: Add admin authorization check
+    // Require boutique admin access
+    const session = await requireSectionAccess("boutique");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Boutique admin access required" },
+        { status: 401 }
+      );
+    }
     const products = await prisma.product.findMany({
       orderBy: { createdAt: "desc" },
     });
@@ -23,7 +30,14 @@ export async function GET() {
 // POST - Create new product
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Add admin authorization check
+    // Require boutique admin access
+    const session = await requireSectionAccess("boutique");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Boutique admin access required" },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const {
       name,

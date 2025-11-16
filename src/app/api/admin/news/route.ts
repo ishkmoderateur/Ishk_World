@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    // Require news admin access
+    const session = await requireSectionAccess("news");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: News admin access required" },
+        { status: 401 }
+      );
+    }
     const newsBriefs = await prisma.newsBrief.findMany({
       include: {
         user: {
@@ -29,6 +38,14 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Require news admin access
+    const session = await requireSectionAccess("news");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: News admin access required" },
+        { status: 401 }
+      );
+    }
     const { title, summary, region, topics, sourceUrl, userId } =
       await request.json();
 
@@ -55,6 +72,14 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Require news admin access
+    const session = await requireSectionAccess("news");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: News admin access required" },
+        { status: 401 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -78,4 +103,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+
+
 

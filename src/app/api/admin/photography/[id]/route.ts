@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
@@ -6,6 +7,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require photography admin access
+    const session = await requireSectionAccess("photography");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Photography admin access required" },
+        { status: 401 }
+      );
+    }
     const photo = await prisma.photography.findUnique({
       where: { id: params.id },
     });
@@ -32,6 +41,14 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require photography admin access
+    const session = await requireSectionAccess("photography");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Photography admin access required" },
+        { status: 401 }
+      );
+    }
     const { title, category, image, description, featured, order } =
       await request.json();
 
@@ -62,6 +79,14 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require photography admin access
+    const session = await requireSectionAccess("photography");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Photography admin access required" },
+        { status: 401 }
+      );
+    }
     await prisma.photography.delete({
       where: { id: params.id },
     });
@@ -75,4 +100,7 @@ export async function DELETE(
     );
   }
 }
+
+
+
 

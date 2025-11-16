@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Map, PartyPopper, ShoppingBag, Heart, Camera } from "lucide-react";
+import { Map, ShoppingBag, Heart, Camera, Home, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function ServiceCards() {
@@ -18,16 +18,6 @@ export default function ServiceCards() {
       href: "/news",
       accent: "news-accent",
       gradient: "from-sky/10 to-sky/5",
-    },
-    {
-      id: "party",
-      icon: PartyPopper,
-      title: t("services.party.title"),
-      subtitle: t("services.party.subtitle"),
-      description: t("services.party.description"),
-      href: "/party",
-      accent: "party-accent",
-      gradient: "from-amber/10 to-amber/5",
     },
     {
       id: "boutique",
@@ -59,6 +49,26 @@ export default function ServiceCards() {
       accent: "photo-accent",
       gradient: "from-gold/10 to-gold/5",
     },
+    {
+      id: "housing",
+      icon: Home,
+      title: t("services.housing.title"),
+      subtitle: t("services.housing.subtitle"),
+      description: t("services.housing.description"),
+      href: "/party",
+      accent: "housing-accent",
+      gradient: "from-amber/10 to-amber/5",
+    },
+    {
+      id: "party-services",
+      icon: Sparkles,
+      title: t("services.partyServices.title"),
+      subtitle: t("services.partyServices.subtitle"),
+      description: t("services.partyServices.description"),
+      href: "/party",
+      accent: "party-services-accent",
+      gradient: "from-coral/10 to-coral/5",
+    },
   ];
   return (
     <section id="services-section" className="py-24 px-4 md:px-8 bg-gradient-to-b from-cream to-white">
@@ -75,7 +85,7 @@ export default function ServiceCards() {
             Your Journey Begins
           </h2>
           <p className="text-lg text-stone max-w-2xl mx-auto">
-            Discover five pathways to a more mindful, connected life
+            Discover six pathways to a more mindful, connected life
           </p>
         </motion.div>
 

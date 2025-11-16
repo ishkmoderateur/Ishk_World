@@ -31,13 +31,13 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background - Japanese Garden with Flowers */}
+      {/* Background - Nature Scene */}
       <div className="absolute inset-0 z-0">
-        {/* Beautiful tranquil Japanese cherry blossom garden */}
+        {/* Beautiful tranquil nature scene */}
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80&auto=format&fit=crop"
-            alt="Tranquil Japanese cherry blossom garden with pink sakura flowers"
+            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&q=80&auto=format&fit=crop"
+            alt="Peaceful nature scene with forest and natural landscape"
             fill
             className="object-cover"
             priority
@@ -45,18 +45,18 @@ export default function HeroSection() {
             sizes="100vw"
           />
         </div>
-        {/* Soft pink overlay to enhance cherry blossom colors */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-sage/20 to-sand/20" />
+        {/* Natural green overlay to enhance nature colors */}
+        <div className="absolute inset-0 bg-gradient-to-br from-forest/10 via-sage/20 to-mint/10" />
         
         {/* Overlay gradient for better text readability */}
         <div className="absolute inset-0 bg-black/10" />
         
-        {/* Animated particles (petals) */}
+        {/* Animated particles (nature elements) */}
         <div className="absolute inset-0">
           {particles.map((particle) => (
             <motion.div
               key={particle.id}
-              className="absolute w-2 h-2 bg-pink-200/50 rounded-full"
+              className="absolute w-2 h-2 bg-sage/40 rounded-full"
               style={{ 
                 left: `${particle.left}%`, 
                 top: `${particle.top}%` 
@@ -86,20 +86,22 @@ export default function HeroSection() {
           className="mb-8"
         >
           <h1 className="text-7xl md:text-9xl font-display font-bold text-white drop-shadow-lg tracking-tight">
-            ishk.
+            {language === "AR" ? t("hero.subtitle") : "ishk."}
           </h1>
         </motion.div>
 
-        {/* Subtitle */}
+        {/* Subtitle and Tagline */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
           className="space-y-2 mb-12"
         >
-          <p className="text-lg md:text-xl text-white/90 font-medium tracking-wide drop-shadow">
-            'išq
-          </p>
+          {language !== "AR" && (
+            <p className="text-lg md:text-xl text-white/90 font-medium tracking-wide drop-shadow">
+              {t("hero.subtitle")}
+            </p>
+          )}
           <p className="text-xl md:text-2xl text-white/90 font-sans max-w-2xl mx-auto leading-relaxed drop-shadow">
             {t("hero.tagline")}
           </p>

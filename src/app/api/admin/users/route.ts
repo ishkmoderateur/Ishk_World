@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
+import { requireSuperAdmin } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
-// GET - Fetch all users
+// GET - Fetch all users (Super Admin only)
 export async function GET() {
   try {
+    // Require super admin access
+    const session = await requireSuperAdmin();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Super admin access required" },
+        { status: 401 }
+      );
+    }
     const users = await prisma.user.findMany({
       include: {
         orders: {
@@ -24,4 +33,7 @@ export async function GET() {
     );
   }
 }
+
+
+
 

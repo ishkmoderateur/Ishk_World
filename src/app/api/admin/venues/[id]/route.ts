@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export async function PUT(
@@ -6,6 +7,14 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const {
       name,
@@ -68,6 +77,14 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     await prisma.venue.delete({
       where: { id: params.id },
     });

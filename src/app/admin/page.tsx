@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Package,
   MapPin,
@@ -20,8 +22,10 @@ import {
   Camera,
   MessageSquare,
   Newspaper,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
+import { isSuperAdmin, isAdmin, canAccessSection, getUserAccessibleSections, getRoleDisplayName } from "@/lib/roles";
 
 interface Stats {
   products: number;
@@ -35,6 +39,8 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [stats, setStats] = useState<Stats>({
     products: 0,
     venues: 0,
@@ -49,8 +55,18 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users" | "inquiries" | "donations" | "news">("overview");
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/auth/signin?callbackUrl=/admin");
+      return;
+    }
+    if (status === "authenticated" && session?.user) {
+      if (!isAdmin(session.user.role)) {
+        router.push("/");
+        return;
+      }
+      fetchStats();
+    }
+  }, [status, session, router]);
 
   const fetchStats = async () => {
     try {
@@ -66,13 +82,19 @@ export default function AdminDashboard() {
     }
   };
 
-  const statCards = [
+  const userRole = session?.user?.role;
+  const accessibleSections = getUserAccessibleSections(userRole);
+  const isSuper = isSuperAdmin(userRole);
+
+  // Filter stat cards based on role
+  const allStatCards = [
     {
       title: "Products",
       value: stats.products,
       icon: Package,
       color: "sage",
       href: "#products",
+      section: "boutique",
     },
     {
       title: "Venues",
@@ -80,6 +102,7 @@ export default function AdminDashboard() {
       icon: MapPin,
       color: "amber",
       href: "#venues",
+      section: "party",
     },
     {
       title: "Campaigns",
@@ -87,6 +110,7 @@ export default function AdminDashboard() {
       icon: Heart,
       color: "coral",
       href: "#campaigns",
+      section: "association",
     },
     {
       title: "Orders",
@@ -94,6 +118,7 @@ export default function AdminDashboard() {
       icon: ShoppingBag,
       color: "gold",
       href: "#orders",
+      section: "orders", // Super admin only
     },
     {
       title: "Users",
@@ -101,6 +126,7 @@ export default function AdminDashboard() {
       icon: Users,
       color: "sky",
       href: "#users",
+      section: "users", // Super admin only
     },
     {
       title: "Donations",
@@ -108,6 +134,7 @@ export default function AdminDashboard() {
       icon: DollarSign,
       color: "forest",
       href: "#donations",
+      section: "association",
     },
     {
       title: "Revenue",
@@ -115,6 +142,7 @@ export default function AdminDashboard() {
       icon: TrendingUp,
       color: "sage",
       href: "#revenue",
+      section: "revenue", // Super admin only
     },
     {
       title: "Pending Inquiries",
@@ -122,8 +150,16 @@ export default function AdminDashboard() {
       icon: Calendar,
       color: "amber",
       href: "#inquiries",
+      section: "party",
     },
   ];
+
+  const statCards = allStatCards.filter((card) => {
+    if (card.section === "orders" || card.section === "users" || card.section === "revenue") {
+      return isSuper;
+    }
+    return accessibleSections.includes(card.section);
+  });
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; hover: string }> = {
@@ -144,7 +180,15 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-display font-bold text-charcoal">Admin Control Panel</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-display font-bold text-charcoal">Admin Control Panel</h1>
+                {userRole && (
+                  <span className="px-3 py-1 bg-sage/20 text-sage rounded-full text-sm font-medium flex items-center gap-1">
+                    <Shield className="w-4 h-4" />
+                    {getRoleDisplayName(userRole)}
+                  </span>
+                )}
+              </div>
               <p className="text-charcoal/60 mt-1">Manage your ISHK platform</p>
             </div>
             <div className="flex items-center gap-4">
@@ -166,16 +210,22 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl shadow-sm border border-sage/10 p-2 mb-8">
           <div className="flex flex-wrap gap-2">
             {[
-              { id: "overview", label: "Overview", icon: Eye },
-              { id: "products", label: "Products", icon: Package },
-              { id: "venues", label: "Venues", icon: MapPin },
-              { id: "campaigns", label: "Campaigns", icon: Heart },
-              { id: "orders", label: "Orders", icon: ShoppingBag },
-              { id: "users", label: "Users", icon: Users },
-              { id: "inquiries", label: "Inquiries", icon: MessageSquare },
-              { id: "donations", label: "Donations", icon: DollarSign },
-              { id: "news", label: "News", icon: Newspaper },
-            ].map((tab) => {
+              { id: "overview", label: "Overview", icon: Eye, section: null },
+              { id: "products", label: "Products", icon: Package, section: "boutique" },
+              { id: "venues", label: "Venues", icon: MapPin, section: "party" },
+              { id: "campaigns", label: "Campaigns", icon: Heart, section: "association" },
+              { id: "orders", label: "Orders", icon: ShoppingBag, section: "orders" },
+              { id: "users", label: "Users", icon: Users, section: "users" },
+              { id: "inquiries", label: "Inquiries", icon: MessageSquare, section: "party" },
+              { id: "donations", label: "Donations", icon: DollarSign, section: "association" },
+              { id: "news", label: "News", icon: Newspaper, section: "news" },
+            ]
+            .filter((tab) => {
+              if (tab.section === null) return true; // Overview always visible
+              if (tab.section === "orders" || tab.section === "users") return isSuper;
+              return accessibleSections.includes(tab.section);
+            })
+            .map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
@@ -233,73 +283,76 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
               <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Content Panels</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Link
-                  href="/admin/news-panel"
-                  className="flex items-center gap-3 p-4 bg-sky/10 hover:bg-sky/20 rounded-xl transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-sky rounded-xl flex items-center justify-center">
-                    <Newspaper className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-sky transition-colors">News Panel</h3>
-                    <p className="text-sm text-charcoal/60">Manage news briefs</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/admin/photography-panel"
-                  className="flex items-center gap-3 p-4 bg-gold/10 hover:bg-gold/20 rounded-xl transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-gold rounded-xl flex items-center justify-center">
-                    <Camera className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-gold transition-colors">Photography Panel</h3>
-                    <p className="text-sm text-charcoal/60">Manage portfolio</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/admin/boutique-panel"
-                  className="flex items-center gap-3 p-4 bg-sage/10 hover:bg-sage/20 rounded-xl transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-sage rounded-xl flex items-center justify-center">
-                    <Package className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-sage transition-colors">Boutique Panel</h3>
-                    <p className="text-sm text-charcoal/60">Manage products</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/admin/party-panel"
-                  className="flex items-center gap-3 p-4 bg-amber/10 hover:bg-amber/20 rounded-xl transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-amber rounded-xl flex items-center justify-center">
-                    <MapPin className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-amber transition-colors">Party Panel</h3>
-                    <p className="text-sm text-charcoal/60">Manage venues</p>
-                  </div>
-                </Link>
-                <Link
-                  href="/admin/association-panel"
-                  className="flex items-center gap-3 p-4 bg-coral/10 hover:bg-coral/20 rounded-xl transition-colors group"
-                >
-                  <div className="w-12 h-12 bg-coral rounded-xl flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-charcoal group-hover:text-coral transition-colors">Association Panel</h3>
-                    <p className="text-sm text-charcoal/60">Manage campaigns</p>
-                  </div>
-                </Link>
+                {[
+                  {
+                    href: "/admin/news-panel",
+                    title: "News Panel",
+                    description: "Manage news briefs",
+                    icon: Newspaper,
+                    color: "sky",
+                    section: "news",
+                  },
+                  {
+                    href: "/admin/photography-panel",
+                    title: "Photography Panel",
+                    description: "Manage portfolio",
+                    icon: Camera,
+                    color: "gold",
+                    section: "photography",
+                  },
+                  {
+                    href: "/admin/boutique-panel",
+                    title: "Boutique Panel",
+                    description: "Manage products",
+                    icon: Package,
+                    color: "sage",
+                    section: "boutique",
+                  },
+                  {
+                    href: "/admin/party-panel",
+                    title: "Party Panel",
+                    description: "Manage venues",
+                    icon: MapPin,
+                    color: "amber",
+                    section: "party",
+                  },
+                  {
+                    href: "/admin/association-panel",
+                    title: "Association Panel",
+                    description: "Manage campaigns",
+                    icon: Heart,
+                    color: "coral",
+                    section: "association",
+                  },
+                ]
+                  .filter((panel) => accessibleSections.includes(panel.section))
+                  .map((panel) => {
+                    const Icon = panel.icon;
+                    return (
+                      <Link
+                        key={panel.href}
+                        href={panel.href}
+                        className={`flex items-center gap-3 p-4 bg-${panel.color}/10 hover:bg-${panel.color}/20 rounded-xl transition-colors group`}
+                      >
+                        <div className={`w-12 h-12 bg-${panel.color} rounded-xl flex items-center justify-center`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className={`font-semibold text-charcoal group-hover:text-${panel.color} transition-colors`}>
+                            {panel.title}
+                          </h3>
+                          <p className="text-sm text-charcoal/60">{panel.description}</p>
+                        </div>
+                      </Link>
+                    );
+                  })}
               </div>
             </div>
           </div>
         )}
 
         {/* Products Tab */}
-        {activeTab === "products" && (
+        {activeTab === "products" && canAccessSection(userRole, "boutique") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">Products Management</h2>
@@ -316,7 +369,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Venues Tab */}
-        {activeTab === "venues" && (
+        {activeTab === "venues" && canAccessSection(userRole, "party") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">Venues Management</h2>
@@ -333,7 +386,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Campaigns Tab */}
-        {activeTab === "campaigns" && (
+        {activeTab === "campaigns" && canAccessSection(userRole, "association") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">Campaigns Management</h2>
@@ -350,7 +403,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Orders Tab */}
-        {activeTab === "orders" && (
+        {activeTab === "orders" && isSuper && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Orders Management</h2>
             <OrdersManager />
@@ -358,7 +411,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Users Tab */}
-        {activeTab === "users" && (
+        {activeTab === "users" && isSuper && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Users Management</h2>
             <UsersManager />
@@ -366,7 +419,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Inquiries Tab */}
-        {activeTab === "inquiries" && (
+        {activeTab === "inquiries" && canAccessSection(userRole, "party") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Venue Inquiries</h2>
             <InquiriesManager />
@@ -374,7 +427,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Donations Tab */}
-        {activeTab === "donations" && (
+        {activeTab === "donations" && canAccessSection(userRole, "association") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Donations Management</h2>
             <DonationsManager />
@@ -382,7 +435,7 @@ export default function AdminDashboard() {
         )}
 
         {/* News Tab */}
-        {activeTab === "news" && (
+        {activeTab === "news" && canAccessSection(userRole, "news") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">News Briefs</h2>

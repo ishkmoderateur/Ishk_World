@@ -1,5 +1,14 @@
 import "next-auth";
 
+export type UserRole = 
+  | "USER"
+  | "SUPER_ADMIN"
+  | "ADMIN_NEWS"
+  | "ADMIN_PARTY"
+  | "ADMIN_BOUTIQUE"
+  | "ADMIN_ASSOCIATION"
+  | "ADMIN_PHOTOGRAPHY";
+
 declare module "next-auth" {
   interface Session {
     user: {
@@ -7,9 +16,13 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       image?: string | null;
+      role?: UserRole;
     };
   }
 }
+
+
+
 
 
 

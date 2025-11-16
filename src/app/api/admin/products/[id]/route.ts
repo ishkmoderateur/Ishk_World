@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 // GET - Fetch single product
@@ -7,6 +8,14 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require boutique admin access
+    const session = await requireSectionAccess("boutique");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Boutique admin access required" },
+        { status: 401 }
+      );
+    }
     const product = await prisma.product.findUnique({
       where: { id: params.id },
     });
@@ -34,7 +43,14 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    // TODO: Add admin authorization check
+    // Require boutique admin access
+    const session = await requireSectionAccess("boutique");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Boutique admin access required" },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const {
       name,
@@ -92,7 +108,14 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // TODO: Add admin authorization check
+    // Require boutique admin access
+    const session = await requireSectionAccess("boutique");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Boutique admin access required" },
+        { status: 401 }
+      );
+    }
     await prisma.product.delete({
       where: { id: params.id },
     });

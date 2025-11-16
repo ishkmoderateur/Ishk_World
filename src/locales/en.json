@@ -10,7 +10,449 @@
     "party": "Party",
     "boutique": "Boutique",
     "association": "Association",
-    "photography": "Photography"
+    "photography": "Photography & editing",
+    "services": "Services",
+    "housing": "Housing"
+  },
+  "footer": {
+    "tagline": "Slow living closer to what really matters. Join us in creating a more conscious, connected, and meaningful way of life.",
+    "services": "Services",
+    "company": "Company",
+    "legal": "Legal",
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "email": "Email"
+    },
+    "links": {
+      "worldNews": "World News",
+      "party": "Party",
+      "boutique": "Boutique",
+      "association": "Association",
+      "photography": "Photography",
+      "aboutUs": "About Us",
+      "philosophy": "Philosophy",
+      "contact": "Contact",
+      "careers": "Careers",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "shippingInfo": "Shipping Info",
+      "returns": "Returns"
+    },
+    "copyright": "All rights reserved.",
+    "madeWith": "Made with",
+    "forMindfulLiving": "for mindful living"
+  },
+  "philosophy": {
+    "title": "What is",
+    "subtitle": "?",
+    "paragraph1": "In a world that moves too fast,",
+    "paragraph1Bold": "reminds us to pause, breathe, and reconnect with what truly matters: nature, community, mindful living.",
+    "paragraph2": "It's not about doing less—it's about doing what matters. Choosing quality over quantity. Building relationships over transactions. Living intentionally, not reactively.",
+    "paragraph3": "Join us in creating a movement toward a more conscious, connected, and meaningful way of life.",
+    "values": {
+      "natureFirst": {
+        "title": "Nature First",
+        "description": "We believe in living in harmony with nature, respecting the earth that sustains us."
+      },
+      "mindfulLiving": {
+        "title": "Mindful Living",
+        "description": "Every choice matters. We curate experiences and products that align with conscious values."
+      },
+      "community": {
+        "title": "Community",
+        "description": "Building connections that matter, supporting each other in our journey toward slow living."
+      },
+      "authenticity": {
+        "title": "Authenticity",
+        "description": "Embracing what's real, meaningful, and true to who we are and what we value."
+      }
+    }
+  },
+  "cta": {
+    "title": "Ready to Begin Your Journey?",
+    "description": "Join thousands of people who have chosen to live more intentionally. Start exploring our services today.",
+    "exploreServices": "Explore Services",
+    "shopBoutique": "Shop Boutique"
+  },
+  "party": {
+    "hero": {
+      "title": "Full-Service Event Planning",
+      "description": "DJing, food, drinks, and complete event organization. Full-service event planning and execution.",
+      "startSearch": "Start Your Search"
+    },
+    "search": {
+      "placeholder": "Search services, DJ, catering...",
+      "filter": "Filter"
+    },
+    "sectionTitle": "Party Services",
+    "sectionDescription": "Everything you need for a memorable celebration",
+    "services": {
+      "dj": {
+        "name": "DJ Services",
+        "description": "Professional DJs for any event style",
+        "features": {
+          "soundSystem": "Sound System",
+          "lighting": "Lighting",
+          "playlistCreation": "Playlist Creation"
+        }
+      },
+      "bartending": {
+        "name": "Bartending Services",
+        "description": "Expert mixologists and bar service",
+        "features": {
+          "cocktailMenu": "Cocktail Menu",
+          "barSetup": "Bar Setup",
+          "staffIncluded": "Staff Included"
+        }
+      },
+      "catering": {
+        "name": "Catering & Food",
+        "description": "Complete food service for your event",
+        "features": {
+          "customMenu": "Custom Menu",
+          "dietaryOptions": "Dietary Options",
+          "setupCleanup": "Setup & Cleanup"
+        }
+      },
+      "planning": {
+        "name": "Event Planning",
+        "description": "Full-service event coordination",
+        "features": {
+          "coordination": "Coordination",
+          "timelineManagement": "Timeline Management",
+          "vendorLiaison": "Vendor Liaison"
+        }
+      },
+      "lighting": {
+        "name": "Lighting & Sound",
+        "description": "Professional audio-visual setup",
+        "features": {
+          "soundSystem": "Sound System",
+          "lightingDesign": "Lighting Design",
+          "technicalSupport": "Technical Support"
+        }
+      },
+      "decoration": {
+        "name": "Decoration Services",
+        "description": "Transform your space beautifully",
+        "features": {
+          "themeDesign": "Theme Design",
+          "floralArrangements": "Floral Arrangements",
+          "setupRemoval": "Setup & Removal"
+        }
+      }
+    },
+    "from": "From",
+    "reviews": "reviews",
+    "getQuote": "Get Quote",
+    "inquiry": {
+      "title": "Let's Plan Your Event",
+      "description": "Tell us about your celebration and we'll help you organize everything",
+      "name": "Your Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "eventDate": "Event Date",
+      "guests": "Number of Guests",
+      "message": "Tell us about your event",
+      "messagePlaceholder": "What kind of event are you planning? Any special requirements?",
+      "submit": "Send Inquiry",
+      "responseTime": "We'll respond within 2 hours during business hours"
+    },
+    "features": {
+      "easyBooking": {
+        "title": "Easy Booking",
+        "description": "Simple inquiry process, personalized service, and quick responses"
+      },
+      "curatedSelection": {
+        "title": "Curated Selection",
+        "description": "Only the most beautiful, well-maintained venues make our list"
+      },
+      "personalService": {
+        "title": "Personal Service",
+        "description": "Direct communication with venue owners for the best experience"
+      }
+    }
+  },
+  "boutique": {
+    "hero": {
+      "title": "Curated with Consciousness",
+      "description": "Every product tells a story of care, craft, and purpose. Sustainable products & Ishk originals.",
+      "exploreCollection": "Explore Collection"
+    },
+    "originals": {
+      "title": "Ishk Originals",
+      "description": "Wear your values. Live the philosophy. Premium sustainable merchandise designed with care.",
+      "viewAll": "View All Ishk Originals"
+    },
+    "search": {
+      "placeholder": "Search products...",
+      "filter": "Filter",
+      "sort": "Sort"
+    },
+    "categories": {
+      "all": "All Products",
+      "homeLiving": "Home & Living",
+      "wellness": "Wellness",
+      "books": "Books",
+      "originals": "🌟 Ishk Originals"
+    },
+    "products": {
+      "title": "All Products",
+      "description": "carefully curated items",
+      "bestseller": "Bestseller",
+      "new": "New",
+      "addToCart": "Add to Cart",
+      "reviews": "reviews"
+    },
+    "features": {
+      "sustainable": {
+        "title": "Sustainable Materials",
+        "description": "Organic, recycled, and ethically sourced materials only"
+      },
+      "ethical": {
+        "title": "Ethical Production",
+        "description": "Fair wages, safe working conditions, and transparent supply chains"
+      },
+      "carbonNeutral": {
+        "title": "Carbon Neutral",
+        "description": "Every order plants a tree. Free shipping over €75"
+      }
+    },
+    "cart": {
+      "title": "Shopping Cart",
+      "empty": "Your cart is empty",
+      "continueShopping": "Continue Shopping",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "total": "Total",
+      "checkout": "Checkout"
+    }
+  },
+  "photography": {
+    "hero": {
+      "title": "Let Us Capture the Beauty in Your Story",
+      "description": "Professional photography services, shoots, edits, and retouching. Every moment deserves to be remembered beautifully.",
+      "bookSession": "Book a Session"
+    },
+    "portfolio": {
+      "title": "Our Portfolio",
+      "description": "A glimpse into the stories we've captured",
+      "all": "All",
+      "cultural": "Cultural",
+      "adventure": "Adventure",
+      "socialMedia": "Social Media"
+    },
+    "services": {
+      "title": "Our Services",
+      "description": "Professional packages tailored to your needs",
+      "portrait": {
+        "name": "Portrait Session",
+        "duration": "2 hours",
+        "includes": {
+          "shoot": "Professional photo shoot",
+          "images": "30 edited high-res images",
+          "gallery": "Online gallery",
+          "retouching": "Basic retouching"
+        }
+      },
+      "event": {
+        "name": "Event Photography",
+        "duration": "4 hours",
+        "includes": {
+          "coverage": "Full event coverage",
+          "images": "100+ edited images",
+          "gallery": "Online gallery",
+          "preview": "Same-day preview"
+        }
+      },
+      "commercial": {
+        "name": "Commercial Shoot",
+        "duration": "Full day",
+        "includes": {
+          "shoot": "Product/lifestyle photography",
+          "images": "200+ edited images",
+          "angles": "Multiple angles",
+          "files": "Brand-ready files"
+        }
+      },
+      "wedding": {
+        "name": "Wedding Package",
+        "duration": "Full day",
+        "includes": {
+          "coverage": "Ceremony & reception",
+          "images": "300+ edited images",
+          "session": "Engagement session",
+          "album": "Premium album"
+        }
+      },
+      "bookNow": "Book Now"
+    },
+    "testimonials": {
+      "title": "What Our Clients Say"
+    },
+    "booking": {
+      "title": "Book Your Session",
+      "description": "Let's discuss your vision and create something beautiful together",
+      "name": "Your Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "preferredDate": "Preferred Date",
+      "serviceType": "Service Type",
+      "message": "Tell us about your project",
+      "messagePlaceholder": "What kind of photography do you need? Any specific requirements or ideas?",
+      "submit": "Send Inquiry",
+      "responseTime": "We'll respond within 24 hours to discuss your project",
+      "serviceTypes": {
+        "portrait": "Portrait Session",
+        "event": "Event Photography",
+        "commercial": "Commercial Shoot",
+        "wedding": "Wedding Package",
+        "other": "Other"
+      }
+    },
+    "features": {
+      "editing": {
+        "title": "Professional Editing",
+        "description": "Every image is carefully edited to perfection, ensuring the highest quality results"
+      },
+      "resolution": {
+        "title": "High-Resolution Files",
+        "description": "Receive all images in high-resolution format, perfect for printing and sharing"
+      },
+      "video": {
+        "title": "Video Services",
+        "description": "We also offer video production services for events, commercials, and more"
+      }
+    },
+    "contact": {
+      "title": "Get in Touch",
+      "description": "Ready to tell your story? Let's discuss your project.",
+      "email": "Email",
+      "phone": "Phone",
+      "sendMessage": "Send Message"
+    },
+    "categories": {
+      "all": "All",
+      "cultural": "Cultural",
+      "adventure": "Adventure",
+      "socialMedia": "Social Media"
+    }
+  },
+  "association": {
+    "hero": {
+      "title": "Small Actions, Big Impact",
+      "description": "Join a community that cares. Non-profit actions with complete transparency.",
+      "exploreCampaigns": "Explore Campaigns"
+    },
+    "impact": {
+      "title": "Our Impact",
+      "description": "Together, we're making a difference",
+      "stats": {
+        "treesPlanted": "Trees Planted",
+        "livesImpacted": "Lives Impacted",
+        "projectsCompleted": "Projects Completed",
+        "countriesReached": "Countries Reached"
+      }
+    },
+    "campaigns": {
+      "title": "Active Campaigns",
+      "description": "Support causes that align with our values",
+      "treePlanting": {
+        "title": "Tree Planting Initiative",
+        "description": "Planting trees in deforested areas to restore ecosystems and combat climate change.",
+        "category": "Environment",
+        "impact": "🌳 7,500 trees planted"
+      },
+      "cleanWater": {
+        "title": "Clean Water Access",
+        "description": "Providing clean water wells and filtration systems to communities in need.",
+        "category": "Community",
+        "impact": "💧 15 wells installed"
+      },
+      "education": {
+        "title": "Education for All",
+        "description": "Supporting schools and providing educational materials to underserved communities.",
+        "category": "Education",
+        "impact": "📚 500 students supported"
+      },
+      "wildlife": {
+        "title": "Wildlife Conservation",
+        "description": "Protecting endangered species and their habitats through conservation efforts.",
+        "category": "Wildlife",
+        "impact": "🦋 3 protected areas"
+      }
+    },
+    "transparency": {
+      "title": "Complete Transparency",
+      "description": "Every donation is tracked, every impact is measured, and every result is shared.",
+      "trackImpact": {
+        "title": "Track Your Impact",
+        "description": "See exactly where your donation goes and the difference it makes"
+      },
+      "verifiedPartners": {
+        "title": "Verified Partners",
+        "description": "All our partner organizations are vetted and verified for maximum impact"
+      },
+      "regularUpdates": {
+        "title": "Regular Updates",
+        "description": "Receive updates on campaign progress and see the real-world impact"
+      }
+    },
+    "cta": {
+      "title": "Join the Movement",
+      "description": "Together, we can create meaningful change. Every contribution, no matter how small, makes a difference.",
+      "startMakingImpact": "Start Making an Impact"
+    },
+    "common": {
+      "donate": "Donate Now",
+      "learnMore": "Learn More",
+      "goal": "Goal",
+      "raised": "Raised",
+      "of": "of",
+      "complete": "complete"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "signIn": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Join us to shop, track orders, and more.",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "createAccount": "Create account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "continue": "Continue"
   },
   "services": {
     "news": {
@@ -20,8 +462,8 @@
     },
     "party": {
       "title": "Ishk Party",
-      "subtitle": "Book party-friendly venues & services",
-      "description": "Celebrate life's moments in beautiful spaces. Curated venues & services."
+      "subtitle": "Full-service event planning",
+      "description": "DJing, food, drinks, and complete event organization. Full-service event planning and execution."
     },
     "boutique": {
       "title": "Ishk Boutique",
@@ -37,12 +479,16 @@
       "title": "Photography & Editing",
       "subtitle": "Shoots, edits, retouching",
       "description": "Let us capture the beauty in your story."
+    },
+    "housing": {
+      "title": "ISHK Housing",
+      "subtitle": "Curated accommodations",
+      "description": "Beautiful, curated accommodations for your event guests. Comfortable spaces that complement your celebration."
+    },
+    "partyServices": {
+      "title": "ISHK Party",
+      "subtitle": "Full-service event planning",
+      "description": "DJing, food, drinks, and complete event organization. Full-service event planning and execution."
     }
   }
 }
-
-
-
-
-
-

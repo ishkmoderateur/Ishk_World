@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     const inquiries = await prisma.venueInquiry.findMany({
       include: {
         venue: {
@@ -35,6 +44,14 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     const { id, status } = await request.json();
 
     const inquiry = await prisma.venueInquiry.update({
@@ -57,6 +74,14 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -80,4 +105,7 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+
+
 

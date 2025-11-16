@@ -4,60 +4,63 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Heart, TrendingUp, Users, Target, ArrowRight, CheckCircle, Leaf, Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function AssociationPage() {
+  const { t } = useLanguage();
+  
   const campaigns = [
     {
       id: 1,
-      title: "Tree Planting Initiative",
-      description: "Planting trees in deforested areas to restore ecosystems and combat climate change.",
+      title: t("association.campaigns.treePlanting.title"),
+      description: t("association.campaigns.treePlanting.description"),
       progress: 75,
       goal: "10,000 trees",
       raised: "7,500 trees",
       image: "bg-gradient-to-br from-forest/20 to-sage/20",
-      category: "Environment",
-      impact: "🌳 7,500 trees planted",
+      category: t("association.campaigns.treePlanting.category"),
+      impact: t("association.campaigns.treePlanting.impact"),
     },
     {
       id: 2,
-      title: "Clean Water Access",
-      description: "Providing clean water wells and filtration systems to communities in need.",
+      title: t("association.campaigns.cleanWater.title"),
+      description: t("association.campaigns.cleanWater.description"),
       progress: 45,
       goal: "€50,000",
       raised: "€22,500",
       image: "bg-gradient-to-br from-sky/20 to-sage/20",
-      category: "Community",
-      impact: "💧 15 wells installed",
+      category: t("association.campaigns.cleanWater.category"),
+      impact: t("association.campaigns.cleanWater.impact"),
     },
     {
       id: 3,
-      title: "Education for All",
-      description: "Supporting schools and providing educational materials to underserved communities.",
+      title: t("association.campaigns.education.title"),
+      description: t("association.campaigns.education.description"),
       progress: 60,
       goal: "€30,000",
       raised: "€18,000",
       image: "bg-gradient-to-br from-amber/20 to-coral/20",
-      category: "Education",
-      impact: "📚 500 students supported",
+      category: t("association.campaigns.education.category"),
+      impact: t("association.campaigns.education.impact"),
     },
     {
       id: 4,
-      title: "Wildlife Conservation",
-      description: "Protecting endangered species and their habitats through conservation efforts.",
+      title: t("association.campaigns.wildlife.title"),
+      description: t("association.campaigns.wildlife.description"),
       progress: 30,
       goal: "€75,000",
       raised: "€22,500",
       image: "bg-gradient-to-br from-forest/20 to-sand/20",
-      category: "Wildlife",
-      impact: "🦋 3 protected areas",
+      category: t("association.campaigns.wildlife.category"),
+      impact: t("association.campaigns.wildlife.impact"),
     },
   ];
 
   const impactStats = [
-    { label: "Trees Planted", value: "12,500+", icon: Leaf },
-    { label: "Lives Impacted", value: "5,000+", icon: Users },
-    { label: "Projects Completed", value: "25+", icon: CheckCircle },
-    { label: "Countries Reached", value: "12", icon: Globe },
+    { label: t("association.impact.stats.treesPlanted"), value: "12,500+", icon: Leaf },
+    { label: t("association.impact.stats.livesImpacted"), value: "5,000+", icon: Users },
+    { label: t("association.impact.stats.projectsCompleted"), value: "25+", icon: CheckCircle },
+    { label: t("association.impact.stats.countriesReached"), value: "12", icon: Globe },
   ];
 
   return (
@@ -77,17 +80,23 @@ export default function AssociationPage() {
               <Heart className="w-12 h-12 text-coral" />
             </div>
             <h1 className="text-5xl md:text-6xl font-heading font-bold text-charcoal mb-6">
-              Small Actions, Big Impact
+              {t("association.hero.title")}
             </h1>
             <p className="text-xl md:text-2xl text-charcoal/70 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Join a community that cares. Non-profit actions with complete transparency.
+              {t("association.hero.description")}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                const campaignsSection = document.getElementById('active-campaigns');
+                if (campaignsSection) {
+                  campaignsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
               className="px-8 py-4 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors flex items-center gap-2 mx-auto"
             >
-              Explore Campaigns
+              {t("association.hero.exploreCampaigns")}
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>
@@ -141,7 +150,7 @@ export default function AssociationPage() {
       </section>
 
       {/* Active Campaigns */}
-      <section className="py-16 px-4 md:px-8 bg-gradient-to-br from-coral/5 to-amber/5">
+      <section id="active-campaigns" className="py-16 px-4 md:px-8 bg-gradient-to-br from-coral/5 to-amber/5">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -151,10 +160,10 @@ export default function AssociationPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Active Campaigns
+              {t("association.campaigns.title")}
             </h2>
             <p className="text-charcoal/60 text-lg">
-              Support causes that align with our values
+              {t("association.campaigns.description")}
             </p>
           </motion.div>
 
@@ -194,7 +203,7 @@ export default function AssociationPage() {
                         {campaign.raised}
                       </span>
                       <span className="text-sm text-charcoal/60">
-                        of {campaign.goal}
+                        {t("association.common.of")} {campaign.goal}
                       </span>
                     </div>
                     <div className="w-full bg-coral/10 rounded-full h-3 overflow-hidden">
@@ -208,7 +217,7 @@ export default function AssociationPage() {
                     </div>
                     <div className="text-right mt-1">
                       <span className="text-sm text-charcoal/60">
-                        {campaign.progress}% complete
+                        {campaign.progress}% {t("association.common.complete")}
                       </span>
                     </div>
                   </div>
@@ -221,19 +230,22 @@ export default function AssociationPage() {
 
                   {/* Actions */}
                   <div className="flex gap-3">
-                    <motion.button
+                    <motion.a
+                      href="https://www.paypal.com/donate"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors"
+                      className="flex-1 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors text-center"
                     >
-                      Donate Now
-                    </motion.button>
+                      {t("association.common.donate")}
+                    </motion.a>
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="px-6 py-3 border border-coral/30 text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
                     >
-                      Learn More
+                      {t("association.common.learnMore")}
                     </motion.button>
                   </div>
                 </div>
@@ -257,10 +269,10 @@ export default function AssociationPage() {
               <Target className="w-8 h-8 text-coral" />
             </div>
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Complete Transparency
+              {t("association.transparency.title")}
             </h2>
             <p className="text-charcoal/60 text-lg max-w-2xl mx-auto">
-              Every donation is tracked, every impact is measured, and every result is shared.
+              {t("association.transparency.description")}
             </p>
           </motion.div>
 
@@ -274,10 +286,10 @@ export default function AssociationPage() {
             >
               <TrendingUp className="w-12 h-12 text-coral mx-auto mb-4" />
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Track Your Impact
+                {t("association.transparency.trackImpact.title")}
               </h3>
               <p className="text-charcoal/60">
-                See exactly where your donation goes and the difference it makes
+                {t("association.transparency.trackImpact.description")}
               </p>
             </motion.div>
             <motion.div
@@ -289,10 +301,10 @@ export default function AssociationPage() {
             >
               <CheckCircle className="w-12 h-12 text-coral mx-auto mb-4" />
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Verified Partners
+                {t("association.transparency.verifiedPartners.title")}
               </h3>
               <p className="text-charcoal/60">
-                All our partner organizations are vetted and verified for maximum impact
+                {t("association.transparency.verifiedPartners.description")}
               </p>
             </motion.div>
             <motion.div
@@ -304,10 +316,10 @@ export default function AssociationPage() {
             >
               <Heart className="w-12 h-12 text-coral mx-auto mb-4" />
               <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                Regular Updates
+                {t("association.transparency.regularUpdates.title")}
               </h3>
               <p className="text-charcoal/60">
-                Receive updates on campaign progress and see the real-world impact
+                {t("association.transparency.regularUpdates.description")}
               </p>
             </motion.div>
           </div>
@@ -324,17 +336,17 @@ export default function AssociationPage() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-4">
-              Join the Movement
+              {t("association.cta.title")}
             </h2>
             <p className="text-charcoal/60 text-lg mb-8">
-              Together, we can create meaningful change. Every contribution, no matter how small, makes a difference.
+              {t("association.cta.description")}
             </p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-4 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors inline-flex items-center gap-2"
             >
-              Start Making an Impact
+              {t("association.cta.startMakingImpact")}
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </motion.div>

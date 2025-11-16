@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export async function PUT(
@@ -6,6 +7,14 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require association admin access
+    const session = await requireSectionAccess("association");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Association admin access required" },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const {
       title,
@@ -54,6 +63,14 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Require association admin access
+    const session = await requireSectionAccess("association");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Association admin access required" },
+        { status: 401 }
+      );
+    }
     await prisma.campaign.delete({
       where: { id: params.id },
     });
@@ -73,4 +90,7 @@ export async function DELETE(
     );
   }
 }
+
+
+
 

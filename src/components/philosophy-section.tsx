@@ -3,28 +3,31 @@
 import { motion } from "framer-motion";
 import { Leaf, Heart, Users, Sparkles } from "lucide-react";
 import Image from "next/image";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function PhilosophySection() {
+  const { t } = useLanguage();
+  
   const values = [
     {
       icon: Leaf,
-      title: "Nature First",
-      description: "We believe in living in harmony with nature, respecting the earth that sustains us.",
+      title: t("philosophy.values.natureFirst.title"),
+      description: t("philosophy.values.natureFirst.description"),
     },
     {
       icon: Heart,
-      title: "Mindful Living",
-      description: "Every choice matters. We curate experiences and products that align with conscious values.",
+      title: t("philosophy.values.mindfulLiving.title"),
+      description: t("philosophy.values.mindfulLiving.description"),
     },
     {
       icon: Users,
-      title: "Community",
-      description: "Building connections that matter, supporting each other in our journey toward slow living.",
+      title: t("philosophy.values.community.title"),
+      description: t("philosophy.values.community.description"),
     },
     {
       icon: Sparkles,
-      title: "Authenticity",
-      description: "Embracing what's real, meaningful, and true to who we are and what we value.",
+      title: t("philosophy.values.authenticity.title"),
+      description: t("philosophy.values.authenticity.description"),
     },
   ];
 
@@ -41,18 +44,16 @@ export default function PhilosophySection() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-6">
-              What is <span className="text-primary">'išq</span>?
+              {t("philosophy.title")} <span className="text-primary">'išq</span>{t("philosophy.subtitle")}
             </h2>
             <p className="text-lg text-charcoal/70 leading-relaxed mb-6">
-              In a world that moves too fast, <span className="font-semibold text-charcoal">'išq</span> reminds us
-              to pause, breathe, and reconnect with what truly matters: nature, community, mindful living.
+              {t("philosophy.paragraph1")} <span className="font-semibold text-charcoal">'išq</span> {t("philosophy.paragraph1Bold")}
             </p>
             <p className="text-lg text-charcoal/70 leading-relaxed mb-6">
-              It's not about doing less—it's about doing what matters. Choosing quality over quantity.
-              Building relationships over transactions. Living intentionally, not reactively.
+              {t("philosophy.paragraph2")}
             </p>
             <p className="text-lg text-charcoal/70 leading-relaxed">
-              Join us in creating a movement toward a more conscious, connected, and meaningful way of life.
+              {t("philosophy.paragraph3")}
             </p>
           </motion.div>
 

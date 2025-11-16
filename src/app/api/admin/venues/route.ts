@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 // GET - Fetch all venues
 export async function GET() {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     const venues = await prisma.venue.findMany({
       orderBy: { createdAt: "desc" },
     });
@@ -21,6 +30,14 @@ export async function GET() {
 // POST - Create new venue
 export async function POST(request: NextRequest) {
   try {
+    // Require party admin access
+    const session = await requireSectionAccess("party");
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized: Party admin access required" },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const {
       name,

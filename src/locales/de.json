@@ -1,48 +1,494 @@
 {
   "hero": {
     "subtitle": "'išq",
-    "tagline": "Langsames Leben näher an dem, was wirklich wichtig ist",
-    "cta": "Beginne Deine Reise"
+    "tagline": "Entschleunigtes Leben – näher an dem, was wirklich zählt",
+    "cta": "Beginne deine Reise"
   },
   "nav": {
-    "home": "Startseite",
-    "news": "Nachrichten",
-    "party": "Feier",
+    "home": "Heim",
+    "news": "Nachricht",
+    "party": "Party",
     "boutique": "Boutique",
     "association": "Verein",
-    "photography": "Fotografie"
+    "photography": "Fotografie & Bildbearbeitung",
+    "services": "Dienstleistungen",
+    "housing": "Gehäuse"
+  },
+  "footer": {
+    "tagline": "Entschleunigen Sie Ihr Leben und besinnen Sie sich auf das Wesentliche. Gestalten Sie mit uns einen bewussteren, erfüllteren und sinnvolleren Lebensstil.",
+    "services": "Dienstleistungen",
+    "company": "Unternehmen",
+    "legal": "Recht",
+    "social": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "email": "E-Mail"
+    },
+    "links": {
+      "worldNews": "Weltnachrichten",
+      "party": "Party",
+      "boutique": "Boutique",
+      "association": "Verein",
+      "photography": "Fotografie",
+      "aboutUs": "Über uns",
+      "philosophy": "Philosophie",
+      "contact": "Kontakt",
+      "careers": "Karriere",
+      "privacyPolicy": "Datenschutzrichtlinie",
+      "termsOfService": "Nutzungsbedingungen",
+      "shippingInfo": "Versandinformationen",
+      "returns": "Rücksendungen"
+    },
+    "copyright": "Alle Rechte vorbehalten.",
+    "madeWith": "Hergestellt mit",
+    "forMindfulLiving": "für ein achtsames Leben"
+  },
+  "philosophy": {
+    "title": "Was ist",
+    "subtitle": "?",
+    "paragraph1": "In einer Welt, die sich zu schnell dreht,",
+    "paragraph1Bold": "Erinnert uns daran, innezuhalten, durchzuatmen und uns wieder mit dem zu verbinden, was wirklich zählt: Natur, Gemeinschaft, achtsames Leben.",
+    "paragraph2": "Es geht nicht darum, weniger zu tun – es geht darum, das Wesentliche zu tun. Qualität vor Quantität zu stellen. Beziehungen aufzubauen statt Geschäfte abzuschließen. Bewusst zu leben, nicht reaktiv.",
+    "paragraph3": "Schließen Sie sich uns an und gestalten Sie mit uns eine Bewegung hin zu einem bewussteren, vernetzteren und sinnvolleren Lebensstil.",
+    "values": {
+      "natureFirst": {
+        "title": "Natur zuerst",
+        "description": "Wir glauben daran, im Einklang mit der Natur zu leben und die Erde, die uns erhält, zu respektieren."
+      },
+      "mindfulLiving": {
+        "title": "Achtsames Leben",
+        "description": "Jede Entscheidung zählt. Wir wählen Erlebnisse und Produkte aus, die mit bewussten Werten übereinstimmen."
+      },
+      "community": {
+        "title": "Gemeinschaft",
+        "description": "Wir knüpfen bedeutungsvolle Verbindungen und unterstützen uns gegenseitig auf unserem Weg zu einem entschleunigten Leben."
+      },
+      "authenticity": {
+        "title": "Authentizität",
+        "description": "Sich dem zuzuwenden, was real, bedeutungsvoll und wahrhaftig ist – dem, wer wir sind und was wir wertschätzen."
+      }
+    }
+  },
+  "cta": {
+    "title": "Bereit, deine Reise zu beginnen?",
+    "description": "Schließen Sie sich Tausenden von Menschen an, die sich für ein bewussteres Leben entschieden haben. Entdecken Sie noch heute unsere Angebote.",
+    "exploreServices": "Services entdecken",
+    "shopBoutique": "Boutique-Shop"
+  },
+  "party": {
+    "hero": {
+      "title": "Full-Service-Eventplanung",
+      "description": "DJing, Speisen, Getränke und die komplette Eventorganisation. Full-Service-Eventplanung und -durchführung.",
+      "startSearch": "Starten Sie Ihre Suche"
+    },
+    "search": {
+      "placeholder": "Suchdienste, DJ, Catering...",
+      "filter": "Filter"
+    },
+    "sectionTitle": "Party-Services",
+    "sectionDescription": "Alles, was Sie für eine unvergessliche Feier benötigen",
+    "services": {
+      "dj": {
+        "name": "DJ-Dienstleistungen",
+        "description": "Professionelle DJs für jeden Veranstaltungsstil",
+        "features": {
+          "soundSystem": "Soundsystem",
+          "lighting": "Beleuchtung",
+          "playlistCreation": "Playlist-Erstellung"
+        }
+      },
+      "bartending": {
+        "name": "Barkeeper-Service",
+        "description": "Professionelle Barkeeper und erstklassiger Barservice",
+        "features": {
+          "cocktailMenu": "Cocktailkarte",
+          "barSetup": "Bar-Setup",
+          "staffIncluded": "Personal inklusive"
+        }
+      },
+      "catering": {
+        "name": "Catering & Speisen",
+        "description": "Kompletter Cateringservice für Ihre Veranstaltung",
+        "features": {
+          "customMenu": "Benutzerdefiniertes Menü",
+          "dietaryOptions": "Ernährungsoptionen",
+          "setupCleanup": "Auf- und Abbau"
+        }
+      },
+      "planning": {
+        "name": "Veranstaltungsplanung",
+        "description": "Full-Service-Eventkoordination",
+        "features": {
+          "coordination": "Koordinierung",
+          "timelineManagement": "Zeitleistenmanagement",
+          "vendorLiaison": "Lieferantenverbindungsmann"
+        }
+      },
+      "lighting": {
+        "name": "Licht & Ton",
+        "description": "Professionelle audiovisuelle Ausstattung",
+        "features": {
+          "soundSystem": "Soundsystem",
+          "lightingDesign": "Lichtdesign",
+          "technicalSupport": "Technische Unterstützung"
+        }
+      },
+      "decoration": {
+        "name": "Dekorationsdienstleistungen",
+        "description": "Verwandeln Sie Ihren Raum auf wunderschöne Weise",
+        "features": {
+          "themeDesign": "Themendesign",
+          "floralArrangements": "Blumenarrangements",
+          "setupRemoval": "Einrichtung & Entfernung"
+        }
+      }
+    },
+    "from": "Aus",
+    "reviews": "Rezensionen",
+    "getQuote": "Angebot anfordern",
+    "inquiry": {
+      "title": "Lass uns deine Veranstaltung planen",
+      "description": "Erzählen Sie uns von Ihrer Feier und wir helfen Ihnen bei der Organisation.",
+      "name": "Ihr Name",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefonnummer",
+      "eventDate": "Veranstaltungsdatum",
+      "guests": "Anzahl der Gäste",
+      "message": "Erzählen Sie uns von Ihrer Veranstaltung",
+      "messagePlaceholder": "Welche Art von Veranstaltung planen Sie? Gibt es besondere Anforderungen?",
+      "submit": "Anfrage senden",
+      "responseTime": "Wir werden Ihnen innerhalb von 2 Stunden während der Geschäftszeiten antworten."
+    },
+    "features": {
+      "easyBooking": {
+        "title": "Einfache Buchung",
+        "description": "Unkomplizierter Anfrageprozess, persönlicher Service und schnelle Antworten."
+      },
+      "curatedSelection": {
+        "title": "Ausgewählte Auswahl",
+        "description": "Nur die schönsten und gepflegtesten Veranstaltungsorte schaffen es auf unsere Liste."
+      },
+      "personalService": {
+        "title": "Persönlicher Service",
+        "description": "Direkte Kommunikation mit den Veranstaltungsortbesitzern für das beste Erlebnis"
+      }
+    }
+  },
+  "boutique": {
+    "hero": {
+      "title": "Mit Bewusst kuratiert",
+      "description": "Jedes Produkt erzählt eine Geschichte von Sorgfalt, Handwerkskunst und Sinnhaftigkeit. Nachhaltige Produkte & Ishk Originale.",
+      "exploreCollection": "Kollektion entdecken"
+    },
+    "originals": {
+      "title": "Ishk Originals",
+      "description": "Zeig deine Werte. Lebe die Philosophie. Hochwertige, nachhaltige Produkte, mit Sorgfalt entworfen.",
+      "viewAll": "Alle Ishk Originals ansehen"
+    },
+    "search": {
+      "placeholder": "Produkte suchen...",
+      "filter": "Filter",
+      "sort": "Sortieren"
+    },
+    "categories": {
+      "all": "Alle Produkte",
+      "homeLiving": "Wohnen & Leben",
+      "wellness": "Wellness",
+      "books": "Bücher",
+      "originals": "🌟 Ishk Originals"
+    },
+    "products": {
+      "title": "Alle Produkte",
+      "description": "sorgfältig ausgewählte Artikel",
+      "bestseller": "Bestseller",
+      "new": "Neu",
+      "addToCart": "in den Warenkorb legen",
+      "reviews": "Rezensionen"
+    },
+    "features": {
+      "sustainable": {
+        "title": "Nachhaltige Materialien",
+        "description": "Ausschließlich organische, recycelte und ethisch einwandfreie Materialien"
+      },
+      "ethical": {
+        "title": "Ethische Produktion",
+        "description": "Faire Löhne, sichere Arbeitsbedingungen und transparente Lieferketten"
+      },
+      "carbonNeutral": {
+        "title": "Klimaneutral",
+        "description": "Für jede Bestellung wird ein Baum gepflanzt. Kostenloser Versand ab 75 €."
+      }
+    },
+    "cart": {
+      "title": "Warenkorb",
+      "empty": "Ihr Warenkorb ist leer",
+      "continueShopping": "Weiter einkaufen",
+      "subtotal": "Zwischensumme",
+      "shipping": "Versand",
+      "total": "Gesamt",
+      "checkout": "Kasse"
+    }
+  },
+  "photography": {
+    "hero": {
+      "title": "Wir halten die Schönheit Ihrer Geschichte fest",
+      "description": "Professionelle Fotodienstleistungen, Shootings, Bearbeitung und Retusche. Jeder Moment verdient es, wunderschön in Erinnerung zu bleiben.",
+      "bookSession": "Buche eine Sitzung"
+    },
+    "portfolio": {
+      "title": "Unser Portfolio",
+      "description": "Ein Einblick in die Geschichten, die wir eingefangen haben",
+      "all": "Alle",
+      "cultural": "Kulturell",
+      "adventure": "Abenteuer",
+      "socialMedia": "Soziale Medien"
+    },
+    "services": {
+      "title": "Unsere Dienstleistungen",
+      "description": "Professionelle Pakete, die auf Ihre Bedürfnisse zugeschnitten sind",
+      "portrait": {
+        "name": "Portrait-Session",
+        "duration": "2 Stunden",
+        "includes": {
+          "shoot": "Professionelles Fotoshooting",
+          "images": "30 bearbeitete hochauflösende Bilder",
+          "gallery": "Online-Galerie",
+          "retouching": "Grundlegende Retusche"
+        }
+      },
+      "event": {
+        "name": "Eventfotografie",
+        "duration": "4 Stunden",
+        "includes": {
+          "coverage": "Vollständige Berichterstattung über die Veranstaltung",
+          "images": "Mehr als 100 bearbeitete Bilder",
+          "gallery": "Online-Galerie",
+          "preview": "Vorschau am selben Tag"
+        }
+      },
+      "commercial": {
+        "name": "Werbedreh",
+        "duration": "Ganztägig",
+        "includes": {
+          "shoot": "Produkt-/Lifestylefotografie",
+          "images": "Mehr als 200 bearbeitete Bilder",
+          "angles": "Mehrere Blickwinkel",
+          "files": "Markenfertige Dateien"
+        }
+      },
+      "wedding": {
+        "name": "Hochzeitspaket",
+        "duration": "Ganztägig",
+        "includes": {
+          "coverage": "Zeremonie & Empfang",
+          "images": "Mehr als 300 bearbeitete Bilder",
+          "session": "Verlobungssitzung",
+          "album": "Premium-Album"
+        }
+      },
+      "bookNow": "Jetzt buchen"
+    },
+    "testimonials": {
+      "title": "Was unsere Kunden sagen"
+    },
+    "booking": {
+      "title": "Buchen Sie Ihre Sitzung",
+      "description": "Lass uns über deine Vision sprechen und gemeinsam etwas Schönes erschaffen.",
+      "name": "Ihr Name",
+      "email": "E-Mail-Adresse",
+      "phone": "Telefonnummer",
+      "preferredDate": "Wunschtermin",
+      "serviceType": "Serviceart",
+      "message": "Erzählen Sie uns von Ihrem Projekt",
+      "messagePlaceholder": "Welche Art von Fotos benötigen Sie? Gibt es spezielle Anforderungen oder Ideen?",
+      "submit": "Anfrage senden",
+      "responseTime": "Wir werden uns innerhalb von 24 Stunden bei Ihnen melden, um Ihr Projekt zu besprechen.",
+      "serviceTypes": {
+        "portrait": "Portrait-Session",
+        "event": "Eventfotografie",
+        "commercial": "Werbedreh",
+        "wedding": "Hochzeitspaket",
+        "other": "Andere"
+      }
+    },
+    "features": {
+      "editing": {
+        "title": "Professionelles Lektorat",
+        "description": "Jedes Bild wird sorgfältig bis zur Perfektion bearbeitet, um Ergebnisse höchster Qualität zu gewährleisten."
+      },
+      "resolution": {
+        "title": "Hochauflösende Dateien",
+        "description": "Sie erhalten alle Bilder in hochauflösendem Format, ideal zum Drucken und Teilen."
+      },
+      "video": {
+        "title": "Videodienste",
+        "description": "Wir bieten außerdem Videoproduktionsdienstleistungen für Veranstaltungen, Werbespots und mehr an."
+      }
+    },
+    "contact": {
+      "title": "Nehmen Sie Kontakt auf",
+      "description": "Bereit, Ihre Geschichte zu erzählen? Lassen Sie uns über Ihr Projekt sprechen.",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "sendMessage": "Nachricht senden"
+    },
+    "categories": {
+      "all": "Alle",
+      "cultural": "Kulturell",
+      "adventure": "Abenteuer",
+      "socialMedia": "Soziale Medien"
+    }
+  },
+  "association": {
+    "hero": {
+      "title": "Kleine Taten, große Wirkung",
+      "description": "Schließen Sie sich einer Gemeinschaft an, der etwas daran liegt. Gemeinnützige Aktionen mit voller Transparenz.",
+      "exploreCampaigns": "Kampagnen entdecken"
+    },
+    "impact": {
+      "title": "Unsere Wirkung",
+      "description": "Gemeinsam bewirken wir etwas.",
+      "stats": {
+        "treesPlanted": "Gepflanzte Bäume",
+        "livesImpacted": "Betroffene Leben",
+        "projectsCompleted": "Abgeschlossene Projekte",
+        "countriesReached": "Erreichte Länder"
+      }
+    },
+    "campaigns": {
+      "title": "Aktive Kampagnen",
+      "description": "Unterstützen Sie Anliegen, die mit unseren Werten übereinstimmen.",
+      "treePlanting": {
+        "title": "Baumpflanzungsinitiative",
+        "description": "Bäume in entwaldeten Gebieten pflanzen, um Ökosysteme wiederherzustellen und dem Klimawandel entgegenzuwirken.",
+        "category": "Umfeld",
+        "impact": "🌳 7.500 Bäume gepflanzt"
+      },
+      "cleanWater": {
+        "title": "Zugang zu sauberem Wasser",
+        "description": "Bereitstellung von sauberen Wasserbrunnen und Filtersystemen für bedürftige Gemeinden.",
+        "category": "Gemeinschaft",
+        "impact": "💧 15 Brunnen installiert"
+      },
+      "education": {
+        "title": "Bildung für alle",
+        "description": "Unterstützung von Schulen und Bereitstellung von Lehrmaterialien für benachteiligte Gemeinschaften.",
+        "category": "Ausbildung",
+        "impact": "📚 500 Schüler unterstützt"
+      },
+      "wildlife": {
+        "title": "Wildtierschutz",
+        "description": "Schutz gefährdeter Arten und ihrer Lebensräume durch Naturschutzmaßnahmen.",
+        "category": "Tierwelt",
+        "impact": "🦋 3 Schutzgebiete"
+      }
+    },
+    "transparency": {
+      "title": "Vollständige Transparenz",
+      "description": "Jede Spende wird erfasst, jede Auswirkung gemessen und jedes Ergebnis mitgeteilt.",
+      "trackImpact": {
+        "title": "Verfolge deine Wirkung",
+        "description": "Sehen Sie genau, wohin Ihre Spende fließt und welchen Unterschied sie bewirkt."
+      },
+      "verifiedPartners": {
+        "title": "Verifizierte Partner",
+        "description": "Alle unsere Partnerorganisationen werden sorgfältig geprüft und verifiziert, um maximale Wirkung zu erzielen."
+      },
+      "regularUpdates": {
+        "title": "Regelmäßige Updates",
+        "description": "Erhalten Sie Updates zum Kampagnenfortschritt und sehen Sie die Auswirkungen in der realen Welt."
+      }
+    },
+    "cta": {
+      "title": "Schließ dich der Bewegung an",
+      "description": "Gemeinsam können wir etwas bewegen. Jeder Beitrag, so klein er auch sein mag, zählt.",
+      "startMakingImpact": "Beginnen Sie damit, etwas zu bewirken."
+    },
+    "common": {
+      "donate": "Jetzt spenden",
+      "learnMore": "Mehr erfahren",
+      "goal": "Ziel",
+      "raised": "Erzogen",
+      "of": "von",
+      "complete": "vollständig"
+    }
+  },
+  "auth": {
+    "signin": {
+      "title": "Willkommen zurück",
+      "subtitle": "Melden Sie sich in Ihrem Konto an",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "signIn": "anmelden",
+      "noAccount": "Sie haben noch kein Konto?",
+      "signUp": "Melden Sie sich an"
+    },
+    "register": {
+      "title": "Benutzerkonto erstellen",
+      "subtitle": "Melden Sie sich an, um einzukaufen, Bestellungen zu verfolgen und vieles mehr.",
+      "name": "Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "createAccount": "Benutzerkonto erstellen",
+      "haveAccount": "Sie haben bereits ein Konto?",
+      "signIn": "anmelden"
+    }
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "save": "Speichern",
+    "cancel": "Stornieren",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "view": "Sicht",
+    "search": "Suchen",
+    "filter": "Filter",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Nächste",
+    "previous": "Vorherige",
+    "submit": "Einreichen",
+    "continue": "Weitermachen"
   },
   "services": {
     "news": {
       "title": "Ishk Weltnachrichten",
-      "subtitle": "Interaktiver Globus + kuratierte Zusammenfassungen",
-      "description": "Bleiben Sie informiert, ohne überwältigt zu werden. KI-gestützte Nachrichtenzusammenfassungen, die Ihre Zeit respektieren."
+      "subtitle": "Interaktiver Globus + kuratierte Kurzberichte",
+      "description": "Bleiben Sie informiert, nicht überfordert. KI-gestützte Kurznachrichten, die Ihre Zeit respektieren."
     },
     "party": {
-      "title": "Ishk Feier",
-      "subtitle": "Buchen Sie feierfreundliche Orte und Dienstleistungen",
-      "description": "Feiern Sie die Momente des Lebens in schönen Räumen. Kuratierte Orte und Dienstleistungen."
+      "title": "Ishk-Partei",
+      "subtitle": "Full-Service-Eventplanung",
+      "description": "DJing, Speisen, Getränke und die komplette Eventorganisation. Full-Service-Eventplanung und -durchführung."
     },
     "boutique": {
       "title": "Ishk Boutique",
-      "subtitle": "Geben, wiederverwenden und Ursachen unterstützen",
-      "description": "Bewusste Entscheidungen, mit Sorgfalt kuratiert. Nachhaltige Produkte und Ishk-Originale."
+      "subtitle": "Spenden, Wiederverwendung und Unterstützung von wohltätigen Zwecken",
+      "description": "Bewusste Entscheidungen, sorgfältig ausgewählt. Nachhaltige Produkte & Ishk Originale."
     },
     "association": {
-      "title": "Ishk Verein",
-      "subtitle": "Gemeinnützige Aktionen und Transparenz",
-      "description": "Kleine Aktionen, große Wirkung. Treten Sie einer Gemeinschaft bei, die sich kümmert."
+      "title": "Ishk-Vereinigung",
+      "subtitle": "Aktionen und Transparenz von gemeinnützigen Organisationen",
+      "description": "Kleine Taten, große Wirkung. Schließen Sie sich einer Gemeinschaft an, der etwas daran liegt."
     },
     "photography": {
-      "title": "Fotografie und Bearbeitung",
+      "title": "Fotografie & Bildbearbeitung",
       "subtitle": "Aufnahmen, Bearbeitungen, Retuschen",
       "description": "Lassen Sie uns die Schönheit Ihrer Geschichte einfangen."
+    },
+    "housing": {
+      "title": "ISHK Housing",
+      "subtitle": "Ausgewählte Unterkünfte",
+      "description": "Wunderschön gestaltete Unterkünfte für Ihre Veranstaltungsgäste. Komfortable Räumlichkeiten, die Ihre Feier perfekt ergänzen."
+    },
+    "partyServices": {
+      "title": "ISHK-Partei",
+      "subtitle": "Full-Service-Eventplanung",
+      "description": "DJing, Speisen, Getränke und die komplette Eventorganisation. Full-Service-Eventplanung und -durchführung."
     }
   }
 }
-
-
-
-
-
-
