@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require association admin access
@@ -15,6 +15,7 @@ export async function PUT(
         { status: 401 }
       );
     }
+    const { id } = await params;
     const body = await request.json();
     const {
       title,
@@ -38,7 +39,7 @@ export async function PUT(
     if (isActive !== undefined) updateData.isActive = isActive;
 
     const campaign = await prisma.campaign.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
     });
 
@@ -60,7 +61,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require association admin access
@@ -71,8 +72,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+    const { id } = await params;
     await prisma.campaign.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

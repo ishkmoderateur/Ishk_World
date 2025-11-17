@@ -3,13 +3,14 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { title, summary, region, topics, sourceUrl } = await request.json();
 
     const newsBrief = await prisma.newsBrief.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         summary,

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // GET - Fetch single product
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require boutique admin access
@@ -16,8 +16,9 @@ export async function GET(
         { status: 401 }
       );
     }
+    const { id } = await params;
     const product = await prisma.product.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!product) {
@@ -40,7 +41,7 @@ export async function GET(
 // PUT - Update product
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require boutique admin access
@@ -51,6 +52,7 @@ export async function PUT(
         { status: 401 }
       );
     }
+    const { id } = await params;
     const body = await request.json();
     const {
       name,
@@ -82,7 +84,7 @@ export async function PUT(
     if (featured !== undefined) updateData.featured = featured;
 
     const product = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
     });
 
@@ -105,7 +107,7 @@ export async function PUT(
 // DELETE - Delete product
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require boutique admin access
@@ -116,8 +118,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+    const { id } = await params;
     await prisma.product.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
