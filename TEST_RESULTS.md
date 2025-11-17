@@ -52,3 +52,4 @@ Password fields may not be getting filled properly, or there's a validation erro
 2. **Registration Issue**: Verify password field values are being sent correctly
 3. **JWT Callback**: Ensure role is persisted in token on subsequent requests
 
+
