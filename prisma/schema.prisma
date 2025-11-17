@@ -42,6 +42,7 @@ model User {
   wishlistItems WishlistItem[]
   inquiries     VenueInquiry[]
   donations     Donation[]
+  newsBriefs    NewsBrief[]
   
   @@map("users")
 }
@@ -312,6 +313,9 @@ model NewsBrief {
   topics    Json     // Array of topics (stored as JSON)
   sourceUrl String?
   savedAt   DateTime @default(now())
+  
+  // Relations
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   
   @@map("news_briefs")
 }
