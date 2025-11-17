@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
+import { UserRole } from "@/types/next-auth.d";
 
 // Validate required environment variables
 if (!process.env.NEXTAUTH_SECRET) {
@@ -191,7 +192,7 @@ const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string | undefined;
+        session.user.role = token.role as UserRole | undefined;
         if (token.email) {
           session.user.email = token.email as string;
         }
