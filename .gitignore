@@ -37,6 +37,10 @@ next-env.d.ts
 
 # prisma
 /src/generated
+*.db
+*.db-journal
+prisma/*.db
+prisma/*.db-journal
 
 # logs
 *.log
