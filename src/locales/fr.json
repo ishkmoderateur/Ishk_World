@@ -1,16 +1,22 @@
 {
   "hero": {
-    "subtitle": "'išq",
+    "subtitle": "ishk",
     "tagline": "Vivre plus lentement, au plus près de l'essentiel.",
+    "taglines": [
+      "Vivre plus lentement, au plus près de l'essentiel.",
+      "Embrasser la beauté des moments conscients",
+      "Vivre intentionnellement, pas réactivement",
+      "Pause, respire, reconnecte-toi"
+    ],
     "cta": "Commencez votre voyage"
   },
   "nav": {
-    "home": "Maison",
+    "home": "Accueil",
     "news": "Nouvelles",
     "party": "Faire la fête",
     "boutique": "Boutique",
     "association": "Association",
-    "photography": "Photographie et retouche",
+    "photography": "Photographie",
     "services": "Services",
     "housing": "Logement"
   },

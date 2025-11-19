@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { signOut } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
-export default function SignOutPage() {
+function SignOutForm() {
   const params = useSearchParams();
   const callbackUrl = params.get("callbackUrl") || "/";
 
@@ -33,6 +33,26 @@ export default function SignOutPage() {
       </section>
       <Footer />
     </main>
+  );
+}
+
+export default function SignOutPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
+        <Navbar />
+        <section className="pt-32 pb-16 px-4 md:px-8">
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm text-center">
+              <p className="text-charcoal/70">Signing you out...</p>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    }>
+      <SignOutForm />
+    </Suspense>
   );
 }
 

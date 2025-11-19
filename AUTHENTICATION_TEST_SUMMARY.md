@@ -153,3 +153,7 @@ POST /api/auth/register - Status: 400 ❌
 The debug logging is now in place - the server console will tell us exactly what's happening! 🚀
 
 
+
+
+
+

@@ -1,7 +1,13 @@
 {
   "hero": {
-    "subtitle": "'išq",
+    "subtitle": "ishk",
     "tagline": "Entschleunigtes Leben – näher an dem, was wirklich zählt",
+    "taglines": [
+      "Entschleunigtes Leben – näher an dem, was wirklich zählt",
+      "Die Schönheit achtsamer Momente umarmen",
+      "Bewusst leben, nicht reaktiv",
+      "Pause, atme, verbinde dich neu"
+    ],
     "cta": "Beginne deine Reise"
   },
   "nav": {
@@ -10,7 +16,7 @@
     "party": "Party",
     "boutique": "Boutique",
     "association": "Verein",
-    "photography": "Fotografie & Bildbearbeitung",
+    "photography": "Fotografie",
     "services": "Dienstleistungen",
     "housing": "Gehäuse"
   },

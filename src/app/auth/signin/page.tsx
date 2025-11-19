@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Mail, Lock, LogIn, Loader2, Globe } from "lucide-react";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { update } = useSession();
@@ -182,6 +182,33 @@ export default function SignInPage() {
 
       <Footer />
     </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
+        <Navbar />
+        <section className="pt-32 pb-16 px-4 md:px-8">
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+              <div className="animate-pulse">
+                <div className="h-8 bg-sage/20 rounded mb-4"></div>
+                <div className="h-4 bg-sage/10 rounded mb-6"></div>
+                <div className="space-y-4">
+                  <div className="h-12 bg-sage/10 rounded"></div>
+                  <div className="h-12 bg-sage/10 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    }>
+      <SignInForm />
+    </Suspense>
   );
 }
 

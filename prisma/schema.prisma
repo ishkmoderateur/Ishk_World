@@ -332,5 +332,42 @@ model Photography {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
+  // Relations
+  albumPhotos AlbumPhoto[]
+  
   @@map("photography")
+}
+
+// Photography Albums
+model Album {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?  // Cover image for the album
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  photos      AlbumPhoto[]
+  
+  @@map("albums")
+}
+
+// Album Photos (junction table with additional fields)
+model AlbumPhoto {
+  id          String   @id @default(cuid())
+  albumId     String
+  photoId     String
+  orientation String   @default("horizontal") // "horizontal" or "vertical"
+  description String?  // Description specific to this album photo
+  order       Int      @default(0) // Order within the album
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  album Album      @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  photo Photography @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  
+  @@unique([albumId, photoId])
+  @@map("album_photos")
 }

@@ -55,15 +55,10 @@ const authConfig: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("🔐 Authorize function called");
-        console.log("🔐 Credentials received:", { 
-          email: credentials?.email ? "***" : "MISSING", 
-          hasPassword: !!credentials?.password 
-        });
-        
         if (!credentials?.email || !credentials?.password) {
-          console.log("❌ Missing credentials - email or password not provided");
-          console.log("❌ Credentials object:", credentials);
+          if (process.env.NODE_ENV === "development") {
+            console.log("Missing credentials");
+          }
           return null;
         }
 
@@ -72,12 +67,8 @@ const authConfig: NextAuthConfig = {
           const password = credentials.password as string;
           
           if (!email || !password) {
-            console.log("❌ Email or password is empty after normalization");
             return null;
           }
-          
-          console.log(`🔐 Attempting login for: ${email}`);
-          console.log(`🔐 Password length: ${password.length}`);
           
           const user = await prisma.user.findUnique({
             where: { email },
@@ -91,46 +82,27 @@ const authConfig: NextAuthConfig = {
             },
           });
 
-          if (!user) {
-            console.log(`❌ User not found in database: ${email}`);
+          if (!user || !user.password) {
             return null;
           }
-
-          console.log(`✅ User found: ${user.email} (ID: ${user.id})`);
-          console.log(`✅ User has password: ${!!user.password}`);
-          console.log(`✅ User role: ${user.role}`);
 
           // Verify password with bcrypt
-          if (!user.password) {
-            console.log(`❌ User has no password set: ${email}`);
-            return null;
-          }
-          
-          console.log(`🔐 Comparing passwords...`);
           const isValid = await bcrypt.compare(password, user.password);
-          console.log(`🔐 Password comparison result: ${isValid ? "✅ VALID" : "❌ INVALID"}`);
           
           if (!isValid) {
-            console.log(`❌ Invalid password for: ${email}`);
-            console.log(`❌ Provided password: "${password}"`);
-            console.log(`❌ Stored hash: ${user.password.substring(0, 20)}...`);
             return null;
           }
 
-          console.log(`✅ Login successful for: ${email} (Role: ${user.role})`);
-          const userToReturn = {
+          return {
             id: user.id,
             email: user.email,
             name: user.name,
             image: user.image,
           };
-          console.log(`✅ Returning user object:`, { ...userToReturn, id: userToReturn.id.substring(0, 10) + "..." });
-          return userToReturn;
         } catch (error) {
-          console.error("❌ Error in authorize function:");
-          console.error("❌ Error type:", error instanceof Error ? error.constructor.name : typeof error);
-          console.error("❌ Error message:", error instanceof Error ? error.message : String(error));
-          console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack trace");
+          if (process.env.NODE_ENV === "development") {
+            console.error("Error in authorize function:", error);
+          }
           return null;
         }
       },
@@ -159,14 +131,14 @@ const authConfig: NextAuthConfig = {
           });
           if (dbUser) {
             token.role = dbUser.role;
-            console.log(`✅ JWT token created for user ${user.email} with role ${dbUser.role}`);
           } else {
             // If user not found, set default role
             token.role = "USER";
-            console.log(`⚠️ User ${user.email} not found in database for role fetch, using default role`);
           }
         } catch (error) {
-          console.error("❌ Error fetching user role:", error);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Error fetching user role:", error);
+          }
           // Set default role on error instead of leaving it undefined
           token.role = token.role || "USER";
         }
@@ -183,7 +155,9 @@ const authConfig: NextAuthConfig = {
             token.role = "USER";
           }
         } catch (error) {
-          console.error("❌ Error fetching user role from token:", error);
+          if (process.env.NODE_ENV === "development") {
+            console.error("Error fetching user role from token:", error);
+          }
           token.role = "USER";
         }
       }

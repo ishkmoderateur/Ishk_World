@@ -1,7 +1,13 @@
 {
   "hero": {
-    "subtitle": "'išq",
+    "subtitle": "ishk",
     "tagline": "Vivir despacio, más cerca de lo que realmente importa",
+    "taglines": [
+      "Vivir despacio, más cerca de lo que realmente importa",
+      "Abraza la belleza de los momentos conscientes",
+      "Vivir intencionalmente, no reactivamente",
+      "Pausa, respira, reconecta"
+    ],
     "cta": "Comienza tu viaje"
   },
   "nav": {
@@ -10,7 +16,7 @@
     "party": "Fiesta",
     "boutique": "Boutique",
     "association": "Asociación",
-    "photography": "Fotografía y edición",
+    "photography": "Fotografía",
     "services": "Servicios",
     "housing": "Alojamiento"
   },

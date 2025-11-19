@@ -52,11 +52,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        console.error("Error loading cart:", error);
-        // Fallback to localStorage
-        const savedCart = localStorage.getItem("ishk-cart");
-        if (savedCart) {
-          setItems(JSON.parse(savedCart));
+        if (process.env.NODE_ENV === "development") {
+          console.error("Error loading cart:", error);
+        }
+        // Fallback to localStorage for guest users
+        if (!session?.user) {
+          const savedCart = localStorage.getItem("ishk-cart");
+          if (savedCart) {
+            try {
+              setItems(JSON.parse(savedCart));
+            } catch (parseError) {
+              // Invalid JSON in localStorage, clear it
+              localStorage.removeItem("ishk-cart");
+            }
+          }
         }
       } finally {
         setIsLoading(false);
@@ -71,67 +80,144 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       if (session?.user) {
         // Save to database
-        await fetch("/api/cart", {
+        const response = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items: newItems }),
         });
+        
+        if (!response.ok) {
+          throw new Error("Failed to save cart to database");
+        }
       } else {
         // Save to localStorage
         localStorage.setItem("ishk-cart", JSON.stringify(newItems));
       }
     } catch (error) {
-      console.error("Error saving cart:", error);
-      // Fallback to localStorage
-      localStorage.setItem("ishk-cart", JSON.stringify(newItems));
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error saving cart:", error);
+      }
+      // Fallback to localStorage for guest users
+      if (!session?.user) {
+        localStorage.setItem("ishk-cart", JSON.stringify(newItems));
+      }
     }
   };
 
   const addItem = async (item: Omit<CartItem, "id">) => {
-    const newItem: CartItem = {
-      ...item,
-      id: `${item.productId}-${item.size || ""}-${item.color || ""}`,
-    };
+    try {
+      if (session?.user) {
+        // For logged-in users, use API endpoint
+        const response = await fetch("/api/cart/item", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: item.productId,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+          }),
+        });
 
-    setItems((prevItems) => {
-      const existingIndex = prevItems.findIndex(
-        (i) =>
-          i.productId === item.productId &&
-          i.size === item.size &&
-          i.color === item.color
-      );
-
-      let newItems: CartItem[];
-      if (existingIndex >= 0) {
-        // Update quantity
-        newItems = [...prevItems];
-        newItems[existingIndex] = {
-          ...newItems[existingIndex],
-          quantity: newItems[existingIndex].quantity + item.quantity,
-        };
+        if (response.ok) {
+          // Reload cart from database
+          const cartResponse = await fetch("/api/cart");
+          if (cartResponse.ok) {
+            const data = await cartResponse.json();
+            setItems(data.items || []);
+          }
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to add item to cart");
+        }
       } else {
-        // Add new item
-        newItems = [...prevItems, newItem];
-      }
+        // For guest users, update local state
+        const newItem: CartItem = {
+          ...item,
+          id: `${item.productId}-${item.size || ""}-${item.color || ""}`,
+        };
 
-      saveCart(newItems);
-      return newItems;
-    });
+        setItems((prevItems) => {
+          const existingIndex = prevItems.findIndex(
+            (i) =>
+              i.productId === item.productId &&
+              i.size === item.size &&
+              i.color === item.color
+          );
+
+          let newItems: CartItem[];
+          if (existingIndex >= 0) {
+            // Update quantity
+            newItems = [...prevItems];
+            newItems[existingIndex] = {
+              ...newItems[existingIndex],
+              quantity: newItems[existingIndex].quantity + item.quantity,
+            };
+          } else {
+            // Add new item
+            newItems = [...prevItems, newItem];
+          }
+
+          saveCart(newItems);
+          return newItems;
+        });
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error adding item to cart:", error);
+      }
+      throw error;
+    }
   };
 
   const removeItem = async (productId: string, size?: string, color?: string) => {
-    setItems((prevItems) => {
-      const newItems = prevItems.filter(
-        (i) =>
-          !(
+    try {
+      if (session?.user) {
+        // Find the item ID from current items
+        const itemToRemove = items.find(
+          (i) =>
             i.productId === productId &&
             i.size === size &&
             i.color === color
-          )
-      );
-      saveCart(newItems);
-      return newItems;
-    });
+        );
+
+        if (itemToRemove) {
+          const response = await fetch(`/api/cart/item?id=${itemToRemove.id}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            // Reload cart from database
+            const cartResponse = await fetch("/api/cart");
+            if (cartResponse.ok) {
+              const data = await cartResponse.json();
+              setItems(data.items || []);
+            }
+          } else {
+            throw new Error("Failed to remove item from cart");
+          }
+        }
+      } else {
+        // For guest users, update local state
+        setItems((prevItems) => {
+          const newItems = prevItems.filter(
+            (i) =>
+              !(
+                i.productId === productId &&
+                i.size === size &&
+                i.color === color
+              )
+          );
+          saveCart(newItems);
+          return newItems;
+        });
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error removing item from cart:", error);
+      }
+      throw error;
+    }
   };
 
   const updateQuantity = async (
@@ -141,19 +227,60 @@ export function CartProvider({ children }: { children: ReactNode }) {
     color?: string
   ) => {
     if (quantity <= 0) {
-      removeItem(productId, size, color);
+      await removeItem(productId, size, color);
       return;
     }
 
-    setItems((prevItems) => {
-      const newItems = prevItems.map((i) =>
-        i.productId === productId && i.size === size && i.color === color
-          ? { ...i, quantity }
-          : i
-      );
-      saveCart(newItems);
-      return newItems;
-    });
+    try {
+      if (session?.user) {
+        // Find the item ID from current items
+        const itemToUpdate = items.find(
+          (i) =>
+            i.productId === productId &&
+            i.size === size &&
+            i.color === color
+        );
+
+        if (itemToUpdate) {
+          const response = await fetch("/api/cart/item", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              itemId: itemToUpdate.id,
+              quantity,
+            }),
+          });
+
+          if (response.ok) {
+            // Reload cart from database
+            const cartResponse = await fetch("/api/cart");
+            if (cartResponse.ok) {
+              const data = await cartResponse.json();
+              setItems(data.items || []);
+            }
+          } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || "Failed to update cart item");
+          }
+        }
+      } else {
+        // For guest users, update local state
+        setItems((prevItems) => {
+          const newItems = prevItems.map((i) =>
+            i.productId === productId && i.size === size && i.color === color
+              ? { ...i, quantity }
+              : i
+          );
+          saveCart(newItems);
+          return newItems;
+        });
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error updating cart item quantity:", error);
+      }
+      throw error;
+    }
   };
 
   const clearCart = async () => {

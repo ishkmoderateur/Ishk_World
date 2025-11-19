@@ -4,6 +4,19 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/contexts/language-context";
+import enTranslations from "@/locales/en.json";
+import frTranslations from "@/locales/fr.json";
+import esTranslations from "@/locales/es.json";
+import deTranslations from "@/locales/de.json";
+import arTranslations from "@/locales/ar.json";
+
+const translations = {
+  EN: enTranslations,
+  FR: frTranslations,
+  ES: esTranslations,
+  DE: deTranslations,
+  AR: arTranslations,
+};
 
 export default function HeroSection() {
   const { language, setLanguage, t } = useLanguage();
@@ -15,6 +28,9 @@ export default function HeroSection() {
     xMove: number;
     duration: number;
   }>>([]);
+  
+  // Random tagline that changes on each visit
+  const [currentTagline, setCurrentTagline] = useState<string>("");
 
   useEffect(() => {
     // Generate particles only on client side
@@ -27,7 +43,20 @@ export default function HeroSection() {
         duration: 6 + Math.random() * 4,
       }))
     );
-  }, []);
+    
+    // Get taglines array from translations directly
+    const currentTranslations = translations[language];
+    const taglines = currentTranslations?.hero?.taglines;
+    
+    if (Array.isArray(taglines) && taglines.length > 0) {
+      // Randomly select a tagline
+      const randomIndex = Math.floor(Math.random() * taglines.length);
+      setCurrentTagline(taglines[randomIndex]);
+    } else {
+      // Fallback to single tagline if array doesn't exist
+      setCurrentTagline(t("hero.tagline"));
+    }
+  }, [language, t]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -97,13 +126,8 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
           className="space-y-2 mb-12"
         >
-          {language !== "AR" && (
-            <p className="text-lg md:text-xl text-white/90 font-medium tracking-wide drop-shadow">
-              {t("hero.subtitle")}
-            </p>
-          )}
           <p className="text-xl md:text-2xl text-white/90 font-sans max-w-2xl mx-auto leading-relaxed drop-shadow">
-            {t("hero.tagline")}
+            {currentTagline || t("hero.tagline")}
           </p>
         </motion.div>
 

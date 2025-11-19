@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch product details
-    const productIds = items.map((item: any) => item.productId);
+    const productIds = items.map((item: { productId: string }) => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
     });
@@ -65,9 +65,12 @@ export async function POST(request: NextRequest) {
     let subtotal = 0;
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
 
-    items.forEach((item: any) => {
-      const product = products.find((p) => p.id === item.productId);
-      if (product) {
+    items.forEach((item: {
+      productId: string;
+      quantity: number;
+    }) => {
+      const product = products.find((p: { id: string }) => p.id === item.productId);
+      if (product && item.quantity > 0) {
         const itemTotal = product.price * item.quantity;
         subtotal += itemTotal;
 
@@ -130,8 +133,10 @@ export async function POST(request: NextRequest) {
       sessionId: checkoutSession.id,
       url: checkoutSession.url,
     });
-  } catch (error) {
-    console.error("Error creating checkout session:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error creating checkout session:", error);
+    }
     return NextResponse.json(
       { error: "Failed to create checkout session" },
       { status: 500 }

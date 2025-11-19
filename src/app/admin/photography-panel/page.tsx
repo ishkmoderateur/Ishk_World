@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, Edit, Trash2, Camera, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { Plus, Edit, Trash2, Camera, ArrowLeft, Image as ImageIcon, Grid3x3, LayoutGrid, Folder, FolderPlus, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import PhotographyGallery from "@/components/photography-gallery";
 
 export default function PhotographyPanel() {
+  const [activeTab, setActiveTab] = useState<"photos" | "albums">("photos");
   const [photos, setPhotos] = useState<any[]>([]);
+  const [albums, setAlbums] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<any>(null);
+  const [showAlbumForm, setShowAlbumForm] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     category: "",
@@ -19,9 +23,21 @@ export default function PhotographyPanel() {
     featured: false,
     order: 0,
   });
+  const [albumFormData, setAlbumFormData] = useState({
+    title: "",
+    description: "",
+    coverImage: "",
+    order: 0,
+  });
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importType, setImportType] = useState<"instagram" | "urls" | "files">("instagram");
+  const [importInput, setImportInput] = useState("");
+  const [importAlbumTitle, setImportAlbumTitle] = useState("");
 
   useEffect(() => {
     fetchPhotos();
+    fetchAlbums();
   }, []);
 
   const fetchPhotos = async () => {
@@ -38,13 +54,23 @@ export default function PhotographyPanel() {
     }
   };
 
+  const fetchAlbums = async () => {
+    try {
+      const response = await fetch("/api/admin/albums");
+      if (response.ok) {
+        const data = await response.json();
+        setAlbums(data);
+      }
+    } catch (error) {
+      console.error("Error fetching albums:", error);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const url = editing
-        ? `/api/admin/photography/${editing.id}`
-        : "/api/admin/photography";
-      const method = editing ? "PUT" : "POST";
+      const url = "/api/admin/photography";
+      const method = "POST";
 
       const response = await fetch(url, {
         method,
@@ -75,19 +101,6 @@ export default function PhotographyPanel() {
     }
   };
 
-  const handleEdit = (photo: any) => {
-    setEditing(photo);
-    setFormData({
-      title: photo.title,
-      category: photo.category,
-      image: photo.image,
-      description: photo.description || "",
-      featured: photo.featured,
-      order: photo.order,
-    });
-    setShowForm(true);
-  };
-
   const resetForm = () => {
     setFormData({
       title: "",
@@ -97,8 +110,511 @@ export default function PhotographyPanel() {
       featured: false,
       order: 0,
     });
-    setEditing(null);
     setShowForm(false);
+  };
+
+  const handleAlbumSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // Create album first
+      const response = await fetch("/api/admin/albums", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(albumFormData),
+      });
+
+      if (response.ok) {
+        const newAlbum = await response.json();
+        
+        // Add selected photos to album
+        if (selectedPhotos.length > 0) {
+          const maxPhotos = Math.min(selectedPhotos.length, 10);
+          for (let i = 0; i < maxPhotos; i++) {
+            await fetch(`/api/admin/albums/${newAlbum.id}/photos`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                photoId: selectedPhotos[i],
+                orientation: "horizontal",
+                description: "",
+                order: i,
+              }),
+            });
+          }
+        }
+
+        fetchAlbums();
+        setAlbumFormData({
+          title: "",
+          description: "",
+          coverImage: "",
+          order: 0,
+        });
+        setSelectedPhotos([]);
+        setShowAlbumForm(false);
+      }
+    } catch (error) {
+      console.error("Error creating album:", error);
+    }
+  };
+
+  const togglePhotoSelection = (photoId: string) => {
+    if (selectedPhotos.includes(photoId)) {
+      setSelectedPhotos(selectedPhotos.filter((id) => id !== photoId));
+    } else {
+      if (selectedPhotos.length < 10) {
+        setSelectedPhotos([...selectedPhotos, photoId]);
+      } else {
+        alert("Maximum 10 photos per album");
+      }
+    }
+  };
+
+  const handleImportFromInstagram = async (profileUrl: string, albumTitle: string) => {
+    if (!profileUrl || !profileUrl.includes("instagram.com")) {
+      alert("Invalid Instagram URL");
+      return;
+    }
+
+    if (!albumTitle) {
+      alert("Album title is required");
+      return;
+    }
+
+    try {
+      // Fetch image URLs from Instagram profile
+      const response = await fetch("/api/admin/instagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profileUrl: profileUrl,
+          albumTitle: albumTitle,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        alert(error.error || "Failed to fetch Instagram images");
+        return;
+      }
+
+      const data = await response.json();
+      const imageUrls = data.imageUrls;
+
+      if (imageUrls.length === 0) {
+        alert("No images found on this Instagram profile");
+        return;
+      }
+
+      // Create album first
+      const albumResponse = await fetch("/api/admin/albums", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: albumTitle,
+          description: `Imported from Instagram: ${profileUrl}`,
+          coverImage: imageUrls[0] || "",
+          order: 0,
+        }),
+      });
+
+      if (!albumResponse.ok) {
+        alert("Failed to create album");
+        return;
+      }
+
+      const newAlbum = await albumResponse.json();
+
+      // Process each image URL
+      let successCount = 0;
+      for (let i = 0; i < imageUrls.length; i++) {
+        const url = imageUrls[i];
+        
+        try {
+          // Fetch image from URL (server-side will handle CORS)
+          const imageResponse = await fetch(`/api/admin/download-image?url=${encodeURIComponent(url)}`);
+          if (!imageResponse.ok) {
+            console.error(`Failed to download image from ${url}`);
+            continue;
+          }
+
+          const imageData = await imageResponse.json();
+          const base64 = imageData.base64;
+
+          // Extract title from URL
+          const urlParts = url.split("/");
+          const filename = urlParts[urlParts.length - 1].split("?")[0] || `instagram-${i + 1}`;
+          const title = filename.replace(/\.[^/.]+$/, "") || `Instagram Image ${i + 1}`;
+
+          // Create photo entry
+          const photoResponse = await fetch("/api/admin/photography", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: title,
+              category: "Instagram",
+              image: base64,
+              description: `Imported from Instagram`,
+              featured: false,
+              order: i,
+            }),
+          });
+
+          if (photoResponse.ok) {
+            const newPhoto = await photoResponse.json();
+
+            // Add photo to album
+            await fetch(`/api/admin/albums/${newAlbum.id}/photos`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                photoId: newPhoto.id,
+                orientation: "horizontal",
+                description: "",
+                order: i,
+              }),
+            });
+            successCount++;
+          }
+        } catch (error) {
+          console.error(`Error processing image ${url}:`, error);
+        }
+      }
+
+      fetchPhotos();
+      fetchAlbums();
+      alert(`Successfully imported ${successCount} images from Instagram and created album "${albumTitle}"!`);
+    } catch (error) {
+      console.error("Error importing from Instagram:", error);
+      alert("Error importing from Instagram. Please try again.");
+    }
+  };
+
+  const handleImportFromUrls = async (urlsText: string, albumTitle: string) => {
+    const urls = urlsText
+      .split("\n")
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0 && (url.startsWith("http://") || url.startsWith("https://")));
+
+    if (urls.length === 0) {
+      alert("No valid URLs provided");
+      return;
+    }
+
+    if (urls.length > 10) {
+      alert("Maximum 10 images per album");
+      return;
+    }
+
+    if (!albumTitle) {
+      alert("Album title is required");
+      return;
+    }
+
+    try {
+      // Create album first
+      const albumResponse = await fetch("/api/admin/albums", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: albumTitle,
+          description: "",
+          coverImage: "",
+          order: 0,
+        }),
+      });
+
+      if (!albumResponse.ok) {
+        alert("Failed to create album");
+        return;
+      }
+
+      const newAlbum = await albumResponse.json();
+
+      // Process each URL
+      for (let i = 0; i < urls.length; i++) {
+        const url = urls[i];
+        
+        try {
+          // Fetch image from URL
+          const imageResponse = await fetch(url);
+          if (!imageResponse.ok) {
+            console.error(`Failed to fetch image from ${url}`);
+            continue;
+          }
+
+          const blob = await imageResponse.blob();
+          
+          // Convert blob to base64
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+          // Extract filename from URL or use default
+          const urlParts = url.split("/");
+          const filename = urlParts[urlParts.length - 1].split("?")[0] || `image-${i + 1}`;
+          const title = filename.replace(/\.[^/.]+$/, "") || `Imported Image ${i + 1}`;
+
+          // Create photo entry
+          const photoResponse = await fetch("/api/admin/photography", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: title,
+              category: "Imported",
+              image: base64,
+              description: `Imported from: ${url}`,
+              featured: false,
+              order: i,
+            }),
+          });
+
+          if (photoResponse.ok) {
+            const newPhoto = await photoResponse.json();
+
+            // Add photo to album
+            await fetch(`/api/admin/albums/${newAlbum.id}/photos`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                photoId: newPhoto.id,
+                orientation: "horizontal",
+                description: "",
+                order: i,
+              }),
+            });
+          }
+        } catch (error) {
+          console.error(`Error processing URL ${url}:`, error);
+        }
+      }
+
+      fetchPhotos();
+      fetchAlbums();
+      alert(`Successfully imported ${urls.length} images from URLs and created album "${albumTitle}"!`);
+    } catch (error) {
+      console.error("Error importing from URLs:", error);
+      alert("Error importing images from URLs. Please try again.");
+    }
+  };
+
+  const handleImportImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (files.length > 10) {
+      alert("Maximum 10 images per album");
+      e.target.value = "";
+      return;
+    }
+
+    // Show modal for album title
+    setImportType("files");
+    setImportInput("");
+    setImportAlbumTitle("");
+    setShowImportModal(true);
+    
+    // Store files temporarily
+    (window as any).__pendingImportFiles = files;
+    e.target.value = "";
+  };
+
+  const handleImportSubmit = async () => {
+    if (!importAlbumTitle.trim()) {
+      alert("Please enter an album title");
+      return;
+    }
+
+    if (importType === "instagram") {
+      if (!importInput.trim() || !importInput.includes("instagram.com")) {
+        alert("Please enter a valid Instagram profile URL");
+        return;
+      }
+      setShowImportModal(false);
+      await handleImportFromInstagram(importInput.trim(), importAlbumTitle.trim());
+    } else if (importType === "urls") {
+      if (!importInput.trim()) {
+        alert("Please enter image URLs");
+        return;
+      }
+      setShowImportModal(false);
+      await handleImportFromUrls(importInput.trim(), importAlbumTitle.trim());
+    } else {
+      // Handle file import
+      const files = (window as any).__pendingImportFiles;
+      if (!files || files.length === 0) {
+        alert("No files selected");
+        return;
+      }
+      setShowImportModal(false);
+      await handleImportFiles(files, importAlbumTitle.trim());
+    }
+
+    setImportInput("");
+    setImportAlbumTitle("");
+    setImportType("instagram");
+  };
+
+  const handleImportFiles = async (files: File[], albumTitle: string) => {
+
+    try {
+      // Create album first
+      const albumResponse = await fetch("/api/admin/albums", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: albumTitle,
+          description: "",
+          coverImage: "",
+          order: 0,
+        }),
+      });
+
+      if (!albumResponse.ok) {
+        alert("Failed to create album");
+        e.target.value = "";
+        return;
+      }
+
+      const newAlbum = await albumResponse.json();
+
+      // Process each image
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Convert image to base64
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        // Create photo entry
+        const photoResponse = await fetch("/api/admin/photography", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+            category: "Imported",
+            image: base64, // Store as base64 data URL
+            description: "",
+            featured: false,
+            order: i,
+          }),
+        });
+
+        if (photoResponse.ok) {
+          const newPhoto = await photoResponse.json();
+
+          // Add photo to album
+          await fetch(`/api/admin/albums/${newAlbum.id}/photos`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              photoId: newPhoto.id,
+              orientation: "horizontal",
+              description: "",
+              order: i,
+            }),
+          });
+        }
+      }
+
+      fetchPhotos();
+      fetchAlbums();
+      alert(`Successfully imported ${files.length} images and created album "${albumTitle}"!`);
+    } catch (error) {
+      console.error("Error importing images:", error);
+      alert("Error importing images. Please try again.");
+    }
+
+    e.target.value = "";
+  };
+
+  const handleImportAlbum = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const importData = JSON.parse(text);
+
+      // Validate import data structure
+      if (!importData.title || !Array.isArray(importData.photos)) {
+        alert("Invalid album file format");
+        return;
+      }
+
+      if (importData.photos.length > 10) {
+        alert("Album can only contain maximum 10 photos");
+        return;
+      }
+
+      // Create album
+      const response = await fetch("/api/admin/albums", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: importData.title,
+          description: importData.description || "",
+          coverImage: importData.coverImage || "",
+          order: importData.order || 0,
+        }),
+      });
+
+      if (response.ok) {
+        const newAlbum = await response.json();
+
+        // Add photos to album
+        for (let i = 0; i < importData.photos.length; i++) {
+          const photoData = importData.photos[i];
+          // Find photo by title or image path
+          const photo = photos.find(
+            (p) => p.title === photoData.title || p.image === photoData.image
+          );
+
+          if (photo) {
+            await fetch(`/api/admin/albums/${newAlbum.id}/photos`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                photoId: photo.id,
+                orientation: photoData.orientation || "horizontal",
+                description: photoData.description || "",
+                order: i,
+              }),
+            });
+          }
+        }
+
+        fetchAlbums();
+        alert("Album imported successfully!");
+      }
+    } catch (error) {
+      console.error("Error importing album:", error);
+      alert("Error importing album. Please check the file format.");
+    }
+
+    // Reset file input
+    e.target.value = "";
+  };
+
+  const handleDeleteAlbum = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this album?")) return;
+    try {
+      const response = await fetch(`/api/admin/albums/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchAlbums();
+      }
+    } catch (error) {
+      console.error("Error deleting album:", error);
+    }
   };
 
   if (loading) {
@@ -130,27 +646,330 @@ export default function PhotographyPanel() {
                 <p className="text-charcoal/60 mt-1">Manage photography portfolio</p>
               </div>
             </div>
+            <div className="flex items-center gap-3">
+              {activeTab === "photos" && (
+                <>
+                  <button
+                    onClick={() => setShowGallery(!showGallery)}
+                    className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2"
+                  >
+                    <LayoutGrid className="w-5 h-5" />
+                    {showGallery ? "Hide Gallery" : "View Gallery"}
+                  </button>
+                  <button
+                    onClick={() => setShowForm(!showForm)}
+                    className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors flex items-center gap-2"
+                  >
+                    <Plus className="w-5 h-5" />
+                    {showForm ? "Cancel" : "Add Photo"}
+                  </button>
+                </>
+              )}
+              {activeTab === "albums" && (
+                <div className="flex gap-3">
+                  <label className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2 cursor-pointer">
+                    <Download className="w-5 h-5" />
+                    Import Images
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImportImages}
+                      className="hidden"
+                    />
+                  </label>
+                  <button
+                    onClick={() => {
+                      setImportType("instagram");
+                      setImportInput("");
+                      setImportAlbumTitle("");
+                      setShowImportModal(true);
+                    }}
+                    className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2"
+                  >
+                    <Download className="w-5 h-5" />
+                    Import from Instagram
+                  </button>
+                  <button
+                    onClick={() => {
+                      setImportType("urls");
+                      setImportInput("");
+                      setImportAlbumTitle("");
+                      setShowImportModal(true);
+                    }}
+                    className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2"
+                  >
+                    <Download className="w-5 h-5" />
+                    Import from URLs
+                  </button>
+                  <button
+                    onClick={() => setShowAlbumForm(!showAlbumForm)}
+                    className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors flex items-center gap-2"
+                  >
+                    <FolderPlus className="w-5 h-5" />
+                    {showAlbumForm ? "Cancel" : "Create Album"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Tabs */}
+          <div className="flex gap-2 mt-4 border-b border-sage/10">
             <button
-              onClick={() => setShowForm(!showForm)}
-              className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors flex items-center gap-2"
+              onClick={() => setActiveTab("photos")}
+              className={`px-6 py-3 font-medium transition-colors border-b-2 ${
+                activeTab === "photos"
+                  ? "border-gold text-charcoal"
+                  : "border-transparent text-charcoal/60 hover:text-charcoal"
+              }`}
             >
-              <Plus className="w-5 h-5" />
-              {showForm ? "Cancel" : "Add Photo"}
+              Photos
+            </button>
+            <button
+              onClick={() => setActiveTab("albums")}
+              className={`px-6 py-3 font-medium transition-colors border-b-2 ${
+                activeTab === "albums"
+                  ? "border-gold text-charcoal"
+                  : "border-transparent text-charcoal/60 hover:text-charcoal"
+              }`}
+            >
+              Albums
             </button>
           </div>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        {/* Form */}
-        {showForm && (
+        {/* Import Modal */}
+        {showImportModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-2xl p-8 max-w-md w-full border border-sage/10 shadow-xl"
+            >
+              <h2 className="text-2xl font-heading font-bold text-charcoal mb-4">
+                {importType === "instagram" 
+                  ? "Import from Instagram" 
+                  : importType === "urls"
+                  ? "Import from URLs"
+                  : "Import Images"}
+              </h2>
+              
+              {importType === "instagram" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-charcoal mb-2">
+                    Instagram Profile URL
+                  </label>
+                  <input
+                    type="text"
+                    value={importInput}
+                    onChange={(e) => setImportInput(e.target.value)}
+                    placeholder="https://www.instagram.com/username"
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  />
+                </div>
+              )}
+
+              {importType === "urls" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-charcoal mb-2">
+                    Image URLs (one per line, max 10)
+                  </label>
+                  <textarea
+                    value={importInput}
+                    onChange={(e) => setImportInput(e.target.value)}
+                    placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                    rows={6}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  />
+                </div>
+              )}
+
+              {importType === "files" && (
+                <div className="mb-4">
+                  <p className="text-sm text-charcoal/70">
+                    Files selected: {(window as any).__pendingImportFiles?.length || 0}
+                  </p>
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Album Title *
+                </label>
+                <input
+                  type="text"
+                  value={importAlbumTitle}
+                  onChange={(e) => setImportAlbumTitle(e.target.value)}
+                  placeholder="Enter album title"
+                  className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleImportSubmit}
+                  className="flex-1 px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors"
+                >
+                  Import
+                </button>
+                <button
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setImportInput("");
+                    setImportAlbumTitle("");
+                    (window as any).__pendingImportFiles = null;
+                  }}
+                  className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Gallery View */}
+        {showGallery && (
+          <div className="fixed inset-0 z-50">
+            <PhotographyGallery
+              photos={photos}
+              onClose={() => setShowGallery(false)}
+            />
+          </div>
+        )}
+
+        {/* Album Form */}
+        {activeTab === "albums" && showAlbumForm && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm mb-8"
           >
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-              {editing ? "Edit Photo" : "Add New Photo"}
+              Create New Album
+            </h2>
+            <form onSubmit={handleAlbumSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Album Title *
+                </label>
+                <input
+                  type="text"
+                  value={albumFormData.title}
+                  onChange={(e) => setAlbumFormData({ ...albumFormData, title: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={albumFormData.description}
+                  onChange={(e) => setAlbumFormData({ ...albumFormData, description: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Cover Image URL
+                </label>
+                <input
+                  type="text"
+                  value={albumFormData.coverImage}
+                  onChange={(e) => setAlbumFormData({ ...albumFormData, coverImage: e.target.value })}
+                  className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  placeholder="/photography/cover.jpg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Order
+                </label>
+                <input
+                  type="number"
+                  value={albumFormData.order}
+                  onChange={(e) => setAlbumFormData({ ...albumFormData, order: parseInt(e.target.value) || 0 })}
+                  className="w-24 px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                />
+              </div>
+              
+              {/* Photo Selection */}
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Select Photos ({selectedPhotos.length} / 10)
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-4 border border-sage/20 rounded-xl">
+                  {photos.map((photo) => {
+                    const isSelected = selectedPhotos.includes(photo.id);
+                    return (
+                      <div
+                        key={photo.id}
+                        onClick={() => togglePhotoSelection(photo.id)}
+                        className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
+                          isSelected
+                            ? "border-gold ring-2 ring-gold/50"
+                            : "border-sage/20 hover:border-sage/40"
+                        }`}
+                      >
+                        <Image
+                          src={photo.image}
+                          alt={photo.title}
+                          fill
+                          className="object-cover"
+                        />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-gold/20 flex items-center justify-center">
+                            <div className="bg-gold text-white rounded-full p-2">
+                              <Plus className="w-4 h-4" />
+                            </div>
+                          </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-2 truncate">
+                          {photo.title}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors"
+                >
+                  Create Album ({selectedPhotos.length} photos)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAlbumForm(false);
+                    setAlbumFormData({ title: "", description: "", coverImage: "", order: 0 });
+                    setSelectedPhotos([]);
+                  }}
+                  className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {/* Photo Form */}
+        {activeTab === "photos" && showForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm mb-8"
+          >
+            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
+              Add New Photo
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -245,7 +1064,7 @@ export default function PhotographyPanel() {
                   type="submit"
                   className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors"
                 >
-                  {editing ? "Update" : "Create"}
+                  Create
                 </button>
                 <button
                   type="button"
@@ -259,11 +1078,92 @@ export default function PhotographyPanel() {
           </motion.div>
         )}
 
+        {/* Albums List */}
+        {activeTab === "albums" && (
+          <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
+              Albums ({albums.length})
+            </h2>
+            {albums.length === 0 ? (
+              <div className="text-center py-12 text-charcoal/60">
+                No albums found. Create your first album!
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {albums.map((album) => (
+                  <motion.div
+                    key={album.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="border border-sage/10 rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
+                  >
+                    <div className="relative w-full h-48 bg-gray-100">
+                      {album.coverImage ? (
+                        <Image
+                          src={album.coverImage}
+                          alt={album.title}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Folder className="w-16 h-16 text-charcoal/20" />
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 bg-gold text-white px-2 py-1 rounded-lg text-xs font-medium">
+                        {(album.photos || []).length} / 10
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-charcoal mb-1">{album.title}</h3>
+                      {album.description && (
+                        <p className="text-sm text-charcoal/70 mb-4 line-clamp-2">
+                          {album.description}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-charcoal/50">
+                          {(album.photos || []).length} photos
+                        </span>
+                        <div className="flex gap-2">
+                          <Link
+                            href={`/albums/${album.id}`}
+                            target="_blank"
+                            className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors"
+                            title="View Album"
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                          </Link>
+                          <Link
+                            href={`/admin/photography-panel/albums/${album.id}`}
+                            className="p-2 text-amber hover:bg-amber/10 rounded-lg transition-colors"
+                            title="Edit Album"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteAlbum(album.id)}
+                            className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
+                            title="Delete Album"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Photos Grid */}
-        <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
-          <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-            Portfolio ({photos.length})
-          </h2>
+        {activeTab === "photos" && (
+          <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
+              Portfolio ({photos.length})
+            </h2>
           {photos.length === 0 ? (
             <div className="text-center py-12 text-charcoal/60">
               No photos found. Add your first photo!
@@ -301,12 +1201,12 @@ export default function PhotographyPanel() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-charcoal/50">Order: {photo.order}</span>
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEdit(photo)}
+                        <Link
+                          href={`/admin/photography-panel/${photo.id}`}
                           className="p-2 text-amber hover:bg-amber/10 rounded-lg transition-colors"
                         >
                           <Edit className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <button
                           onClick={() => handleDelete(photo.id)}
                           className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
@@ -320,7 +1220,8 @@ export default function PhotographyPanel() {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

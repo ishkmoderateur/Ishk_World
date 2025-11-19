@@ -8,9 +8,10 @@ import { Menu, X, ShoppingBag, User, LogIn, UserPlus, LogOut } from "lucide-reac
 import { useLanguage } from "@/contexts/language-context";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/contexts/cart-context";
+import { isAdmin } from "@/lib/roles";
 
 export default function Navbar() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { data: session, status } = useSession();
   const { itemCount } = useCart();
   const pathname = usePathname();
@@ -29,7 +30,6 @@ export default function Navbar() {
     { href: "/", label: t("nav.home") },
     { href: "/boutique", label: t("nav.boutique") },
     { href: "/party", label: t("nav.services") },
-    { href: "/party", label: t("nav.housing") },
     { href: "/photography", label: t("nav.photography") },
     { href: "/association", label: t("nav.association") },
   ];
@@ -75,7 +75,7 @@ export default function Navbar() {
               className={`text-2xl font-display font-bold transition-colors ${textColor}`}
               whileHover={{ scale: 1.05 }}
             >
-              ishk.
+              {language === "AR" ? "عشق" : "ishk."}
             </motion.span>
           </Link>
 
@@ -116,9 +116,9 @@ export default function Navbar() {
               <>
                 <motion.div whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
                   <Link
-                    href="/profile"
+                    href={isAdmin(session.user?.role) ? "/admin" : "/profile"}
                     className={`p-2.5 rounded-lg transition-colors duration-200 ${textColor} hover:text-sage`}
-                    title={session.user?.email || "Profile"}
+                    title={isAdmin(session.user?.role) ? "Admin Panel" : (session.user?.email || "Profile")}
                   >
                     <User className="w-5 h-5" />
                   </Link>
@@ -213,12 +213,12 @@ export default function Navbar() {
               {status === "authenticated" ? (
                 <>
                   <Link
-                    href="/profile"
+                    href={isAdmin(session.user?.role) ? "/admin" : "/profile"}
                     className="flex items-center gap-3 px-4 py-3 text-charcoal hover:bg-cream transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User className="w-5 h-5" />
-                    <span>Profile</span>
+                    <span>{isAdmin(session.user?.role) ? "Admin Panel" : "Profile"}</span>
                   </Link>
                   <button
                     className="flex items-center gap-3 w-full text-left px-4 py-3 text-charcoal hover:bg-cream transition-colors"

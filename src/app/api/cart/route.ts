@@ -41,7 +41,19 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    const items = cartItems.map((item) => {
+    const items = cartItems.map((item: {
+      id: string;
+      productId: string;
+      quantity: number;
+      size: string | null;
+      color: string | null;
+      product: {
+        id: string;
+        name: string;
+        price: number;
+        images: unknown;
+      };
+    }) => {
       const images = parseImages(item.product.images);
       return {
         id: item.id,

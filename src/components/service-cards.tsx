@@ -2,23 +2,13 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Map, ShoppingBag, Heart, Camera, Home, Sparkles } from "lucide-react";
+import { ShoppingBag, Heart, Camera, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function ServiceCards() {
   const { t } = useLanguage();
 
   const services = [
-    {
-      id: "news",
-      icon: Map,
-      title: t("services.news.title"),
-      subtitle: t("services.news.subtitle"),
-      description: t("services.news.description"),
-      href: "/news",
-      accent: "news-accent",
-      gradient: "from-sky/10 to-sky/5",
-    },
     {
       id: "boutique",
       icon: ShoppingBag,
@@ -50,16 +40,6 @@ export default function ServiceCards() {
       gradient: "from-gold/10 to-gold/5",
     },
     {
-      id: "housing",
-      icon: Home,
-      title: t("services.housing.title"),
-      subtitle: t("services.housing.subtitle"),
-      description: t("services.housing.description"),
-      href: "/party",
-      accent: "housing-accent",
-      gradient: "from-amber/10 to-amber/5",
-    },
-    {
       id: "party-services",
       icon: Sparkles,
       title: t("services.partyServices.title"),
@@ -85,7 +65,7 @@ export default function ServiceCards() {
             Your Journey Begins
           </h2>
           <p className="text-lg text-stone max-w-2xl mx-auto">
-            Discover six pathways to a more mindful, connected life
+            Discover four pathways to a more mindful, connected life
           </p>
         </motion.div>
 

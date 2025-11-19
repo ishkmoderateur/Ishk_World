@@ -1,7 +1,13 @@
 {
   "hero": {
-    "subtitle": "'išq",
+    "subtitle": "ishk",
     "tagline": "Slow living closer to what really matters",
+    "taglines": [
+      "Slow living closer to what really matters",
+      "Embrace the beauty of mindful moments",
+      "Living intentionally, not reactively",
+      "Pause, breathe, reconnect"
+    ],
     "cta": "Begin Your Journey"
   },
   "nav": {
@@ -10,7 +16,7 @@
     "party": "Party",
     "boutique": "Boutique",
     "association": "Association",
-    "photography": "Photography & editing",
+    "photography": "Photography",
     "services": "Services",
     "housing": "Housing"
   },

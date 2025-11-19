@@ -105,3 +105,7 @@ The issue might be that NextAuth v5 requires the authorize function to return a 
 The password field might not be getting filled properly by browser automation. Check the actual form submission in browser DevTools Network tab to see what's being sent.
 
 
+
+
+
+

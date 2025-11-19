@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function PhilosophySection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const values = [
     {
@@ -44,10 +44,10 @@ export default function PhilosophySection() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-6">
-              {t("philosophy.title")} <span className="text-primary">'išq</span>{t("philosophy.subtitle")}
+              {t("philosophy.title")} <span className="text-primary">{language === "AR" ? "عشق" : "ishk"}</span>{t("philosophy.subtitle")}
             </h2>
             <p className="text-lg text-charcoal/70 leading-relaxed mb-6">
-              {t("philosophy.paragraph1")} <span className="font-semibold text-charcoal">'išq</span> {t("philosophy.paragraph1Bold")}
+              {t("philosophy.paragraph1")} <span className="font-semibold text-charcoal">{language === "AR" ? "عشق" : "ishk"}</span> {t("philosophy.paragraph1Bold")}
             </p>
             <p className="text-lg text-charcoal/70 leading-relaxed mb-6">
               {t("philosophy.paragraph2")}
