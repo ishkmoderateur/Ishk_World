@@ -14,6 +14,7 @@
     "create-test-users": "npx tsx scripts/create-test-users.ts",
     "check-users": "npx tsx scripts/check-users.ts",
     "verify-login": "npx tsx scripts/verify-login.ts",
+    "test-db": "npx tsx scripts/test-db-connection.ts",
     "translate-all": "npx tsx scripts/translate-all.ts",
     "create-admin": "npx tsx scripts/create-admin.ts",
     "import-photography": "npx tsx scripts/import-photography.ts"
