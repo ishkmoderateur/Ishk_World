@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // GET - Fetch single product
 export async function GET(
@@ -71,20 +72,7 @@ export async function PUT(
       featured,
     } = body;
 
-    const updateData: {
-      name?: string;
-      slug?: string;
-      description?: string;
-      price?: number;
-      comparePrice?: number | null;
-      category?: string;
-      isIshkOriginal?: boolean;
-      images?: unknown;
-      inStock?: boolean;
-      stockCount?: number;
-      badge?: string | null;
-      featured?: boolean;
-    } = {};
+    const updateData: Prisma.ProductUpdateInput = {};
     
     if (name !== undefined) updateData.name = String(name).trim();
     if (slug !== undefined) {
@@ -131,7 +119,8 @@ export async function PUT(
           { status: 400 }
         );
       }
-      updateData.images = images;
+      // Ensure images array is properly typed for Prisma Json field
+      updateData.images = images as unknown as Prisma.InputJsonValue;
     }
     if (inStock !== undefined) updateData.inStock = Boolean(inStock);
     if (stockCount !== undefined) {

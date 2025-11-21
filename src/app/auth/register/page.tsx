@@ -27,50 +27,113 @@ function RegisterForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (password !== confirm) {
-      setError("Passwords do not match");
+    
+    // Client-side validation
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+    const trimmedConfirm = confirm.trim();
+    
+    console.log("🔐 Form submission triggered", {
+      email: trimmedEmail ? "***" : "EMPTY",
+      hasPassword: !!trimmedPassword,
+      passwordLength: trimmedPassword.length,
+      hasConfirm: !!trimmedConfirm,
+      confirmLength: trimmedConfirm.length
+    });
+    
+    if (!trimmedEmail) {
+      setError("Email is required");
+      setLoading(false);
       return;
     }
+    
+    if (!trimmedPassword) {
+      setError("Password is required");
+      setLoading(false);
+      return;
+    }
+    
+    if (trimmedPassword.length < 8) {
+      setError("Password must be at least 8 characters");
+      setLoading(false);
+      return;
+    }
+    
+    if (trimmedPassword !== trimmedConfirm) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
-      // Normalize email before sending
-      const normalizedEmail = email.trim().toLowerCase();
+      console.log("🔐 Client: Attempting registration for:", trimmedEmail);
+      console.log("🔐 Client: Registration data prepared:", { 
+        email: trimmedEmail ? "***" : "MISSING", 
+        hasPassword: !!trimmedPassword,
+        passwordLength: trimmedPassword.length,
+        hasName: !!trimmedName
+      });
       
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: normalizedEmail, password, name }),
+        body: JSON.stringify({ 
+          email: trimmedEmail, 
+          password: trimmedPassword, 
+          name: trimmedName || undefined 
+        }),
       });
       
+      const data = await res.json().catch(() => ({}));
+      console.log("🔐 Client: Registration response:", JSON.stringify({ status: res.status, ok: res.ok, error: data.error }, null, 2));
+      
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
         setError(data.error || "Registration failed");
         setLoading(false);
         return;
       }
       
-      // Auto sign-in after registration (use normalized email)
+      console.log("✅ Client: Registration successful");
+      
+      // Auto sign-in after registration
       const signInRes = await signIn("credentials", {
         redirect: false,
-        email: normalizedEmail,
-        password,
-        callbackUrl,
+        email: trimmedEmail,
+        password: trimmedPassword,
+        callbackUrl: callbackUrl || undefined,
       });
+      
+      console.log("🔐 Client: SignIn response:", JSON.stringify(signInRes, null, 2));
       
       if (signInRes?.error) {
         console.log("⚠️ Auto sign-in failed, redirecting to sign-in page");
-        // If auto sign-in fails, redirect to sign-in page
-        router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
-      } else if (signInRes?.ok) {
+        setError("Registration successful but auto sign-in failed. Please sign in manually.");
+        setLoading(false);
+        // Redirect to sign-in page after a short delay
+        setTimeout(() => {
+          router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`);
+        }, 2000);
+        return;
+      }
+      
+      if (signInRes?.ok) {
+        console.log("✅ Client: Auto sign-in successful");
+        setLoading(false);
+        
         // Update session and determine redirect based on role
         try {
           await update();
+          console.log("✅ Client: Session updated successfully");
           // Wait a moment for session to be fully synced
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 300));
           
           // Fetch fresh session to get user role
           const response = await fetch("/api/auth/session");
           const sessionData = await response.json();
+          
+          console.log("🔐 Session data:", sessionData);
           
           // Determine redirect URL based on user role
           let redirectUrl = callbackUrl || "/profile";
@@ -90,20 +153,43 @@ function RegisterForm() {
           } else {
             // Use the explicitly set callbackUrl
             console.log("🔗 Using explicit callbackUrl:", callbackUrl);
+            redirectUrl = callbackUrl;
           }
           
-          window.location.href = redirectUrl;
+          console.log("✅ Client: Redirecting to:", redirectUrl);
+          
+          // Use router.push for better Next.js integration, with fallback to window.location
+          try {
+            router.push(redirectUrl);
+            // Also use window.location as backup to ensure redirect happens
+            setTimeout(() => {
+              if (window.location.pathname === "/auth/register") {
+                console.log("⚠️ Router push didn't work, using window.location");
+                window.location.href = redirectUrl;
+              }
+            }, 500);
+          } catch (redirectError) {
+            console.warn("⚠️ Router push failed, using window.location:", redirectError);
+            window.location.href = redirectUrl;
+          }
         } catch (sessionError) {
-          console.warn("⚠️ Session update warning:", sessionError);
-          window.location.href = callbackUrl || "/profile";
+          console.warn("⚠️ Session update warning (might still work):", sessionError);
+          // Fallback to default redirect
+          const fallbackUrl = callbackUrl || "/profile";
+          router.push(fallbackUrl);
+          setTimeout(() => {
+            if (window.location.pathname === "/auth/register") {
+              window.location.href = fallbackUrl;
+            }
+          }, 500);
         }
       } else {
         setError("Registration successful but auto sign-in failed. Please sign in manually.");
         setLoading(false);
       }
     } catch (err) {
+      console.error("❌ Client: Registration error:", err);
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -133,7 +219,7 @@ function RegisterForm() {
               </div>
             )}
 
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} className="space-y-4" noValidate>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
                   Name
@@ -212,7 +298,7 @@ function RegisterForm() {
 
             <p className="text-sm text-charcoal/60 mt-6 text-center">
               Already have an account?{" "}
-              <Link className="text-sage hover:text-sage/80 font-medium" href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
+              <Link className="text-sage hover:text-sage/80 font-medium" href={`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`}>
                 Sign in
               </Link>
             </p>

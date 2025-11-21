@@ -37,7 +37,7 @@ function SignInForm() {
         redirect: false,
         email: email.trim().toLowerCase(), // Normalize email
         password,
-        callbackUrl,
+        callbackUrl: callbackUrl || undefined,
       });
       console.log("🔐 Client: SignIn response:", JSON.stringify(res, null, 2));
       
@@ -58,13 +58,16 @@ function SignInForm() {
       
       if (res.ok) {
         console.log("✅ Client: Login successful");
+        setLoading(false);
+        
         // Update session to ensure it's synced before redirect
         try {
+          // Force session refresh
           await update();
           console.log("✅ Client: Session updated successfully");
           
           // Wait a moment for session to be fully synced
-          await new Promise(resolve => setTimeout(resolve, 200));
+          await new Promise(resolve => setTimeout(resolve, 300));
           
           // Fetch fresh session to get user role
           const response = await fetch("/api/auth/session");
@@ -90,15 +93,35 @@ function SignInForm() {
           } else {
             // Use the explicitly set callbackUrl
             console.log("🔗 Using explicit callbackUrl:", callbackUrl);
+            redirectUrl = callbackUrl;
           }
           
           console.log("✅ Client: Redirecting to:", redirectUrl);
-          // Use window.location for a full page reload to ensure session is picked up
-          window.location.href = redirectUrl;
+          
+          // Use router.push for better Next.js integration, with fallback to window.location
+          try {
+            router.push(redirectUrl);
+            // Also use window.location as backup to ensure redirect happens
+            setTimeout(() => {
+              if (window.location.pathname === "/auth/signin") {
+                console.log("⚠️ Router push didn't work, using window.location");
+                window.location.href = redirectUrl;
+              }
+            }, 500);
+          } catch (redirectError) {
+            console.warn("⚠️ Router push failed, using window.location:", redirectError);
+            window.location.href = redirectUrl;
+          }
         } catch (sessionError) {
           console.warn("⚠️ Client: Session update warning (might still work):", sessionError);
           // Fallback to default redirect
-          window.location.href = callbackUrl || "/profile";
+          const fallbackUrl = callbackUrl || "/profile";
+          router.push(fallbackUrl);
+          setTimeout(() => {
+            if (window.location.pathname === "/auth/signin") {
+              window.location.href = fallbackUrl;
+            }
+          }, 500);
         }
       } else {
         console.error("❌ Client: SignIn not OK:", res);
@@ -112,14 +135,14 @@ function SignInForm() {
     }
   };
 
-  const onGoogle = async () => {
-    setLoading(true);
-    try {
-      await signIn("google", { callbackUrl });
-    } finally {
-      setLoading(false);
-    }
-  };
+      const onGoogle = async () => {
+        setLoading(true);
+        try {
+          await signIn("google", { callbackUrl: callbackUrl || undefined });
+        } finally {
+          setLoading(false);
+        }
+      };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
@@ -206,7 +229,7 @@ function SignInForm() {
 
             <p className="text-sm text-charcoal/60 mt-6 text-center">
               Don&apos;t have an account?{" "}
-              <Link className="text-sage hover:text-sage/80 font-medium" href={`/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
+              <Link className="text-sage hover:text-sage/80 font-medium" href={`/auth/register?callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`}>
                 Register
               </Link>
             </p>
