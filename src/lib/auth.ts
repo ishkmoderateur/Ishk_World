@@ -1,5 +1,4 @@
 import type { NextAuthConfig } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "./prisma";
@@ -25,24 +24,12 @@ if (!process.env.NEXTAUTH_URL && process.env.NODE_ENV === "production") {
   process.env.NEXTAUTH_URL = "http://localhost:3000";
 }
 
-// Only use PrismaAdapter if database is available
-// Since we're using JWT strategy, adapter is optional
-let adapter: any = undefined;
-try {
-  // Test if Prisma client is working by checking if it has the required methods
-  if (prisma && typeof prisma === 'object' && 'user' in prisma) {
-    adapter = PrismaAdapter(prisma);
-  }
-} catch (error) {
-  console.warn("⚠️  PrismaAdapter initialization failed. Using JWT-only mode.");
-  console.warn("This is OK if you haven't set up your database yet.");
-  adapter = undefined;
-}
+// Using JWT strategy, so we don't need PrismaAdapter
+// Adapter is only needed for database sessions, but we're using JWT tokens
 
 const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true, // Trust host in development (NextAuth v5 requirement)
-  ...(adapter && { adapter }),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -56,9 +43,7 @@ const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          if (process.env.NODE_ENV === "development") {
-            console.log("Missing credentials");
-          }
+          console.log("🔐 Server: Missing credentials");
           return null;
         }
 
@@ -66,7 +51,10 @@ const authConfig: NextAuthConfig = {
           const email = (credentials.email as string)?.trim().toLowerCase();
           const password = credentials.password as string;
           
+          console.log("🔐 Server: Attempting auth for:", email);
+          
           if (!email || !password) {
+            console.log("🔐 Server: Empty email or password after trim");
             return null;
           }
           
@@ -82,26 +70,39 @@ const authConfig: NextAuthConfig = {
             },
           });
 
-          if (!user || !user.password) {
+          if (!user) {
+            console.log("🔐 Server: User not found for email:", email);
+            return null;
+          }
+
+          if (!user.password) {
+            console.log("🔐 Server: User has no password set");
             return null;
           }
 
           // Verify password with bcrypt
           const isValid = await bcrypt.compare(password, user.password);
           
+          console.log("🔐 Server: Password match:", isValid);
+          
           if (!isValid) {
+            console.log("🔐 Server: Password mismatch");
             return null;
           }
 
+          console.log("✅ Server: Authentication successful for:", email);
+
+          // Return user object with role for NextAuth v5
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             image: user.image,
+            role: user.role, // Include role in user object
           };
         } catch (error) {
           if (process.env.NODE_ENV === "development") {
-            console.error("Error in authorize function:", error);
+            console.error("❌ Server: Error in authorize function:", error);
           }
           return null;
         }
@@ -123,30 +124,8 @@ const authConfig: NextAuthConfig = {
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image;
-        // Use role from user object if available, otherwise fetch from database
-        if ((user as any).role) {
-          token.role = (user as any).role;
-        } else {
-          // Fetch user role from database
-          try {
-            const dbUser = await prisma.user.findUnique({
-              where: { id: user.id },
-              select: { role: true },
-            });
-            if (dbUser) {
-              token.role = dbUser.role;
-            } else {
-              // If user not found, set default role
-              token.role = "USER";
-            }
-          } catch (error) {
-            if (process.env.NODE_ENV === "development") {
-              console.error("Error fetching user role:", error);
-            }
-            // Set default role on error instead of leaving it undefined
-            token.role = token.role || "USER";
-          }
-        }
+        // Use role from user object (now included in authorize return)
+        token.role = (user as any).role || "USER";
       } else if (token.id && !token.role) {
         // If token exists but role is missing, fetch it
         try {
