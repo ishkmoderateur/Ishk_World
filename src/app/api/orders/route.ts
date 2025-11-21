@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // GET - Fetch user's orders
 export async function GET(request: NextRequest) {
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ orders });
+    return NextResponse.json(orders);
   } catch (error: unknown) {
     if (process.env.NODE_ENV === "development") {
       console.error("Error fetching orders:", error);
@@ -130,8 +131,8 @@ export async function POST(request: NextRequest) {
         subtotal: validatedSubtotal,
         shipping: validatedShipping,
         tax: validatedTax,
-        shippingAddress: shippingAddress as Record<string, unknown>,
-        billingAddress: billingAddress as Record<string, unknown>,
+        shippingAddress: shippingAddress as unknown as Prisma.InputJsonValue,
+        billingAddress: billingAddress as unknown as Prisma.InputJsonValue,
         paymentIntentId: paymentIntentId || null,
         orderItems: {
           create: items.map((item: {
