@@ -59,6 +59,13 @@ const authConfig: NextAuthConfig = {
             return null;
           }
           
+          // Check all users first for debugging
+          const allUsers = await prisma.user.findMany({
+            select: { email: true },
+          });
+          console.log("🔐 Server: Total users in DB:", allUsers.length);
+          console.log("🔐 Server: All user emails:", allUsers.map(u => u.email));
+          
           const user = await prisma.user.findUnique({
             where: { email },
             select: {
@@ -73,6 +80,7 @@ const authConfig: NextAuthConfig = {
 
           if (!user) {
             console.log("🔐 Server: User not found for email:", email);
+            console.log("🔐 Server: Searching for exact match:", email);
             return null;
           }
 
