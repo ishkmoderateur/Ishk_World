@@ -2,17 +2,20 @@
 
 import { useState, FormEvent, Suspense } from "react";
 import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Mail, Lock, User, Loader2, UserPlus } from "lucide-react";
+import { isAdmin } from "@/lib/roles";
 
 function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/profile";
+  const { update } = useSession();
+  const callbackUrl = params.get("callbackUrl");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -59,8 +62,41 @@ function RegisterForm() {
         // If auto sign-in fails, redirect to sign-in page
         router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
       } else if (signInRes?.ok) {
-        // Update session and redirect
-        window.location.href = signInRes.url || callbackUrl;
+        // Update session and determine redirect based on role
+        try {
+          await update();
+          // Wait a moment for session to be fully synced
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          // Fetch fresh session to get user role
+          const response = await fetch("/api/auth/session");
+          const sessionData = await response.json();
+          
+          // Determine redirect URL based on user role
+          let redirectUrl = callbackUrl || "/profile";
+          
+          // If callbackUrl is explicitly set to /admin, use it
+          // If callbackUrl is /profile or not set, check if user is admin
+          if (!callbackUrl || callbackUrl === "/profile") {
+            if (sessionData?.user?.role && isAdmin(sessionData.user.role)) {
+              // Admin users go to admin dashboard
+              redirectUrl = "/admin";
+              console.log("🔐 Admin user detected (role: " + sessionData.user.role + "), redirecting to admin dashboard");
+            } else {
+              // Regular users go to profile
+              redirectUrl = "/profile";
+              console.log("👤 Regular user, redirecting to profile");
+            }
+          } else {
+            // Use the explicitly set callbackUrl
+            console.log("🔗 Using explicit callbackUrl:", callbackUrl);
+          }
+          
+          window.location.href = redirectUrl;
+        } catch (sessionError) {
+          console.warn("⚠️ Session update warning:", sessionError);
+          window.location.href = callbackUrl || "/profile";
+        }
       } else {
         setError("Registration successful but auto sign-in failed. Please sign in manually.");
         setLoading(false);

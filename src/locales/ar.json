@@ -13,7 +13,7 @@
   "nav": {
     "home": "الرئيسية",
     "news": "أخبار",
-    "party": "حزب",
+    "party": "حفلات",
     "boutique": "المتجر",
     "association": "الجمعية",
     "photography": "التصوير",
@@ -33,7 +33,7 @@
     },
     "links": {
       "worldNews": "اخبار العالم",
-      "party": "حزب",
+      "party": "حفلات",
       "boutique": "المتجر",
       "association": "الجمعية",
       "photography": "التصوير الفوتوغرافي",

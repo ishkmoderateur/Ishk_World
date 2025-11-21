@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Navbar from "@/components/navbar";
@@ -12,6 +12,11 @@ import { useSession } from "next-auth/react";
 export default function PhotographyPage() {
   const { t } = useLanguage();
   const { data: session } = useSession();
+  const [portfolio, setPortfolio] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [portfolioLoading, setPortfolioLoading] = useState(true);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,6 +28,44 @@ export default function PhotographyPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  useEffect(() => {
+    fetchPortfolio();
+    fetchServices();
+  }, []);
+
+  useEffect(() => {
+    fetchPortfolio();
+  }, [selectedCategory]);
+
+  const fetchPortfolio = async () => {
+    try {
+      const categoryParam = selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
+      const response = await fetch(`/api/photography${categoryParam}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPortfolio(data);
+      }
+    } catch (error) {
+      console.error("Error fetching portfolio:", error);
+    } finally {
+      setPortfolioLoading(false);
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch("/api/photography/services");
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data);
+      }
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    } finally {
+      setServicesLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -62,189 +105,6 @@ export default function PhotographyPage() {
     }
   };
   
-  const portfolio = [
-    {
-      id: 1,
-      title: "Moroccan Equestrian Art",
-      category: t("photography.categories.cultural"),
-      image: "/photography/Moroccan-equestrian-art--tbourida----and-shots-that-stayed-way-too-long-in-my-camera.--yourshotp.jpg",
-    },
-    {
-      id: 2,
-      title: "Tbourida Art",
-      category: t("photography.categories.cultural"),
-      image: "/photography/Moroccan-equestrian-art--tbourida----and-shots-that-stayed-way-too-long-in-my-camera.--yourshotp--1-.jpg",
-    },
-    {
-      id: 3,
-      title: "Equestrian Photography",
-      category: t("photography.categories.cultural"),
-      image: "/photography/Moroccan-equestrian-art--tbourida----and-shots-that-stayed-way-too-long-in-my-camera.--yourshotp--2-.jpg",
-    },
-    {
-      id: 4,
-      title: "Sandstorm Aesthetics",
-      category: t("photography.categories.adventure"),
-      image: "/photography/sandstorm-aesthetics-enduro.jpg",
-    },
-    {
-      id: 5,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_285944640_749473589809454_3150065497059521760_n.jpg",
-    },
-    {
-      id: 6,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_285958631_797175361278497_4156943208252385210_n.jpg",
-    },
-    {
-      id: 7,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_286229915_139955931962559_4114156546180902768_n.jpg",
-    },
-    {
-      id: 8,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_286264897_166436049179832_8576628153007616255_n.jpg",
-    },
-    {
-      id: 9,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_286395359_1010442232943605_1364096570174400269_n.jpg",
-    },
-    {
-      id: 10,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_286596297_347472930853333_5959751300077876313_n.jpg",
-    },
-    {
-      id: 11,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_348482759_1118041429586596_6948911033448556305_n.jpg",
-    },
-    {
-      id: 12,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_348501697_804820757676409_5029574931353129042_n.jpg",
-    },
-    {
-      id: 13,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_348502222_1952458561772876_2037669789508555136_n.jpg",
-    },
-    {
-      id: 14,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_348832367_282667814105577_2350016748184074076_n.jpg",
-    },
-    {
-      id: 15,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_383210293_3378731082437356_2040821813781284353_n.jpg",
-    },
-    {
-      id: 16,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_384121194_1225548718839850_3622562154938087237_n.jpg",
-    },
-    {
-      id: 17,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_384225380_1673584376500810_7947164182321983601_n.jpg",
-    },
-    {
-      id: 18,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_384513449_339403928453340_1402748163538938923_n.jpg",
-    },
-    {
-      id: 19,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_384692195_325629423471897_1987290720100708418_n.jpg",
-    },
-    {
-      id: 20,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_385152302_320581647291316_5138119132852301915_n.jpg",
-    },
-    {
-      id: 21,
-      title: "Instagram Story",
-      category: t("photography.categories.socialMedia"),
-      image: "/photography/SnapInsta.to_434839034_975640473681383_3714742764191781847_n.jpg",
-    },
-  ];
-
-  const services = [
-    {
-      id: 1,
-      name: t("photography.services.portrait.name"),
-      price: "€300",
-      duration: t("photography.services.portrait.duration"),
-      includes: [
-        t("photography.services.portrait.includes.shoot"),
-        t("photography.services.portrait.includes.images"),
-        t("photography.services.portrait.includes.gallery"),
-        t("photography.services.portrait.includes.retouching"),
-      ],
-      icon: Camera,
-    },
-    {
-      id: 2,
-      name: t("photography.services.event.name"),
-      price: "€500",
-      duration: t("photography.services.event.duration"),
-      includes: [
-        t("photography.services.event.includes.coverage"),
-        t("photography.services.event.includes.images"),
-        t("photography.services.event.includes.gallery"),
-        t("photography.services.event.includes.preview"),
-      ],
-      icon: Calendar,
-    },
-    {
-      id: 3,
-      name: t("photography.services.commercial.name"),
-      price: "€800",
-      duration: t("photography.services.commercial.duration"),
-      includes: [
-        t("photography.services.commercial.includes.shoot"),
-        t("photography.services.commercial.includes.images"),
-        t("photography.services.commercial.includes.angles"),
-        t("photography.services.commercial.includes.files"),
-      ],
-      icon: ImageIcon,
-    },
-    {
-      id: 4,
-      name: t("photography.services.wedding.name"),
-      price: "€1,200",
-      duration: t("photography.services.wedding.duration"),
-      includes: [
-        t("photography.services.wedding.includes.coverage"),
-        t("photography.services.wedding.includes.images"),
-        t("photography.services.wedding.includes.session"),
-        t("photography.services.wedding.includes.album"),
-      ],
-      icon: Star,
-    },
-  ];
 
   const testimonials = [
     {
@@ -339,38 +199,44 @@ export default function PhotographyPage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {portfolio.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -5 }}
-                className="relative group cursor-pointer rounded-2xl overflow-hidden h-80"
-              >
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  quality={90}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10">
-                    <span className="text-xs font-medium text-gold mb-2 block">
-                      {item.category}
-                    </span>
-                    <h3 className="text-xl font-heading font-semibold">
-                      {item.title}
-                    </h3>
+          {portfolioLoading ? (
+            <div className="text-center py-12 text-charcoal/60">{t("common.loading")}</div>
+          ) : portfolio.length === 0 ? (
+            <div className="text-center py-12 text-charcoal/60">No photos found</div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {portfolio.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  className="relative group cursor-pointer rounded-2xl overflow-hidden h-80"
+                >
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    quality={90}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10">
+                      <span className="text-xs font-medium text-gold mb-2 block">
+                        {item.category}
+                      </span>
+                      <h3 className="text-xl font-heading font-semibold">
+                        {item.title}
+                      </h3>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -392,50 +258,69 @@ export default function PhotographyPage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gold/10"
-                >
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/20 mb-4">
-                    <Icon className="w-8 h-8 text-gold" />
-                  </div>
-                  <h3 className="text-xl font-heading font-bold text-charcoal mb-2">
-                    {service.name}
-                  </h3>
-                  <div className="text-3xl font-bold text-gold mb-2">
-                    {service.price}
-                  </div>
-                  <div className="text-sm text-charcoal/60 mb-6">
-                    {service.duration}
-                  </div>
-                  <ul className="space-y-2 mb-6">
-                    {service.includes.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm text-charcoal/70">
-                        <span className="text-gold mt-1">✓</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors"
+          {servicesLoading ? (
+            <div className="text-center py-12 text-charcoal/60">{t("common.loading")}</div>
+          ) : services.length === 0 ? (
+            <div className="text-center py-12 text-charcoal/60">No services found</div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {services.map((service, index) => {
+                const features = Array.isArray(service.features) ? service.features : [];
+                const formatPrice = (price: number | null | undefined) => {
+                  if (price === null || price === undefined) return t("photography.services.contactForPrice");
+                  return `€${price.toFixed(0)}`;
+                };
+                return (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gold/10"
                   >
-                    {t("photography.services.bookNow")}
-                  </motion.button>
-                </motion.div>
-              );
-            })}
-          </div>
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/20 mb-4">
+                      <Camera className="w-8 h-8 text-gold" />
+                    </div>
+                    <h3 className="text-xl font-heading font-bold text-charcoal mb-2">
+                      {service.name}
+                    </h3>
+                    <div className="text-3xl font-bold text-gold mb-2">
+                      {formatPrice(service.price)}
+                    </div>
+                    <div className="text-sm text-charcoal/60 mb-6">
+                      {service.duration || ""}
+                    </div>
+                    {features.length > 0 && (
+                      <ul className="space-y-2 mb-6">
+                        {features.map((item: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-charcoal/70">
+                            <span className="text-gold mt-1">✓</span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => {
+                        const formSection = document.getElementById('booking-form');
+                        if (formSection) {
+                          formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        setFormData({ ...formData, serviceType: service.slug || service.name.toLowerCase() });
+                      }}
+                      className="w-full py-3 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors"
+                    >
+                      {t("photography.services.bookNow")}
+                    </motion.button>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

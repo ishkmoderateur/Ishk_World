@@ -1,14 +1,19 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ShoppingBag, Leaf, Heart, Star, ArrowRight, Filter, Search, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function BoutiquePage() {
   const { t } = useLanguage();
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("all");
   
   const categories = [
     { name: t("boutique.categories.all"), icon: ShoppingBag, active: true },
@@ -18,102 +23,47 @@ export default function BoutiquePage() {
     { name: t("boutique.categories.originals"), icon: Star, highlight: true },
   ];
 
-  const products = [
-    {
-      id: 1,
-      slug: "classic-tee",
-      nameKey: "boutique.products.items.classicTee.name",
-      categoryKey: "boutique.products.items.classicTee.category",
-      categoryFallback: "Ishk Originals",
-      price: "€45",
-      image: "bg-gradient-to-br from-sage/20 to-sand/20",
-      rating: 4.9,
-      reviews: 89,
-      badge: "Bestseller",
-    },
-    {
-      id: 2,
-      slug: "canvas-tote-bag",
-      nameKey: "boutique.products.items.canvasToteBag.name",
-      categoryKey: "boutique.products.items.canvasToteBag.category",
-      categoryFallback: "Ishk Originals",
-      price: "€35",
-      image: "bg-gradient-to-br from-sand/20 to-clay/20",
-      rating: 4.8,
-      reviews: 127,
-    },
-    {
-      id: 3,
-      slug: "slow-living-journal",
-      nameKey: "boutique.products.items.slowLivingJournal.name",
-      categoryKey: "boutique.products.items.slowLivingJournal.category",
-      categoryFallback: "Lifestyle",
-      price: "€35",
-      image: "bg-gradient-to-br from-cream to-sage/10",
-      rating: 4.9,
-      reviews: 203,
-      badge: "New",
-    },
-    {
-      id: 4,
-      slug: "essential-hoodie",
-      nameKey: "boutique.products.items.essentialHoodie.name",
-      categoryKey: "boutique.products.items.essentialHoodie.category",
-      categoryFallback: "Ishk Originals",
-      price: "€85",
-      image: "bg-gradient-to-br from-charcoal/20 to-sage/20",
-      rating: 4.7,
-      reviews: 156,
-    },
-    {
-      id: 5,
-      slug: "ceramic-mug",
-      nameKey: "boutique.products.items.ceramicMug.name",
-      categoryKey: "boutique.products.items.ceramicMug.category",
-      categoryFallback: "Home & Living",
-      price: "€28",
-      image: "bg-gradient-to-br from-clay/20 to-sand/20",
-      rating: 4.8,
-      reviews: 94,
-    },
-    {
-      id: 6,
-      slug: "organic-cotton-cap",
-      nameKey: "boutique.products.items.organicCottonCap.name",
-      categoryKey: "boutique.products.items.organicCottonCap.category",
-      categoryFallback: "Ishk Originals",
-      price: "€38",
-      image: "bg-gradient-to-br from-sage/20 to-cream",
-      rating: 4.6,
-      reviews: 78,
-    },
-    {
-      id: 7,
-      slug: "glass-water-bottle",
-      nameKey: "boutique.products.items.glassWaterBottle.name",
-      categoryKey: "boutique.products.items.glassWaterBottle.category",
-      categoryFallback: "Lifestyle",
-      price: "€32",
-      image: "bg-gradient-to-br from-sky/10 to-sage/10",
-      rating: 4.9,
-      reviews: 145,
-    },
-    {
-      id: 8,
-      slug: "philosophy-tee",
-      nameKey: "boutique.products.items.philosophyTee.name",
-      categoryKey: "boutique.products.items.philosophyTee.category",
-      categoryFallback: "Ishk Originals",
-      price: "€48",
-      image: "bg-gradient-to-br from-cream to-sand/20",
-      rating: 4.8,
-      reviews: 112,
-    },
-  ];
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  const ishkOriginals = products.filter((p) => 
-    (t(p.categoryKey) === t("boutique.categories.originals") || p.categoryFallback === "Ishk Originals")
-  );
+  const fetchProducts = async () => {
+    try {
+      const categoryParam = selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
+      const response = await fetch(`/api/products${categoryParam}`);
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedCategory]);
+
+  const ishkOriginals = products.filter((p) => p.isIshkOriginal === true);
+  
+  const getProductImage = (product: any) => {
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      return product.images[0];
+    }
+    // Fallback gradient based on category
+    const gradients: { [key: string]: string } = {
+      "Ishk Originals": "bg-gradient-to-br from-sage/20 to-sand/20",
+      "Home & Living": "bg-gradient-to-br from-clay/20 to-sand/20",
+      "Lifestyle": "bg-gradient-to-br from-cream to-sage/10",
+    };
+    return gradients[product.category] || "bg-gradient-to-br from-sage/20 to-sand/20";
+  };
+  
+  const formatPrice = (price: number) => {
+    return `€${price.toFixed(0)}`;
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
@@ -304,62 +254,83 @@ export default function BoutiquePage() {
             </button>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product, index) => (
-              <Link key={product.id} href={`/boutique/${product.slug}`}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.05 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-sage/10 group"
-                >
-                <div className={`h-64 ${product.image} relative`}>
-                  {product.badge && (
-                    <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
-                    </div>
-                  )}
-                  {(t(product.categoryKey) === t("boutique.categories.originals") || product.categoryFallback === "Ishk Originals") && (
-                    <div className="absolute top-4 right-4 bg-amber/20 backdrop-blur-sm rounded-full px-3 py-1">
-                      <Star className="w-4 h-4 text-amber" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-4">
-                      <ShoppingCart className="w-6 h-6 text-sage" />
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-1 mb-2">
-                    <Star className="w-4 h-4 text-amber fill-amber" />
-                    <span className="text-sm text-charcoal/60">
-                      {product.rating} ({product.reviews})
-                    </span>
-                  </div>
-                  <p className="text-xs text-charcoal/40 mb-1">{t(product.categoryKey) || product.categoryFallback}</p>
-                  <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                    {t(product.nameKey) || product.nameKey}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-sage">{product.price}</span>
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
-                      className="text-charcoal/40 hover:text-sage transition-colors"
+          {loading ? (
+            <div className="text-center py-12 text-charcoal/60">{t("common.loading")}</div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-12 text-charcoal/60">No products found</div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product, index) => {
+                const productImage = getProductImage(product);
+                const isImageUrl = typeof productImage === 'string' && (productImage.startsWith('http') || productImage.startsWith('/'));
+                
+                return (
+                  <Link key={product.id} href={`/boutique/${product.slug}`}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: index * 0.05 }}
+                      whileHover={{ y: -5 }}
+                      className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-sage/10 group"
                     >
-                      <Heart className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-              </Link>
-            ))}
-          </div>
+                      <div className={`h-64 ${!isImageUrl ? productImage : ''} relative`}>
+                        {isImageUrl && (
+                          <Image
+                            src={productImage}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
+                        {product.badge && (
+                          <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full z-10">
+                            {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
+                          </div>
+                        )}
+                        {product.isIshkOriginal && (
+                          <div className="absolute top-4 right-4 bg-amber/20 backdrop-blur-sm rounded-full px-3 py-1 z-10">
+                            <Star className="w-4 h-4 text-amber" />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                          <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 z-10">
+                            <ShoppingCart className="w-6 h-6 text-sage" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        {product.rating > 0 && (
+                          <div className="flex items-center gap-1 mb-2">
+                            <Star className="w-4 h-4 text-amber fill-amber" />
+                            <span className="text-sm text-charcoal/60">
+                              {product.rating.toFixed(1)} ({product.reviewCount})
+                            </span>
+                          </div>
+                        )}
+                        <p className="text-xs text-charcoal/40 mb-1">{product.category}</p>
+                        <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-2xl font-bold text-sage">{formatPrice(product.price)}</span>
+                          <button 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                            className="text-charcoal/40 hover:text-sage transition-colors"
+                          >
+                            <Heart className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

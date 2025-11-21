@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -8,93 +9,31 @@ import { useLanguage } from "@/contexts/language-context";
 
 export default function PartyPage() {
   const { t } = useLanguage();
-  
-  const services = [
-    {
-      id: 1,
-      name: t("party.services.dj.name"),
-      description: t("party.services.dj.description"),
-      rating: 4.9,
-      reviews: 203,
-      price: `${t("party.from")} €300`,
-      image: "bg-gradient-to-br from-amber/20 to-coral/20",
-      features: [
-        t("party.services.dj.features.soundSystem"),
-        t("party.services.dj.features.lighting"),
-        t("party.services.dj.features.playlistCreation")
-      ],
-    },
-    {
-      id: 2,
-      name: t("party.services.bartending.name"),
-      description: t("party.services.bartending.description"),
-      rating: 4.8,
-      reviews: 156,
-      price: `${t("party.from")} €250`,
-      image: "bg-gradient-to-br from-amber/20 to-gold/20",
-      features: [
-        t("party.services.bartending.features.cocktailMenu"),
-        t("party.services.bartending.features.barSetup"),
-        t("party.services.bartending.features.staffIncluded")
-      ],
-    },
-    {
-      id: 3,
-      name: t("party.services.catering.name"),
-      description: t("party.services.catering.description"),
-      rating: 4.9,
-      reviews: 289,
-      price: `${t("party.from")} €500`,
-      image: "bg-gradient-to-br from-coral/20 to-amber/20",
-      features: [
-        t("party.services.catering.features.customMenu"),
-        t("party.services.catering.features.dietaryOptions"),
-        t("party.services.catering.features.setupCleanup")
-      ],
-    },
-    {
-      id: 4,
-      name: t("party.services.planning.name"),
-      description: t("party.services.planning.description"),
-      rating: 4.9,
-      reviews: 127,
-      price: `${t("party.from")} €800`,
-      image: "bg-gradient-to-br from-gold/20 to-amber/20",
-      features: [
-        t("party.services.planning.features.coordination"),
-        t("party.services.planning.features.timelineManagement"),
-        t("party.services.planning.features.vendorLiaison")
-      ],
-    },
-    {
-      id: 5,
-      name: t("party.services.lighting.name"),
-      description: t("party.services.lighting.description"),
-      rating: 4.7,
-      reviews: 94,
-      price: `${t("party.from")} €350`,
-      image: "bg-gradient-to-br from-sky/20 to-amber/20",
-      features: [
-        t("party.services.lighting.features.soundSystem"),
-        t("party.services.lighting.features.lightingDesign"),
-        t("party.services.lighting.features.technicalSupport")
-      ],
-    },
-    {
-      id: 6,
-      name: t("party.services.decoration.name"),
-      description: t("party.services.decoration.description"),
-      rating: 4.8,
-      reviews: 178,
-      price: `${t("party.from")} €200`,
-      image: "bg-gradient-to-br from-coral/20 to-gold/20",
-      features: [
-        t("party.services.decoration.features.themeDesign"),
-        t("party.services.decoration.features.floralArrangements"),
-        t("party.services.decoration.features.setupRemoval")
-      ],
-    },
-  ];
+  const [services, setServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch("/api/party/services");
+      if (response.ok) {
+        const data = await response.json();
+        setServices(data);
+      }
+    } catch (error) {
+      console.error("Error fetching party services:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatPrice = (price: number | null | undefined) => {
+    if (price === null || price === undefined) return t("party.from") + " €0";
+    return `${t("party.from")} €${price.toFixed(0)}`;
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber/10 via-cream to-white">
@@ -199,21 +138,23 @@ export default function PartyPage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => {
-              const getIcon = () => {
-                switch(service.id) {
-                  case 1: return <Music className="w-16 h-16 text-white/30" />;
-                  case 2: return <Wine className="w-16 h-16 text-white/30" />;
-                  case 3: return <UtensilsCrossed className="w-16 h-16 text-white/30" />;
-                  case 4: return <Sparkles className="w-16 h-16 text-white/30" />;
-                  case 5: return <Headphones className="w-16 h-16 text-white/30" />;
-                  case 6: return <Sparkles className="w-16 h-16 text-white/30" />;
-                  default: return <PartyPopper className="w-16 h-16 text-white/30" />;
-                }
-              };
+          {loading ? (
+            <div className="text-center py-12 text-charcoal/60">{t("common.loading")}</div>
+          ) : services.length === 0 ? (
+            <div className="text-center py-12 text-charcoal/60">No services found</div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((service, index) => {
+                const features = Array.isArray(service.features) ? service.features : [];
+                const getIcon = () => {
+                  return <PartyPopper className="w-16 h-16 text-white/30" />;
+                };
+                const getImageGradient = () => {
+                  const gradients = ["bg-gradient-to-br from-amber/20 to-coral/20", "bg-gradient-to-br from-amber/20 to-gold/20", "bg-gradient-to-br from-coral/20 to-amber/20", "bg-gradient-to-br from-gold/20 to-amber/20", "bg-gradient-to-br from-sky/20 to-amber/20", "bg-gradient-to-br from-coral/20 to-gold/20"];
+                  return gradients[index % gradients.length];
+                };
 
-              return (
+                return (
                 <motion.div
                   key={service.id}
                   initial={{ opacity: 0, y: 30 }}
@@ -224,7 +165,7 @@ export default function PartyPage() {
                   className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all cursor-pointer border border-amber/10"
                 >
                   {/* Image Placeholder */}
-                  <div className={`h-48 ${service.image} relative`}>
+                  <div className={`h-48 ${service.image || getImageGradient()} relative`}>
                     <div className="absolute inset-0 flex items-center justify-center">
                       {getIcon()}
                     </div>
@@ -236,35 +177,43 @@ export default function PartyPage() {
                       <h3 className="text-2xl font-heading font-bold text-charcoal">
                         {service.name}
                       </h3>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-amber fill-amber" />
-                        <span className="text-sm font-medium text-charcoal">
-                          {service.rating}
-                        </span>
-                      </div>
+                      {service.rating > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-amber fill-amber" />
+                          <span className="text-sm font-medium text-charcoal">
+                            {service.rating.toFixed(1)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    <p className="text-charcoal/60 mb-4 text-sm">
-                      {service.description}
-                    </p>
+                    {service.description && (
+                      <p className="text-charcoal/60 mb-4 text-sm">
+                        {service.description}
+                      </p>
+                    )}
 
                     <div className="flex items-center gap-4 mb-4 text-sm text-charcoal/60">
-                      <div className="flex items-center gap-1">
-                        <span>{service.reviews} {t("party.reviews")}</span>
-                      </div>
-                      <div className="text-amber font-semibold">{service.price}</div>
+                      {service.reviewCount > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span>{service.reviewCount} {t("party.reviews")}</span>
+                        </div>
+                      )}
+                      <div className="text-amber font-semibold">{formatPrice(service.price)}</div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {service.features.map((feature) => (
-                        <span
-                          key={feature}
-                          className="text-xs text-charcoal/60 bg-amber/10 px-2 py-1 rounded"
-                        >
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
+                    {features.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {features.map((feature: string, idx: number) => (
+                          <span
+                            key={idx}
+                            className="text-xs text-charcoal/60 bg-amber/10 px-2 py-1 rounded"
+                          >
+                            {feature}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -275,9 +224,10 @@ export default function PartyPage() {
                     </motion.button>
                   </div>
                 </motion.div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

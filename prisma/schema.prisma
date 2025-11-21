@@ -29,22 +29,22 @@ model User {
   name          String?
   image         String?
   phone         String?
-  password      String?   // For credentials login
+  password      String? // For credentials login
   role          UserRole  @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  
+
   // Relations
-  accounts      Account[]
-  sessions      Session[]
-  orders        Order[]
-  cartItems     CartItem[]
-  wishlistItems WishlistItem[]
-  inquiries     VenueInquiry[]
-  donations     Donation[]
-  newsBriefs    NewsBrief[]
+  accounts            Account[]
+  sessions            Session[]
+  orders              Order[]
+  cartItems           CartItem[]
+  wishlistItems       WishlistItem[]
+  inquiries           VenueInquiry[]
+  donations           Donation[]
+  newsBriefs          NewsBrief[]
   photographyBookings PhotographyBooking[]
-  
+
   @@map("users")
 }
 
@@ -92,29 +92,29 @@ model VerificationToken {
 
 // Products (Boutique)
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String
-  price       Float
-  comparePrice Float?   // Original price for discounts
-  category    String
-  isIshkOriginal Boolean @default(false)
-  images      Json      // Array of image URLs (stored as JSON)
-  inStock     Boolean   @default(true)
-  stockCount  Int       @default(0)
-  rating      Float     @default(0)
-  reviewCount Int       @default(0)
-  badge       String?   // "Bestseller", "New", etc.
-  featured    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String
+  price          Float
+  comparePrice   Float? // Original price for discounts
+  category       String
+  isIshkOriginal Boolean  @default(false)
+  images         Json // Array of image URLs (stored as JSON)
+  inStock        Boolean  @default(true)
+  stockCount     Int      @default(0)
+  rating         Float    @default(0)
+  reviewCount    Int      @default(0)
+  badge          String? // "Bestseller", "New", etc.
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   // Relations
-  orderItems  OrderItem[]
-  cartItems   CartItem[]
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
   wishlistItems WishlistItem[]
-  
+
   @@map("products")
 }
 
@@ -128,11 +128,11 @@ model CartItem {
   color     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relations
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, productId, size, color])
   @@map("cart_items")
 }
@@ -147,18 +147,18 @@ model Order {
   subtotal        Float
   shipping        Float
   tax             Float       @default(0)
-  shippingAddress Json        // Full address object
+  shippingAddress Json // Full address object
   billingAddress  Json
   paymentMethod   String?
-  paymentIntentId String?     // Stripe payment intent ID
+  paymentIntentId String? // Stripe payment intent ID
   trackingNumber  String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  
+
   // Relations
-  user       User       @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
   orderItems OrderItem[]
-  
+
   @@map("orders")
 }
 
@@ -173,18 +173,18 @@ enum OrderStatus {
 
 // Order Items
 model OrderItem {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   orderId   String
   productId String
   quantity  Int
-  price     Float    // Price at time of order
+  price     Float // Price at time of order
   size      String?
   color     String?
-  
+
   // Relations
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id])
-  
+
   @@map("order_items")
 }
 
@@ -194,11 +194,11 @@ model WishlistItem {
   userId    String
   productId String
   createdAt DateTime @default(now())
-  
+
   // Relations
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, productId])
   @@map("wishlist_items")
 }
@@ -213,29 +213,29 @@ model Venue {
   city        String
   country     String
   address     String
-  capacity    String   // "30-50 guests"
+  capacity    String // "30-50 guests"
   minCapacity Int
   maxCapacity Int
-  price       Float    // Starting price
+  price       Float // Starting price
   currency    String   @default("EUR")
   rating      Float    @default(0)
   reviewCount Int      @default(0)
-  images      Json     // Array of image URLs (stored as JSON)
-  features    Json     // ["Garden", "Terrace", "Parking"] (stored as JSON)
-  amenities   Json?    // Detailed amenities object
+  images      Json // Array of image URLs (stored as JSON)
+  features    Json // ["Garden", "Terrace", "Parking"] (stored as JSON)
+  amenities   Json? // Detailed amenities object
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
   inquiries VenueInquiry[]
-  
+
   @@map("venues")
 }
 
 // Venue Inquiries (Lead Generation)
 model VenueInquiry {
-  id          String            @id @default(cuid())
+  id          String        @id @default(cuid())
   userId      String?
   venueId     String
   name        String
@@ -244,15 +244,15 @@ model VenueInquiry {
   eventDate   DateTime
   guestCount  Int
   message     String?
-  status      InquiryStatus    @default(NEW)
+  status      InquiryStatus @default(NEW)
   respondedAt DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
   // Relations
-  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
-  venue Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
-  
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  venue Venue @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
   @@map("venue_inquiries")
 }
 
@@ -270,37 +270,37 @@ model Campaign {
   title       String
   slug        String   @unique
   description String
-  category    String   // "Environment", "Community", "Education", "Wildlife"
+  category    String // "Environment", "Community", "Education", "Wildlife"
   goal        Float
   raised      Float    @default(0)
   image       String?
-  impact      String?  // "🌳 7,500 trees planted"
+  impact      String? // "🌳 7,500 trees planted"
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
   donations Donation[]
-  
+
   @@map("campaigns")
 }
 
 // Donations
 model Donation {
-  id            String   @id @default(cuid())
-  userId        String?
-  campaignId    String
-  amount        Float
-  currency      String   @default("EUR")
+  id              String   @id @default(cuid())
+  userId          String?
+  campaignId      String
+  amount          Float
+  currency        String   @default("EUR")
   paymentIntentId String? // Stripe payment intent ID
-  anonymous     Boolean  @default(false)
-  message       String?
-  createdAt     DateTime @default(now())
-  
+  anonymous       Boolean  @default(false)
+  message         String?
+  createdAt       DateTime @default(now())
+
   // Relations
-  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  campaign Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
   @@map("donations")
 }
 
@@ -311,13 +311,13 @@ model NewsBrief {
   title     String
   summary   String
   region    String
-  topics    Json     // Array of topics (stored as JSON)
+  topics    Json // Array of topics (stored as JSON)
   sourceUrl String?
   savedAt   DateTime @default(now())
-  
+
   // Relations
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   @@map("news_briefs")
 }
 
@@ -325,17 +325,17 @@ model NewsBrief {
 model Photography {
   id          String   @id @default(cuid())
   title       String
-  category    String   // "Cultural", "Adventure", "Social Media", etc.
-  image       String   // Image URL or path
+  category    String // "Cultural", "Adventure", "Social Media", etc.
+  image       String // Image URL or path
   description String?
   featured    Boolean  @default(false)
   order       Int      @default(0) // For custom ordering
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
   albumPhotos AlbumPhoto[]
-  
+
   @@map("photography")
 }
 
@@ -344,14 +344,14 @@ model Album {
   id          String   @id @default(cuid())
   title       String
   description String?
-  coverImage  String?  // Cover image for the album
+  coverImage  String? // Cover image for the album
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
-  photos      AlbumPhoto[]
-  
+  photos AlbumPhoto[]
+
   @@map("albums")
 }
 
@@ -361,35 +361,73 @@ model AlbumPhoto {
   albumId     String
   photoId     String
   orientation String   @default("horizontal") // "horizontal" or "vertical"
-  description String?  // Description specific to this album photo
+  description String? // Description specific to this album photo
   order       Int      @default(0) // Order within the album
   createdAt   DateTime @default(now())
-  
+
   // Relations
-  album Album      @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  album Album       @relation(fields: [albumId], references: [id], onDelete: Cascade)
   photo Photography @relation(fields: [photoId], references: [id], onDelete: Cascade)
-  
+
   @@unique([albumId, photoId])
   @@map("album_photos")
 }
 
 // Photography Bookings/Inquiries
 model PhotographyBooking {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
   userId        String?
   name          String
   email         String
   phone         String?
   preferredDate DateTime?
-  serviceType   String   // "portrait", "event", "commercial", "wedding", "other"
+  serviceType   String // "portrait", "event", "commercial", "wedding", "other"
   message       String?
   status        InquiryStatus @default(NEW)
   respondedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
   // Relations
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+
   @@map("photography_bookings")
+}
+
+// Photography Services
+model PhotographyService {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  duration    String // "2 hours", "4 hours", "Full day"
+  price       Float?
+  features    Json // Array of features (stored as JSON)
+  image       String?
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("photography_services")
+}
+
+// Party Services
+model PartyService {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  price       Float // Starting price
+  currency    String   @default("EUR")
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  features    Json // Array of features (stored as JSON)
+  image       String?
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("party_services")
 }

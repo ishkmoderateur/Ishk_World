@@ -9,12 +9,13 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Mail, Lock, LogIn, Loader2, Globe } from "lucide-react";
+import { isAdmin } from "@/lib/roles";
 
 function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const { update } = useSession();
-  const callbackUrl = params.get("callbackUrl") || "/profile";
+  const { data: session, update } = useSession();
+  const callbackUrl = params.get("callbackUrl");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,16 +57,49 @@ function SignInForm() {
       }
       
       if (res.ok) {
-        console.log("✅ Client: Login successful, redirecting to:", res.url || callbackUrl);
+        console.log("✅ Client: Login successful");
         // Update session to ensure it's synced before redirect
         try {
           await update();
           console.log("✅ Client: Session updated successfully");
+          
+          // Wait a moment for session to be fully synced
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Fetch fresh session to get user role
+          const response = await fetch("/api/auth/session");
+          const sessionData = await response.json();
+          
+          console.log("🔐 Session data:", sessionData);
+          
+          // Determine redirect URL based on user role
+          let redirectUrl = callbackUrl || "/profile";
+          
+          // If callbackUrl is explicitly set to /admin, use it
+          // If callbackUrl is /profile or not set, check if user is admin
+          if (!callbackUrl || callbackUrl === "/profile") {
+            if (sessionData?.user?.role && isAdmin(sessionData.user.role)) {
+              // Admin users go to admin dashboard
+              redirectUrl = "/admin";
+              console.log("🔐 Admin user detected (role: " + sessionData.user.role + "), redirecting to admin dashboard");
+            } else {
+              // Regular users go to profile
+              redirectUrl = "/profile";
+              console.log("👤 Regular user, redirecting to profile");
+            }
+          } else {
+            // Use the explicitly set callbackUrl
+            console.log("🔗 Using explicit callbackUrl:", callbackUrl);
+          }
+          
+          console.log("✅ Client: Redirecting to:", redirectUrl);
+          // Use window.location for a full page reload to ensure session is picked up
+          window.location.href = redirectUrl;
         } catch (sessionError) {
           console.warn("⚠️ Client: Session update warning (might still work):", sessionError);
+          // Fallback to default redirect
+          window.location.href = callbackUrl || "/profile";
         }
-        // Use window.location for a full page reload to ensure session is picked up
-        window.location.href = res.url || callbackUrl;
       } else {
         console.error("❌ Client: SignIn not OK:", res);
         setError("Login failed. Please try again.");

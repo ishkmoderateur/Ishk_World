@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -8,53 +9,45 @@ import { useLanguage } from "@/contexts/language-context";
 
 export default function AssociationPage() {
   const { t } = useLanguage();
-  
-  const campaigns = [
-    {
-      id: 1,
-      title: t("association.campaigns.treePlanting.title"),
-      description: t("association.campaigns.treePlanting.description"),
-      progress: 75,
-      goal: "10,000 trees",
-      raised: "7,500 trees",
-      image: "bg-gradient-to-br from-forest/20 to-sage/20",
-      category: t("association.campaigns.treePlanting.category"),
-      impact: t("association.campaigns.treePlanting.impact"),
-    },
-    {
-      id: 2,
-      title: t("association.campaigns.cleanWater.title"),
-      description: t("association.campaigns.cleanWater.description"),
-      progress: 45,
-      goal: "€50,000",
-      raised: "€22,500",
-      image: "bg-gradient-to-br from-sky/20 to-sage/20",
-      category: t("association.campaigns.cleanWater.category"),
-      impact: t("association.campaigns.cleanWater.impact"),
-    },
-    {
-      id: 3,
-      title: t("association.campaigns.education.title"),
-      description: t("association.campaigns.education.description"),
-      progress: 60,
-      goal: "€30,000",
-      raised: "€18,000",
-      image: "bg-gradient-to-br from-amber/20 to-coral/20",
-      category: t("association.campaigns.education.category"),
-      impact: t("association.campaigns.education.impact"),
-    },
-    {
-      id: 4,
-      title: t("association.campaigns.wildlife.title"),
-      description: t("association.campaigns.wildlife.description"),
-      progress: 30,
-      goal: "€75,000",
-      raised: "€22,500",
-      image: "bg-gradient-to-br from-forest/20 to-sand/20",
-      category: t("association.campaigns.wildlife.category"),
-      impact: t("association.campaigns.wildlife.impact"),
-    },
-  ];
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    try {
+      const response = await fetch("/api/campaigns?active=true");
+      if (response.ok) {
+        const data = await response.json();
+        setCampaigns(data);
+      }
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateProgress = (raised: number, goal: number) => {
+    if (goal === 0) return 0;
+    return Math.min(100, Math.round((raised / goal) * 100));
+  };
+
+  const formatGoal = (goal: number, category?: string) => {
+    if (category && category.toLowerCase().includes("tree")) {
+      return `${goal.toLocaleString()} trees`;
+    }
+    return `€${goal.toLocaleString()}`;
+  };
+
+  const formatRaised = (raised: number, category?: string) => {
+    if (category && category.toLowerCase().includes("tree")) {
+      return `${raised.toLocaleString()} trees`;
+    }
+    return `€${raised.toLocaleString()}`;
+  };
 
   const impactStats = [
     { label: t("association.impact.stats.treesPlanted"), value: "12,500+", icon: Leaf },
@@ -167,91 +160,106 @@ export default function AssociationPage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {campaigns.map((campaign, index) => (
-              <motion.div
-                key={campaign.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-coral/10"
-              >
-                {/* Image */}
-                <div className={`h-48 ${campaign.image} relative`}>
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2">
-                    <span className="text-sm font-medium text-charcoal">
-                      {campaign.category}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <h3 className="text-2xl font-heading font-bold text-charcoal mb-3">
-                    {campaign.title}
-                  </h3>
-                  <p className="text-charcoal/60 mb-6 leading-relaxed">
-                    {campaign.description}
-                  </p>
-
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-charcoal">
-                        {campaign.raised}
-                      </span>
-                      <span className="text-sm text-charcoal/60">
-                        {t("association.common.of")} {campaign.goal}
-                      </span>
+          {loading ? (
+            <div className="text-center py-12 text-charcoal/60">{t("common.loading")}</div>
+          ) : campaigns.length === 0 ? (
+            <div className="text-center py-12 text-charcoal/60">No active campaigns found</div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-8">
+              {campaigns.map((campaign, index) => {
+                const progress = calculateProgress(campaign.raised, campaign.goal);
+                const goalFormatted = formatGoal(campaign.goal, campaign.category);
+                const raisedFormatted = formatRaised(campaign.raised, campaign.category);
+                const imageGradient = campaign.image || "bg-gradient-to-br from-coral/20 to-amber/20";
+                
+                return (
+                  <motion.div
+                    key={campaign.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-coral/10"
+                  >
+                    {/* Image */}
+                    <div className={`h-48 ${imageGradient} relative`}>
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-2">
+                        <span className="text-sm font-medium text-charcoal">
+                          {campaign.category}
+                        </span>
+                      </div>
                     </div>
-                    <div className="w-full bg-coral/10 rounded-full h-3 overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${campaign.progress}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.3 }}
-                        className="h-full bg-coral rounded-full"
-                      />
-                    </div>
-                    <div className="text-right mt-1">
-                      <span className="text-sm text-charcoal/60">
-                        {campaign.progress}% {t("association.common.complete")}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* Impact */}
-                  <div className="flex items-center gap-2 mb-6 text-coral">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm font-medium">{campaign.impact}</span>
-                  </div>
+                    {/* Content */}
+                    <div className="p-6">
+                      <h3 className="text-2xl font-heading font-bold text-charcoal mb-3">
+                        {campaign.title}
+                      </h3>
+                      <p className="text-charcoal/60 mb-6 leading-relaxed">
+                        {campaign.description}
+                      </p>
 
-                  {/* Actions */}
-                  <div className="flex gap-3">
-                    <motion.a
-                      href="https://www.paypal.com/donate"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex-1 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors text-center"
-                    >
-                      {t("association.common.donate")}
-                    </motion.a>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="px-6 py-3 border border-coral/30 text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
-                    >
-                      {t("association.common.learnMore")}
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                      {/* Progress Bar */}
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-charcoal">
+                            {raisedFormatted}
+                          </span>
+                          <span className="text-sm text-charcoal/60">
+                            {t("association.common.of")} {goalFormatted}
+                          </span>
+                        </div>
+                        <div className="w-full bg-coral/10 rounded-full h-3 overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${progress}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1, delay: 0.3 }}
+                            className="h-full bg-coral rounded-full"
+                          />
+                        </div>
+                        <div className="text-right mt-1">
+                          <span className="text-sm text-charcoal/60">
+                            {progress}% {t("association.common.complete")}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Impact */}
+                      {campaign.impact && (
+                        <div className="flex items-center gap-2 mb-6 text-coral">
+                          <CheckCircle className="w-5 h-5" />
+                          <span className="text-sm font-medium">{campaign.impact}</span>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex gap-3">
+                        <motion.a
+                          href="https://www.paypal.com/donate"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex-1 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors text-center"
+                        >
+                          {t("association.common.donate")}
+                        </motion.a>
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="px-6 py-3 border border-coral/30 text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
+                        >
+                          {t("association.common.learnMore")}
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

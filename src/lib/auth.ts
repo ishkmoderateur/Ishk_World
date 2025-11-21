@@ -123,24 +123,29 @@ const authConfig: NextAuthConfig = {
         token.email = user.email;
         token.name = user.name;
         token.picture = user.image;
-        // Fetch user role from database
-        try {
-          const dbUser = await prisma.user.findUnique({
-            where: { id: user.id },
-            select: { role: true },
-          });
-          if (dbUser) {
-            token.role = dbUser.role;
-          } else {
-            // If user not found, set default role
-            token.role = "USER";
+        // Use role from user object if available, otherwise fetch from database
+        if ((user as any).role) {
+          token.role = (user as any).role;
+        } else {
+          // Fetch user role from database
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { role: true },
+            });
+            if (dbUser) {
+              token.role = dbUser.role;
+            } else {
+              // If user not found, set default role
+              token.role = "USER";
+            }
+          } catch (error) {
+            if (process.env.NODE_ENV === "development") {
+              console.error("Error fetching user role:", error);
+            }
+            // Set default role on error instead of leaving it undefined
+            token.role = token.role || "USER";
           }
-        } catch (error) {
-          if (process.env.NODE_ENV === "development") {
-            console.error("Error fetching user role:", error);
-          }
-          // Set default role on error instead of leaving it undefined
-          token.role = token.role || "USER";
         }
       } else if (token.id && !token.role) {
         // If token exists but role is missing, fetch it
@@ -178,6 +183,14 @@ const authConfig: NextAuthConfig = {
         }
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // If url is a relative path, use baseUrl
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // If url is on same origin, allow it
+      if (new URL(url).origin === baseUrl) return url;
+      // Otherwise redirect to baseUrl
+      return baseUrl;
     },
   },
 };
