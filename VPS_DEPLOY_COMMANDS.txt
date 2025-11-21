@@ -1,0 +1,51 @@
+# 🚀 VPS Deployment Commands
+# Copy and paste these commands on your VPS after SSH connection
+
+# ============================================
+# STEP 1: Navigate to project directory
+# ============================================
+cd /var/www/ishk-platform
+
+# ============================================
+# STEP 2: Pull latest code from Git
+# ============================================
+git pull origin main
+
+# ============================================
+# STEP 3: Install/update dependencies
+# ============================================
+npm install --production
+
+# ============================================
+# STEP 4: Generate Prisma client
+# ============================================
+npx prisma generate
+
+# ============================================
+# STEP 5: Run database migrations (if needed)
+# ============================================
+npx prisma migrate deploy
+
+# ============================================
+# STEP 6: Build the application
+# ============================================
+npm run build
+
+# ============================================
+# STEP 7: Restart PM2
+# ============================================
+pm2 restart ishk-platform
+
+# ============================================
+# STEP 8: Check status
+# ============================================
+pm2 status
+pm2 logs ishk-platform --lines 50
+
+# ============================================
+# ALTERNATIVE: Use deployment script
+# ============================================
+# chmod +x deploy-to-vps.sh
+# ./deploy-to-vps.sh
+
+

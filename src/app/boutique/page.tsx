@@ -5,6 +5,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ShoppingBag, Leaf, Heart, Star, ArrowRight, Filter, Search, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import Link from "next/link";
 
 export default function BoutiquePage() {
   const { t } = useLanguage();
@@ -20,8 +21,10 @@ export default function BoutiquePage() {
   const products = [
     {
       id: 1,
-      name: "Classic Tee",
-      category: "Ishk Originals",
+      slug: "classic-tee",
+      nameKey: "boutique.products.items.classicTee.name",
+      categoryKey: "boutique.products.items.classicTee.category",
+      categoryFallback: "Ishk Originals",
       price: "€45",
       image: "bg-gradient-to-br from-sage/20 to-sand/20",
       rating: 4.9,
@@ -30,8 +33,10 @@ export default function BoutiquePage() {
     },
     {
       id: 2,
-      name: "Canvas Tote Bag",
-      category: "Ishk Originals",
+      slug: "canvas-tote-bag",
+      nameKey: "boutique.products.items.canvasToteBag.name",
+      categoryKey: "boutique.products.items.canvasToteBag.category",
+      categoryFallback: "Ishk Originals",
       price: "€35",
       image: "bg-gradient-to-br from-sand/20 to-clay/20",
       rating: 4.8,
@@ -39,8 +44,10 @@ export default function BoutiquePage() {
     },
     {
       id: 3,
-      name: "Slow Living Journal",
-      category: "Lifestyle",
+      slug: "slow-living-journal",
+      nameKey: "boutique.products.items.slowLivingJournal.name",
+      categoryKey: "boutique.products.items.slowLivingJournal.category",
+      categoryFallback: "Lifestyle",
       price: "€35",
       image: "bg-gradient-to-br from-cream to-sage/10",
       rating: 4.9,
@@ -49,8 +56,10 @@ export default function BoutiquePage() {
     },
     {
       id: 4,
-      name: "Essential Hoodie",
-      category: "Ishk Originals",
+      slug: "essential-hoodie",
+      nameKey: "boutique.products.items.essentialHoodie.name",
+      categoryKey: "boutique.products.items.essentialHoodie.category",
+      categoryFallback: "Ishk Originals",
       price: "€85",
       image: "bg-gradient-to-br from-charcoal/20 to-sage/20",
       rating: 4.7,
@@ -58,8 +67,10 @@ export default function BoutiquePage() {
     },
     {
       id: 5,
-      name: "Ceramic Mug",
-      category: "Home & Living",
+      slug: "ceramic-mug",
+      nameKey: "boutique.products.items.ceramicMug.name",
+      categoryKey: "boutique.products.items.ceramicMug.category",
+      categoryFallback: "Home & Living",
       price: "€28",
       image: "bg-gradient-to-br from-clay/20 to-sand/20",
       rating: 4.8,
@@ -67,8 +78,10 @@ export default function BoutiquePage() {
     },
     {
       id: 6,
-      name: "Organic Cotton Cap",
-      category: "Ishk Originals",
+      slug: "organic-cotton-cap",
+      nameKey: "boutique.products.items.organicCottonCap.name",
+      categoryKey: "boutique.products.items.organicCottonCap.category",
+      categoryFallback: "Ishk Originals",
       price: "€38",
       image: "bg-gradient-to-br from-sage/20 to-cream",
       rating: 4.6,
@@ -76,8 +89,10 @@ export default function BoutiquePage() {
     },
     {
       id: 7,
-      name: "Glass Water Bottle",
-      category: "Lifestyle",
+      slug: "glass-water-bottle",
+      nameKey: "boutique.products.items.glassWaterBottle.name",
+      categoryKey: "boutique.products.items.glassWaterBottle.category",
+      categoryFallback: "Lifestyle",
       price: "€32",
       image: "bg-gradient-to-br from-sky/10 to-sage/10",
       rating: 4.9,
@@ -85,8 +100,10 @@ export default function BoutiquePage() {
     },
     {
       id: 8,
-      name: "Philosophy Tee",
-      category: "Ishk Originals",
+      slug: "philosophy-tee",
+      nameKey: "boutique.products.items.philosophyTee.name",
+      categoryKey: "boutique.products.items.philosophyTee.category",
+      categoryFallback: "Ishk Originals",
       price: "€48",
       image: "bg-gradient-to-br from-cream to-sand/20",
       rating: 4.8,
@@ -94,7 +111,9 @@ export default function BoutiquePage() {
     },
   ];
 
-  const ishkOriginals = products.filter((p) => p.category === "Ishk Originals");
+  const ishkOriginals = products.filter((p) => 
+    (t(p.categoryKey) === t("boutique.categories.originals") || p.categoryFallback === "Ishk Originals")
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
@@ -287,22 +306,22 @@ export default function BoutiquePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.05 }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-sage/10 group"
-              >
+              <Link key={product.id} href={`/boutique/${product.slug}`}>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  whileHover={{ y: -5 }}
+                  className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-sage/10 group"
+                >
                 <div className={`h-64 ${product.image} relative`}>
                   {product.badge && (
                     <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full">
                       {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
                     </div>
                   )}
-                  {product.category === t("boutique.categories.originals") && (
+                  {(t(product.categoryKey) === t("boutique.categories.originals") || product.categoryFallback === "Ishk Originals") && (
                     <div className="absolute top-4 right-4 bg-amber/20 backdrop-blur-sm rounded-full px-3 py-1">
                       <Star className="w-4 h-4 text-amber" />
                     </div>
@@ -320,18 +339,25 @@ export default function BoutiquePage() {
                       {product.rating} ({product.reviews})
                     </span>
                   </div>
-                  <p className="text-xs text-charcoal/40 mb-1">{product.category}</p>
+                  <p className="text-xs text-charcoal/40 mb-1">{t(product.categoryKey) || product.categoryFallback}</p>
                   <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                    {product.name}
+                    {t(product.nameKey) || product.nameKey}
                   </h3>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-sage">{product.price}</span>
-                    <button className="text-charcoal/40 hover:text-sage transition-colors">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      className="text-charcoal/40 hover:text-sage transition-colors"
+                    >
                       <Heart className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
               </motion.div>
+              </Link>
             ))}
           </div>
         </div>

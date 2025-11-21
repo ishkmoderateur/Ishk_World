@@ -6,8 +6,10 @@ import { Plus, Edit, Trash2, Camera, ArrowLeft, Image as ImageIcon, Grid3x3, Lay
 import Link from "next/link";
 import Image from "next/image";
 import PhotographyGallery from "@/components/photography-gallery";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function PhotographyPanel() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<"photos" | "albums">("photos");
   const [photos, setPhotos] = useState<any[]>([]);
   const [albums, setAlbums] = useState<any[]>([]);
@@ -165,19 +167,19 @@ export default function PhotographyPanel() {
       if (selectedPhotos.length < 10) {
         setSelectedPhotos([...selectedPhotos, photoId]);
       } else {
-        alert("Maximum 10 photos per album");
+        alert(t("admin.photography.panel.alerts.maxPhotos"));
       }
     }
   };
 
   const handleImportFromInstagram = async (profileUrl: string, albumTitle: string) => {
     if (!profileUrl || !profileUrl.includes("instagram.com")) {
-      alert("Invalid Instagram URL");
+      alert(t("admin.photography.panel.alerts.invalidInstagramUrl"));
       return;
     }
 
     if (!albumTitle) {
-      alert("Album title is required");
+      alert(t("admin.photography.panel.alerts.albumTitleRequired"));
       return;
     }
 
@@ -297,17 +299,17 @@ export default function PhotographyPanel() {
       .filter((url) => url.length > 0 && (url.startsWith("http://") || url.startsWith("https://")));
 
     if (urls.length === 0) {
-      alert("No valid URLs provided");
+      alert(t("admin.photography.panel.alerts.noValidUrls"));
       return;
     }
 
     if (urls.length > 10) {
-      alert("Maximum 10 images per album");
+      alert(t("admin.photography.panel.alerts.maxImages"));
       return;
     }
 
     if (!albumTitle) {
-      alert("Album title is required");
+      alert(t("admin.photography.panel.alerts.albumTitleRequired"));
       return;
     }
 
@@ -424,20 +426,20 @@ export default function PhotographyPanel() {
 
   const handleImportSubmit = async () => {
     if (!importAlbumTitle.trim()) {
-      alert("Please enter an album title");
+      alert(t("admin.photography.panel.alerts.enterAlbumTitle"));
       return;
     }
 
     if (importType === "instagram") {
       if (!importInput.trim() || !importInput.includes("instagram.com")) {
-        alert("Please enter a valid Instagram profile URL");
+        alert(t("admin.photography.panel.alerts.enterInstagramUrl"));
         return;
       }
       setShowImportModal(false);
       await handleImportFromInstagram(importInput.trim(), importAlbumTitle.trim());
     } else if (importType === "urls") {
       if (!importInput.trim()) {
-        alert("Please enter image URLs");
+        alert(t("admin.photography.panel.alerts.enterUrls"));
         return;
       }
       setShowImportModal(false);
@@ -446,7 +448,7 @@ export default function PhotographyPanel() {
       // Handle file import
       const files = (window as any).__pendingImportFiles;
       if (!files || files.length === 0) {
-        alert("No files selected");
+        alert(t("admin.photography.panel.alerts.noFilesSelected"));
         return;
       }
       setShowImportModal(false);
@@ -620,7 +622,7 @@ export default function PhotographyPanel() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center text-charcoal/60">Loading...</div>
+        <div className="text-center text-charcoal/60">{t("admin.photography.panel.messages.loading")}</div>
       </div>
     );
   }
@@ -641,9 +643,9 @@ export default function PhotographyPanel() {
               <div>
                 <h1 className="text-3xl font-display font-bold text-charcoal flex items-center gap-3">
                   <Camera className="w-8 h-8" />
-                  Photography Panel
+                  {t("admin.photography.panel.title")}
                 </h1>
-                <p className="text-charcoal/60 mt-1">Manage photography portfolio</p>
+                <p className="text-charcoal/60 mt-1">{t("admin.photography.panel.subtitle")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -654,14 +656,14 @@ export default function PhotographyPanel() {
                     className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2"
                   >
                     <LayoutGrid className="w-5 h-5" />
-                    {showGallery ? "Hide Gallery" : "View Gallery"}
+                    {showGallery ? t("admin.photography.panel.buttons.hideGallery") : t("admin.photography.panel.buttons.viewGallery")}
                   </button>
                   <button
                     onClick={() => setShowForm(!showForm)}
                     className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors flex items-center gap-2"
                   >
                     <Plus className="w-5 h-5" />
-                    {showForm ? "Cancel" : "Add Photo"}
+                    {showForm ? t("common.cancel") : t("admin.photography.panel.buttons.addPhoto")}
                   </button>
                 </>
               )}
@@ -669,7 +671,7 @@ export default function PhotographyPanel() {
                 <div className="flex gap-3">
                   <label className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2 cursor-pointer">
                     <Download className="w-5 h-5" />
-                    Import Images
+                    {t("admin.photography.panel.buttons.importImages")}
                     <input
                       type="file"
                       accept="image/*"
@@ -688,7 +690,7 @@ export default function PhotographyPanel() {
                     className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2"
                   >
                     <Download className="w-5 h-5" />
-                    Import from Instagram
+                    {t("admin.photography.panel.buttons.importInstagram")}
                   </button>
                   <button
                     onClick={() => {
@@ -700,14 +702,14 @@ export default function PhotographyPanel() {
                     className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors flex items-center gap-2"
                   >
                     <Download className="w-5 h-5" />
-                    Import from URLs
+                    {t("admin.photography.panel.buttons.importUrls")}
                   </button>
                   <button
                     onClick={() => setShowAlbumForm(!showAlbumForm)}
                     className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors flex items-center gap-2"
                   >
                     <FolderPlus className="w-5 h-5" />
-                    {showAlbumForm ? "Cancel" : "Create Album"}
+                    {showAlbumForm ? t("common.cancel") : t("admin.photography.panel.buttons.createAlbum")}
                   </button>
                 </div>
               )}
@@ -723,7 +725,7 @@ export default function PhotographyPanel() {
                   : "border-transparent text-charcoal/60 hover:text-charcoal"
               }`}
             >
-              Photos
+              {t("admin.photography.panel.tabs.photos")}
             </button>
             <button
               onClick={() => setActiveTab("albums")}
@@ -733,7 +735,7 @@ export default function PhotographyPanel() {
                   : "border-transparent text-charcoal/60 hover:text-charcoal"
               }`}
             >
-              Albums
+              {t("admin.photography.panel.tabs.albums")}
             </button>
           </div>
         </div>
@@ -750,16 +752,16 @@ export default function PhotographyPanel() {
             >
               <h2 className="text-2xl font-heading font-bold text-charcoal mb-4">
                 {importType === "instagram" 
-                  ? "Import from Instagram" 
+                  ? t("admin.photography.panel.modal.importInstagram.title")
                   : importType === "urls"
-                  ? "Import from URLs"
-                  : "Import Images"}
+                  ? t("admin.photography.panel.modal.importUrls.title")
+                  : t("admin.photography.panel.modal.importImages.title")}
               </h2>
               
               {importType === "instagram" && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Instagram Profile URL
+                    {t("admin.photography.panel.modal.importInstagram.instagramUrl")}
                   </label>
                   <input
                     type="text"
@@ -774,7 +776,7 @@ export default function PhotographyPanel() {
               {importType === "urls" && (
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Image URLs (one per line, max 10)
+                    {t("admin.photography.panel.modal.importUrls.urlsLabel")}
                   </label>
                   <textarea
                     value={importInput}
@@ -789,20 +791,20 @@ export default function PhotographyPanel() {
               {importType === "files" && (
                 <div className="mb-4">
                   <p className="text-sm text-charcoal/70">
-                    Files selected: {(window as any).__pendingImportFiles?.length || 0}
+                    {t("admin.photography.panel.modal.importImages.filesSelected").replace("{count}", String((window as any).__pendingImportFiles?.length || 0))}
                   </p>
                 </div>
               )}
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Album Title *
+                  {t("admin.photography.panel.forms.albumTitle")} *
                 </label>
                 <input
                   type="text"
                   value={importAlbumTitle}
                   onChange={(e) => setImportAlbumTitle(e.target.value)}
-                  placeholder="Enter album title"
+                  placeholder={t("admin.photography.panel.forms.albumTitle")}
                   className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
                 />
               </div>
@@ -812,7 +814,7 @@ export default function PhotographyPanel() {
                   onClick={handleImportSubmit}
                   className="flex-1 px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors"
                 >
-                  Import
+                  {t("admin.photography.panel.modal.importInstagram.import")}
                 </button>
                 <button
                   onClick={() => {
@@ -823,7 +825,7 @@ export default function PhotographyPanel() {
                   }}
                   className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             </motion.div>
@@ -848,12 +850,12 @@ export default function PhotographyPanel() {
             className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm mb-8"
           >
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-              Create New Album
+              {t("admin.photography.panel.forms.createNewAlbum")}
             </h2>
             <form onSubmit={handleAlbumSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Album Title *
+                  {t("admin.photography.panel.forms.albumTitle")} *
                 </label>
                 <input
                   type="text"
@@ -865,7 +867,7 @@ export default function PhotographyPanel() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Description
+                  {t("admin.photography.panel.forms.albumDescription")}
                 </label>
                 <textarea
                   value={albumFormData.description}
@@ -876,7 +878,7 @@ export default function PhotographyPanel() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Cover Image URL
+                  {t("admin.photography.panel.forms.coverImageUrl")}
                 </label>
                 <input
                   type="text"
@@ -888,7 +890,7 @@ export default function PhotographyPanel() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Order
+                  {t("admin.photography.panel.forms.order")}
                 </label>
                 <input
                   type="number"
@@ -901,7 +903,7 @@ export default function PhotographyPanel() {
               {/* Photo Selection */}
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Select Photos ({selectedPhotos.length} / 10)
+                  {t("admin.photography.panel.forms.selectPhotosCount").replace("{count}", String(selectedPhotos.length))}
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-4 border border-sage/20 rounded-xl">
                   {photos.map((photo) => {
@@ -943,7 +945,7 @@ export default function PhotographyPanel() {
                   type="submit"
                   className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors"
                 >
-                  Create Album ({selectedPhotos.length} photos)
+                  {t("admin.photography.panel.forms.createAlbumWithPhotos").replace("{count}", String(selectedPhotos.length))}
                 </button>
                 <button
                   type="button"
@@ -954,7 +956,7 @@ export default function PhotographyPanel() {
                   }}
                   className="px-6 py-3 border border-sage/20 text-charcoal rounded-xl font-medium hover:bg-sage/10 transition-colors"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             </form>
@@ -969,12 +971,12 @@ export default function PhotographyPanel() {
             className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm mb-8"
           >
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-              Add New Photo
+              {t("admin.photography.panel.buttons.addPhoto")}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Title
+                  {t("admin.photography.panel.forms.photoTitle")}
                 </label>
                 <input
                   type="text"
@@ -986,7 +988,7 @@ export default function PhotographyPanel() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Category
+                  {t("admin.photography.panel.forms.category")}
                 </label>
                 <select
                   value={formData.category}
@@ -994,7 +996,7 @@ export default function PhotographyPanel() {
                   className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
                   required
                 >
-                  <option value="">Select category</option>
+                  <option value="">{t("admin.photography.panel.forms.category")}</option>
                   <option value="Cultural">Cultural</option>
                   <option value="Adventure">Adventure</option>
                   <option value="Social Media">Social Media</option>
@@ -1005,7 +1007,7 @@ export default function PhotographyPanel() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Image URL/Path
+                  {t("admin.photography.panel.forms.imageUrl")}
                 </label>
                 <input
                   type="text"
@@ -1028,7 +1030,7 @@ export default function PhotographyPanel() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
-                  Description (optional)
+                  {t("admin.photography.panel.forms.photoDescription")}
                 </label>
                 <textarea
                   value={formData.description}
@@ -1045,11 +1047,11 @@ export default function PhotographyPanel() {
                     onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
                     className="w-5 h-5 rounded border-sage/20 text-sage focus:ring-sage"
                   />
-                  <span className="text-sm font-medium text-charcoal">Featured</span>
+                  <span className="text-sm font-medium text-charcoal">{t("admin.photography.panel.forms.featured")}</span>
                 </label>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Order
+                    {t("admin.photography.panel.forms.order")}
                   </label>
                   <input
                     type="number"
@@ -1064,7 +1066,7 @@ export default function PhotographyPanel() {
                   type="submit"
                   className="px-6 py-3 bg-gold text-white rounded-xl font-medium hover:bg-gold/90 transition-colors"
                 >
-                  Create
+                  {t("common.save")}
                 </button>
                 <button
                   type="button"
@@ -1082,11 +1084,11 @@ export default function PhotographyPanel() {
         {activeTab === "albums" && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-              Albums ({albums.length})
+              {t("admin.photography.panel.messages.albumsCount").replace("{count}", String(albums.length))}
             </h2>
             {albums.length === 0 ? (
               <div className="text-center py-12 text-charcoal/60">
-                No albums found. Create your first album!
+                {t("admin.photography.panel.messages.noAlbums")}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1111,7 +1113,7 @@ export default function PhotographyPanel() {
                         </div>
                       )}
                       <div className="absolute top-2 right-2 bg-gold text-white px-2 py-1 rounded-lg text-xs font-medium">
-                        {(album.photos || []).length} / 10
+                        {t("admin.photography.panel.messages.photosInAlbumCount").replace("{count}", String((album.photos || []).length))}
                       </div>
                     </div>
                     <div className="p-4">
@@ -1123,7 +1125,7 @@ export default function PhotographyPanel() {
                       )}
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-charcoal/50">
-                          {(album.photos || []).length} photos
+                          {t("admin.photography.panel.messages.photosInAlbum").replace("{count}", String((album.photos || []).length))}
                         </span>
                         <div className="flex gap-2">
                           <Link
@@ -1162,11 +1164,11 @@ export default function PhotographyPanel() {
         {activeTab === "photos" && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
             <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">
-              Portfolio ({photos.length})
+              {t("admin.photography.panel.messages.photosCount").replace("{count}", String(photos.length))}
             </h2>
           {photos.length === 0 ? (
             <div className="text-center py-12 text-charcoal/60">
-              No photos found. Add your first photo!
+              {t("admin.photography.panel.messages.noPhotos")}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1199,7 +1201,7 @@ export default function PhotographyPanel() {
                       </p>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-charcoal/50">Order: {photo.order}</span>
+                      <span className="text-xs text-charcoal/50">{t("admin.photography.panel.messages.order").replace("{order}", String(photo.order))}</span>
                       <div className="flex gap-2">
                         <Link
                           href={`/admin/photography-panel/${photo.id}`}

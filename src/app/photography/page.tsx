@@ -1,14 +1,66 @@
 "use client";
 
+import { useState, FormEvent } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Camera, Calendar, Star, ArrowRight, Mail, Phone, Image as ImageIcon, Video, Edit } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useSession } from "next-auth/react";
 
 export default function PhotographyPage() {
   const { t } = useLanguage();
+  const { data: session } = useSession();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    preferredDate: "",
+    serviceType: "portrait",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/photography/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          preferredDate: formData.preferredDate || null,
+        }),
+      });
+
+      if (response.ok) {
+        setSuccess("Booking request submitted successfully! We'll contact you soon.");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          preferredDate: "",
+          serviceType: "portrait",
+          message: "",
+        });
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to submit booking request");
+      }
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const portfolio = [
     {
@@ -465,7 +517,17 @@ export default function PhotographyPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="bg-white rounded-2xl p-8 shadow-lg border border-gold/10"
           >
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="rounded-lg border border-coral/30 bg-coral/10 text-coral px-4 py-3 text-sm">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="rounded-lg border border-sage/30 bg-sage/10 text-sage px-4 py-3 text-sm">
+                  {success}
+                </div>
+              )}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
@@ -473,6 +535,9 @@ export default function PhotographyPage() {
                   </label>
                   <input
                     type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
                     placeholder="John Doe"
                   />
@@ -483,6 +548,9 @@ export default function PhotographyPage() {
                   </label>
                   <input
                     type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
                     placeholder="john@example.com"
                   />
@@ -495,6 +563,8 @@ export default function PhotographyPage() {
                 </label>
                 <input
                   type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
                   placeholder="+33 6 12 34 56 78"
                 />
@@ -507,6 +577,8 @@ export default function PhotographyPage() {
                   </label>
                   <input
                     type="date"
+                    value={formData.preferredDate}
+                    onChange={(e) => setFormData({ ...formData, preferredDate: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
                   />
                 </div>
@@ -514,12 +586,16 @@ export default function PhotographyPage() {
                   <label className="block text-sm font-medium text-charcoal mb-2">
                     {t("photography.booking.serviceType")}
                   </label>
-                  <select className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50">
-                    <option>{t("photography.booking.serviceTypes.portrait")}</option>
-                    <option>{t("photography.booking.serviceTypes.event")}</option>
-                    <option>{t("photography.booking.serviceTypes.commercial")}</option>
-                    <option>{t("photography.booking.serviceTypes.wedding")}</option>
-                    <option>{t("photography.booking.serviceTypes.other")}</option>
+                  <select
+                    value={formData.serviceType}
+                    onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
+                  >
+                    <option value="portrait">{t("photography.booking.serviceTypes.portrait")}</option>
+                    <option value="event">{t("photography.booking.serviceTypes.event")}</option>
+                    <option value="commercial">{t("photography.booking.serviceTypes.commercial")}</option>
+                    <option value="wedding">{t("photography.booking.serviceTypes.wedding")}</option>
+                    <option value="other">{t("photography.booking.serviceTypes.other")}</option>
                   </select>
                 </div>
               </div>
@@ -530,6 +606,8 @@ export default function PhotographyPage() {
                 </label>
                 <textarea
                   rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
                   placeholder={t("photography.booking.messagePlaceholder")}
                 />
@@ -539,9 +617,10 @@ export default function PhotographyPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors"
+                disabled={loading}
+                className="w-full py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t("photography.booking.submit")}
+                {loading ? "Submitting..." : t("photography.booking.submit")}
               </motion.button>
 
               <p className="text-center text-sm text-charcoal/60">

@@ -76,6 +76,13 @@
       }
     }
   },
+  "home": {
+    "servicesSection": {
+      "title": "Ihre Reise Beginnt",
+      "subtitle": "Entdecken Sie Wege zu einem achtsameren, verbundenen Leben",
+      "explore": "Erkunden"
+    }
+  },
   "cta": {
     "title": "Bereit, deine Reise zu beginnen?",
     "description": "Schließen Sie sich Tausenden von Menschen an, die sich für ein bewussteres Leben entschieden haben. Entdecken Sie noch heute unsere Angebote.",
@@ -210,7 +217,41 @@
       "bestseller": "Bestseller",
       "new": "Neu",
       "addToCart": "in den Warenkorb legen",
-      "reviews": "Rezensionen"
+      "reviews": "Rezensionen",
+      "items": {
+        "classicTee": {
+          "name": "Klassisches T-Shirt",
+          "category": "Ishk Originale"
+        },
+        "canvasToteBag": {
+          "name": "Leinwand-Tasche",
+          "category": "Ishk Originale"
+        },
+        "slowLivingJournal": {
+          "name": "Slow Living Tagebuch",
+          "category": "Lifestyle"
+        },
+        "essentialHoodie": {
+          "name": "Essential Hoodie",
+          "category": "Ishk Originale"
+        },
+        "ceramicMug": {
+          "name": "Keramikbecher",
+          "category": "Zuhause & Wohnen"
+        },
+        "organicCottonCap": {
+          "name": "Bio-Baumwollkappe",
+          "category": "Ishk Originale"
+        },
+        "glassWaterBottle": {
+          "name": "Glas-Wasserflasche",
+          "category": "Lifestyle"
+        },
+        "philosophyTee": {
+          "name": "Philosophie T-Shirt",
+          "category": "Ishk Originale"
+        }
+      }
     },
     "features": {
       "sustainable": {
@@ -460,6 +501,107 @@
     "submit": "Einreichen",
     "continue": "Weitermachen"
   },
+  "admin": {
+    "photography": {
+      "panel": {
+        "title": "Fotografie-Panel",
+        "subtitle": "Fotografie-Portfolio verwalten",
+        "tabs": {
+          "photos": "Fotos",
+          "albums": "Alben"
+        },
+        "buttons": {
+          "viewGallery": "Galerie anzeigen",
+          "hideGallery": "Galerie ausblenden",
+          "addPhoto": "Foto hinzufügen",
+          "importImages": "Bilder importieren",
+          "importInstagram": "Von Instagram importieren",
+          "importUrls": "Von URLs importieren",
+          "createAlbum": "Album erstellen"
+        },
+        "forms": {
+          "createNewAlbum": "Neues Album erstellen",
+          "albumTitle": "Album-Titel",
+          "albumDescription": "Beschreibung",
+          "coverImageUrl": "Cover-Bild-URL",
+          "order": "Reihenfolge",
+          "selectPhotos": "Fotos auswählen",
+          "selectPhotosCount": "Fotos auswählen ({count} / 10)",
+          "createAlbumWithPhotos": "Album erstellen ({count} Fotos)",
+          "photoTitle": "Foto-Titel",
+          "category": "Kategorie",
+          "imageUrl": "Bild-URL",
+          "photoDescription": "Beschreibung",
+          "featured": "Hervorgehoben",
+          "uploadImage": "Bild hochladen"
+        },
+        "modal": {
+          "importInstagram": {
+            "title": "Von Instagram importieren",
+            "instagramUrl": "Instagram-Profil-URL",
+            "albumTitle": "Album-Titel",
+            "import": "Importieren"
+          },
+          "importUrls": {
+            "title": "Von URLs importieren",
+            "urlsLabel": "Bild-URLs (eine pro Zeile, max. 10)",
+            "albumTitle": "Album-Titel",
+            "import": "Importieren"
+          },
+          "importImages": {
+            "title": "Bilder importieren",
+            "filesSelected": "Ausgewählte Dateien: {count}",
+            "albumTitle": "Album-Titel",
+            "import": "Importieren"
+          }
+        },
+        "messages": {
+          "loading": "Laden...",
+          "noAlbums": "Keine Alben gefunden. Erstellen Sie Ihr erstes Album!",
+          "noPhotos": "Keine Fotos gefunden. Fügen Sie Ihr erstes Foto hinzu!",
+          "photosCount": "Fotos ({count})",
+          "albumsCount": "Alben ({count})",
+          "photosInAlbum": "{count} Fotos",
+          "photosInAlbumCount": "{count} / 10",
+          "order": "Reihenfolge: {order}"
+        },
+        "alerts": {
+          "maxPhotos": "Maximal 10 Fotos pro Album",
+          "invalidInstagramUrl": "Ungültige Instagram-URL",
+          "albumTitleRequired": "Album-Titel ist erforderlich",
+          "noValidUrls": "Keine gültigen URLs angegeben",
+          "maxImages": "Maximal 10 Bilder pro Album",
+          "enterInstagramUrl": "Bitte geben Sie eine gültige Instagram-Profil-URL ein",
+          "enterUrls": "Bitte geben Sie Bild-URLs ein",
+          "noFilesSelected": "Keine Dateien ausgewählt",
+          "enterAlbumTitle": "Bitte geben Sie einen Album-Titel ein"
+        }
+      },
+      "editPhoto": {
+        "title": "Foto bearbeiten",
+        "loading": "Laden...",
+        "photoNotFound": "Foto nicht gefunden",
+        "updatePhoto": "Foto aktualisieren",
+        "backToPanel": "Zurück zum Panel"
+      },
+      "editAlbum": {
+        "title": "Album bearbeiten",
+        "loading": "Laden...",
+        "albumNotFound": "Album nicht gefunden",
+        "photosInAlbum": "Fotos im Album ({current} / 10)",
+        "noPhotosInAlbum": "Noch keine Fotos in diesem Album. Fügen Sie welche hinzu!",
+        "addPhoto": "Foto zum Album hinzufügen",
+        "orientation": "Ausrichtung",
+        "orientationHorizontal": "Horizontal",
+        "orientationVertical": "Vertikal",
+        "descriptionForAlbum": "Beschreibung für das Album",
+        "removeFromAlbum": "Aus dem Album entfernen",
+        "selectPhoto": "Foto auswählen",
+        "selectPhotoPlaceholder": "Wählen Sie ein Foto zum Hinzufügen",
+        "maxPhotosReached": "Ein Album kann nur maximal 10 Fotos enthalten"
+      }
+    }
+  },
   "services": {
     "news": {
       "title": "Ishk Weltnachrichten",
@@ -495,6 +637,68 @@
       "title": "ISHK-Partei",
       "subtitle": "Full-Service-Eventplanung",
       "description": "DJing, Speisen, Getränke und die komplette Eventorganisation. Full-Service-Eventplanung und -durchführung."
+    }
+  },
+  "imageGallery": {
+    "title": "Momente, die zählen",
+    "subtitle": "Das Wesen des langsamen Lebens durch authentische Erfahrungen einfangen",
+    "images": {
+      "gardenMoments": {
+        "title": "Gartenmomente",
+        "description": "Friedliche Momente in der Natur"
+      },
+      "slowLiving": {
+        "title": "Langsames Leben",
+        "description": "Achtsame tägliche Rituale"
+      },
+      "community": {
+        "title": "Gemeinschaft",
+        "description": "Sich mit anderen verbinden"
+      },
+      "nature": {
+        "title": "Natur",
+        "description": "Die Natur umarmen"
+      }
+    },
+    "cta": {
+      "question": "Bereit, Ihre Reise zu einem achtsamen Leben zu beginnen?",
+      "button": "Unsere Dienstleistungen erkunden"
+    }
+  },
+  "features": {
+    "title": "Warum Ishk wählen?",
+    "subtitle": "Mehr als eine Plattform—eine Bewegung hin zu einem bewussten Leben",
+    "items": {
+      "globalReach": {
+        "title": "Globale Reichweite",
+        "description": "Verfügbar in 5 Sprachen, verbindet Menschen weltweit"
+      },
+      "sustainable": {
+        "title": "Nachhaltig",
+        "description": "Umweltfreundliche Produkte und Praktiken im Kern"
+      },
+      "communityDriven": {
+        "title": "Gemeinschaftsgetrieben",
+        "description": "Gebaut von und für Menschen, die bedeutungsvolle Verbindungen schätzen"
+      },
+      "curatedQuality": {
+        "title": "Kuratierte Qualität",
+        "description": "Jedes Produkt und jede Dienstleistung sorgfältig für Exzellenz ausgewählt"
+      },
+      "trusted": {
+        "title": "Vertrauenswürdig",
+        "description": "Sicher, zuverlässig und transparent in allem, was wir tun"
+      },
+      "verified": {
+        "title": "Verifiziert",
+        "description": "Alle Partner und Produkte erfüllen unsere hohen Standards"
+      }
+    },
+    "stats": {
+      "services": "Dienstleistungen",
+      "languages": "Sprachen",
+      "sustainable": "Nachhaltig",
+      "possibilities": "Möglichkeiten"
     }
   }
 }

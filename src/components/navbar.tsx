@@ -17,6 +17,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering auth-dependent content after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,7 +118,7 @@ export default function Navbar() {
               </Link>
             </motion.div>
 
-            {status === "authenticated" ? (
+            {mounted && status === "authenticated" ? (
               <>
                 <motion.div whileHover={{ y: -3 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
                   <Link
@@ -210,7 +216,7 @@ export default function Navbar() {
                 </div>
                 <span>Cart</span>
               </Link>
-              {status === "authenticated" ? (
+              {mounted && status === "authenticated" ? (
                 <>
                   <Link
                     href={isAdmin(session.user?.role) ? "/admin" : "/profile"}

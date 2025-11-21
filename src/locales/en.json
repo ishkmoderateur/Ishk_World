@@ -76,6 +76,13 @@
       }
     }
   },
+  "home": {
+    "servicesSection": {
+      "title": "Your Journey Begins",
+      "subtitle": "Discover pathways to a more mindful, connected life",
+      "explore": "Explore"
+    }
+  },
   "cta": {
     "title": "Ready to Begin Your Journey?",
     "description": "Join thousands of people who have chosen to live more intentionally. Start exploring our services today.",
@@ -210,7 +217,41 @@
       "bestseller": "Bestseller",
       "new": "New",
       "addToCart": "Add to Cart",
-      "reviews": "reviews"
+      "reviews": "reviews",
+      "items": {
+        "classicTee": {
+          "name": "Classic Tee",
+          "category": "Ishk Originals"
+        },
+        "canvasToteBag": {
+          "name": "Canvas Tote Bag",
+          "category": "Ishk Originals"
+        },
+        "slowLivingJournal": {
+          "name": "Slow Living Journal",
+          "category": "Lifestyle"
+        },
+        "essentialHoodie": {
+          "name": "Essential Hoodie",
+          "category": "Ishk Originals"
+        },
+        "ceramicMug": {
+          "name": "Ceramic Mug",
+          "category": "Home & Living"
+        },
+        "organicCottonCap": {
+          "name": "Organic Cotton Cap",
+          "category": "Ishk Originals"
+        },
+        "glassWaterBottle": {
+          "name": "Glass Water Bottle",
+          "category": "Lifestyle"
+        },
+        "philosophyTee": {
+          "name": "Philosophy Tee",
+          "category": "Ishk Originals"
+        }
+      }
     },
     "features": {
       "sustainable": {
@@ -460,6 +501,107 @@
     "submit": "Submit",
     "continue": "Continue"
   },
+  "admin": {
+    "photography": {
+      "panel": {
+        "title": "Photography Panel",
+        "subtitle": "Manage photography portfolio",
+        "tabs": {
+          "photos": "Photos",
+          "albums": "Albums"
+        },
+        "buttons": {
+          "viewGallery": "View Gallery",
+          "hideGallery": "Hide Gallery",
+          "addPhoto": "Add Photo",
+          "importImages": "Import Images",
+          "importInstagram": "Import from Instagram",
+          "importUrls": "Import from URLs",
+          "createAlbum": "Create Album"
+        },
+        "forms": {
+          "createNewAlbum": "Create New Album",
+          "albumTitle": "Album Title",
+          "albumDescription": "Description",
+          "coverImageUrl": "Cover Image URL",
+          "order": "Order",
+          "selectPhotos": "Select Photos",
+          "selectPhotosCount": "Select Photos ({count} / 10)",
+          "createAlbumWithPhotos": "Create Album ({count} photos)",
+          "photoTitle": "Photo Title",
+          "category": "Category",
+          "imageUrl": "Image URL",
+          "photoDescription": "Description",
+          "featured": "Featured",
+          "uploadImage": "Upload Image"
+        },
+        "modal": {
+          "importInstagram": {
+            "title": "Import from Instagram",
+            "instagramUrl": "Instagram Profile URL",
+            "albumTitle": "Album Title",
+            "import": "Import"
+          },
+          "importUrls": {
+            "title": "Import from URLs",
+            "urlsLabel": "Image URLs (one per line, max 10)",
+            "albumTitle": "Album Title",
+            "import": "Import"
+          },
+          "importImages": {
+            "title": "Import Images",
+            "filesSelected": "Files selected: {count}",
+            "albumTitle": "Album Title",
+            "import": "Import"
+          }
+        },
+        "messages": {
+          "loading": "Loading...",
+          "noAlbums": "No albums found. Create your first album!",
+          "noPhotos": "No photos found. Add your first photo!",
+          "photosCount": "Photos ({count})",
+          "albumsCount": "Albums ({count})",
+          "photosInAlbum": "{count} photos",
+          "photosInAlbumCount": "{count} / 10",
+          "order": "Order: {order}"
+        },
+        "alerts": {
+          "maxPhotos": "Maximum 10 photos per album",
+          "invalidInstagramUrl": "Invalid Instagram URL",
+          "albumTitleRequired": "Album title is required",
+          "noValidUrls": "No valid URLs provided",
+          "maxImages": "Maximum 10 images per album",
+          "enterInstagramUrl": "Please enter a valid Instagram profile URL",
+          "enterUrls": "Please enter image URLs",
+          "noFilesSelected": "No files selected",
+          "enterAlbumTitle": "Please enter an album title"
+        }
+      },
+      "editPhoto": {
+        "title": "Edit Photo",
+        "loading": "Loading...",
+        "photoNotFound": "Photo not found",
+        "updatePhoto": "Update Photo",
+        "backToPanel": "Back to Panel"
+      },
+      "editAlbum": {
+        "title": "Edit Album",
+        "loading": "Loading...",
+        "albumNotFound": "Album not found",
+        "photosInAlbum": "Photos in Album ({current} / 10)",
+        "noPhotosInAlbum": "No photos in this album yet. Add some!",
+        "addPhoto": "Add Photo to Album",
+        "orientation": "Orientation",
+        "orientationHorizontal": "Horizontal",
+        "orientationVertical": "Vertical",
+        "descriptionForAlbum": "Description for Album",
+        "removeFromAlbum": "Remove from Album",
+        "selectPhoto": "Select Photo",
+        "selectPhotoPlaceholder": "Choose a photo to add",
+        "maxPhotosReached": "Album can only contain a maximum of 10 photos"
+      }
+    }
+  },
   "services": {
     "news": {
       "title": "Ishk World News",
@@ -495,6 +637,68 @@
       "title": "ISHK Party",
       "subtitle": "Full-service event planning",
       "description": "DJing, food, drinks, and complete event organization. Full-service event planning and execution."
+    }
+  },
+  "imageGallery": {
+    "title": "Moments That Matter",
+    "subtitle": "Capturing the essence of slow living through authentic experiences",
+    "images": {
+      "gardenMoments": {
+        "title": "Garden Moments",
+        "description": "Peaceful moments in nature"
+      },
+      "slowLiving": {
+        "title": "Slow Living",
+        "description": "Mindful daily rituals"
+      },
+      "community": {
+        "title": "Community",
+        "description": "Connecting with others"
+      },
+      "nature": {
+        "title": "Nature",
+        "description": "Embracing the outdoors"
+      }
+    },
+    "cta": {
+      "question": "Ready to start your journey toward mindful living?",
+      "button": "Explore Our Services"
+    }
+  },
+  "features": {
+    "title": "Why Choose Ishk?",
+    "subtitle": "More than a platform—a movement toward intentional living",
+    "items": {
+      "globalReach": {
+        "title": "Global Reach",
+        "description": "Available in 5 languages, connecting people worldwide"
+      },
+      "sustainable": {
+        "title": "Sustainable",
+        "description": "Eco-friendly products and practices at our core"
+      },
+      "communityDriven": {
+        "title": "Community Driven",
+        "description": "Built by and for people who value meaningful connections"
+      },
+      "curatedQuality": {
+        "title": "Curated Quality",
+        "description": "Every product and service carefully selected for excellence"
+      },
+      "trusted": {
+        "title": "Trusted",
+        "description": "Secure, reliable, and transparent in everything we do"
+      },
+      "verified": {
+        "title": "Verified",
+        "description": "All partners and products meet our high standards"
+      }
+    },
+    "stats": {
+      "services": "Services",
+      "languages": "Languages",
+      "sustainable": "Sustainable",
+      "possibilities": "Possibilities"
     }
   }
 }

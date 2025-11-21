@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { isSuperAdmin, isAdmin, canAccessSection, getUserAccessibleSections, getRoleDisplayName } from "@/lib/roles";
+import PhotographyBookingsManager from "./photography-bookings-manager";
 
 interface Stats {
   products: number;
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
     pendingInquiries: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users" | "inquiries" | "donations" | "news">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users" | "inquiries" | "donations" | "news" | "photography-bookings">("overview");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -219,6 +220,7 @@ export default function AdminDashboard() {
               { id: "inquiries", label: "Inquiries", icon: MessageSquare, section: "party" },
               { id: "donations", label: "Donations", icon: DollarSign, section: "association" },
               { id: "news", label: "News", icon: Newspaper, section: "news" },
+              { id: "photography-bookings", label: "Photography Bookings", icon: Camera, section: "photography" },
             ]
             .filter((tab) => {
               if (tab.section === null) return true; // Overview always visible
@@ -450,6 +452,14 @@ export default function AdminDashboard() {
             <NewsManager />
           </div>
         )}
+
+        {/* Photography Bookings Tab */}
+        {activeTab === "photography-bookings" && canAccessSection(userRole, "photography") && (
+          <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
+            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Photography Bookings</h2>
+            <PhotographyBookingsManager />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -475,6 +485,20 @@ function ProductsManager() {
       console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    try {
+      const response = await fetch(`/api/admin/products/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
     }
   };
 
@@ -521,10 +545,18 @@ function ProductsManager() {
                 </td>
                 <td className="py-4 px-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors">
+                    <Link
+                      href={`/admin/boutique-panel?edit=${product.id}`}
+                      className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors"
+                      title="Edit product"
+                    >
                       <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors">
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
+                      title="Delete product"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -561,6 +593,20 @@ function VenuesManager() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this venue?")) return;
+    try {
+      const response = await fetch(`/api/admin/venues/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchVenues();
+      }
+    } catch (error) {
+      console.error("Error deleting venue:", error);
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-12 text-charcoal/60">Loading venues...</div>;
   }
@@ -593,10 +639,18 @@ function VenuesManager() {
                 <td className="py-4 px-4 text-charcoal">€{venue.price}</td>
                 <td className="py-4 px-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 text-amber hover:bg-amber/10 rounded-lg transition-colors">
+                    <Link
+                      href={`/admin/party-panel?edit=${venue.id}`}
+                      className="p-2 text-amber hover:bg-amber/10 rounded-lg transition-colors"
+                      title="Edit venue"
+                    >
                       <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors">
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(venue.id)}
+                      className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
+                      title="Delete venue"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -630,6 +684,20 @@ function CampaignsManager() {
       console.error("Error fetching campaigns:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this campaign?")) return;
+    try {
+      const response = await fetch(`/api/admin/campaigns/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchCampaigns();
+      }
+    } catch (error) {
+      console.error("Error deleting campaign:", error);
     }
   };
 
@@ -684,10 +752,18 @@ function CampaignsManager() {
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors">
+                      <Link
+                        href={`/admin/association-panel?edit=${campaign.id}`}
+                        className="p-2 text-amber hover:bg-amber/10 rounded-lg transition-colors"
+                        title="Edit campaign"
+                      >
                         <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors">
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(campaign.id)}
+                        className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
+                        title="Delete campaign"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

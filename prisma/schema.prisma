@@ -43,6 +43,7 @@ model User {
   inquiries     VenueInquiry[]
   donations     Donation[]
   newsBriefs    NewsBrief[]
+  photographyBookings PhotographyBooking[]
   
   @@map("users")
 }
@@ -370,4 +371,25 @@ model AlbumPhoto {
   
   @@unique([albumId, photoId])
   @@map("album_photos")
+}
+
+// Photography Bookings/Inquiries
+model PhotographyBooking {
+  id            String   @id @default(cuid())
+  userId        String?
+  name          String
+  email         String
+  phone         String?
+  preferredDate DateTime?
+  serviceType   String   // "portrait", "event", "commercial", "wedding", "other"
+  message       String?
+  status        InquiryStatus @default(NEW)
+  respondedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@map("photography_bookings")
 }

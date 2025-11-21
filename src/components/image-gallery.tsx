@@ -2,35 +2,38 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function ImageGallery() {
+  const { t } = useLanguage();
+  
   // Real images from Unsplash - high quality, free to use
   const galleryImages = [
     {
       id: 1,
-      title: "Garden Moments",
-      description: "Peaceful moments in nature",
+      title: t("imageGallery.images.gardenMoments.title"),
+      description: t("imageGallery.images.gardenMoments.description"),
       src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80&auto=format&fit=crop",
       alt: "Beautiful garden with flowers and greenery",
     },
     {
       id: 2,
-      title: "Slow Living",
-      description: "Mindful daily rituals",
+      title: t("imageGallery.images.slowLiving.title"),
+      description: t("imageGallery.images.slowLiving.description"),
       src: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&q=80&auto=format&fit=crop",
       alt: "Peaceful morning scene with coffee and plants",
     },
     {
       id: 3,
-      title: "Community",
-      description: "Connecting with others",
+      title: t("imageGallery.images.community.title"),
+      description: t("imageGallery.images.community.description"),
       src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80&auto=format&fit=crop",
       alt: "People gathering in a beautiful outdoor setting",
     },
     {
       id: 4,
-      title: "Nature",
-      description: "Embracing the outdoors",
+      title: t("imageGallery.images.nature.title"),
+      description: t("imageGallery.images.nature.description"),
       src: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80&auto=format&fit=crop",
       alt: "Serene forest path in natural light",
     },
@@ -47,10 +50,10 @@ export default function ImageGallery() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
-            Moments That Matter
+            {t("imageGallery.title")}
           </h2>
           <p className="text-lg text-stone max-w-2xl mx-auto">
-            Capturing the essence of slow living through authentic experiences
+            {t("imageGallery.subtitle")}
           </p>
         </motion.div>
 
@@ -102,7 +105,7 @@ export default function ImageGallery() {
           className="text-center mt-16"
         >
           <p className="text-lg text-charcoal/70 mb-6">
-            Ready to start your journey toward mindful living?
+            {t("imageGallery.cta.question")}
           </p>
           <motion.button
             onClick={() => {
@@ -115,7 +118,7 @@ export default function ImageGallery() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Explore Our Services
+            {t("imageGallery.cta.button")}
           </motion.button>
         </motion.div>
       </div>

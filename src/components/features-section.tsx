@@ -2,48 +2,51 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, Globe, Leaf, Heart, Sparkles, Shield } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
 
 export default function FeaturesSection() {
+  const { t } = useLanguage();
+  
   const features = [
     {
       icon: Globe,
-      title: "Global Reach",
-      description: "Available in 5 languages, connecting people worldwide",
+      title: t("features.items.globalReach.title"),
+      description: t("features.items.globalReach.description"),
       color: "text-sky",
       bgColor: "bg-sky/10",
     },
     {
       icon: Leaf,
-      title: "Sustainable",
-      description: "Eco-friendly products and practices at our core",
+      title: t("features.items.sustainable.title"),
+      description: t("features.items.sustainable.description"),
       color: "text-sage",
       bgColor: "bg-sage/10",
     },
     {
       icon: Heart,
-      title: "Community Driven",
-      description: "Built by and for people who value meaningful connections",
+      title: t("features.items.communityDriven.title"),
+      description: t("features.items.communityDriven.description"),
       color: "text-coral",
       bgColor: "bg-coral/10",
     },
     {
       icon: Sparkles,
-      title: "Curated Quality",
-      description: "Every product and service carefully selected for excellence",
+      title: t("features.items.curatedQuality.title"),
+      description: t("features.items.curatedQuality.description"),
       color: "text-gold",
       bgColor: "bg-gold/10",
     },
     {
       icon: Shield,
-      title: "Trusted",
-      description: "Secure, reliable, and transparent in everything we do",
+      title: t("features.items.trusted.title"),
+      description: t("features.items.trusted.description"),
       color: "text-forest",
       bgColor: "bg-forest/10",
     },
     {
       icon: CheckCircle2,
-      title: "Verified",
-      description: "All partners and products meet our high standards",
+      title: t("features.items.verified.title"),
+      description: t("features.items.verified.description"),
       color: "text-amber",
       bgColor: "bg-amber/10",
     },
@@ -60,10 +63,10 @@ export default function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
-            Why Choose Ishk?
+            {t("features.title")}
           </h2>
           <p className="text-lg text-stone max-w-2xl mx-auto">
-            More than a platform—a movement toward intentional living
+            {t("features.subtitle")}
           </p>
         </motion.div>
 
@@ -105,10 +108,10 @@ export default function FeaturesSection() {
           className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8"
         >
           {[
-            { number: "5", label: "Services" },
-            { number: "5", label: "Languages" },
-            { number: "100%", label: "Sustainable" },
-            { number: "∞", label: "Possibilities" },
+            { number: "5", label: t("features.stats.services") },
+            { number: "5", label: t("features.stats.languages") },
+            { number: "100%", label: t("features.stats.sustainable") },
+            { number: "∞", label: t("features.stats.possibilities") },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}

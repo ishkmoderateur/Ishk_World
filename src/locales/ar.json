@@ -11,11 +11,11 @@
     "cta": "ابدأ رحلتك"
   },
   "nav": {
-    "home": "بيت",
+    "home": "الرئيسية",
     "news": "أخبار",
     "party": "حزب",
-    "boutique": "بوتيك",
-    "association": "منظمة",
+    "boutique": "المتجر",
+    "association": "الجمعية",
     "photography": "التصوير",
     "services": "خدمات",
     "housing": "السكن"
@@ -34,8 +34,8 @@
     "links": {
       "worldNews": "اخبار العالم",
       "party": "حزب",
-      "boutique": "بوتيك",
-      "association": "منظمة",
+      "boutique": "المتجر",
+      "association": "الجمعية",
       "photography": "التصوير الفوتوغرافي",
       "aboutUs": "معلومات عنا",
       "philosophy": "فلسفة",
@@ -74,6 +74,13 @@
         "title": "أصالة",
         "description": "احتضان ما هو حقيقي وذو معنى وصادق بالنسبة لنا وما نقدره."
       }
+    }
+  },
+  "home": {
+    "servicesSection": {
+      "title": "رحلتك تبدأ",
+      "subtitle": "اكتشف المسارات نحو حياة أكثر وعيًا واتصالًا",
+      "explore": "استكشف"
     }
   },
   "cta": {
@@ -210,7 +217,41 @@
       "bestseller": "الأكثر مبيعًا",
       "new": "جديد",
       "addToCart": "أضف إلى السلة",
-      "reviews": "المراجعات"
+      "reviews": "المراجعات",
+      "items": {
+        "classicTee": {
+          "name": "قميص كلاسيكي",
+          "category": "أصلية من إيشك"
+        },
+        "canvasToteBag": {
+          "name": "حقيبة قماشية",
+          "category": "أصلية من إيشك"
+        },
+        "slowLivingJournal": {
+          "name": "مذكرات العيش البطيء",
+          "category": "نمط الحياة"
+        },
+        "essentialHoodie": {
+          "name": "هودي أساسي",
+          "category": "أصلية من إيشك"
+        },
+        "ceramicMug": {
+          "name": "كوب خزفي",
+          "category": "المنزل والمعيشة"
+        },
+        "organicCottonCap": {
+          "name": "قبعة قطنية عضوية",
+          "category": "أصلية من إيشك"
+        },
+        "glassWaterBottle": {
+          "name": "زجاجة ماء زجاجية",
+          "category": "نمط الحياة"
+        },
+        "philosophyTee": {
+          "name": "قميص الفلسفة",
+          "category": "أصلية من إيشك"
+        }
+      }
     },
     "features": {
       "sustainable": {
@@ -413,7 +454,7 @@
     },
     "common": {
       "donate": "تبرع الآن",
-      "learnMore": "يتعلم أكثر",
+      "learnMore": "اعرف المزيد",
       "goal": "هدف",
       "raised": "نشأ",
       "of": "ل",
@@ -460,6 +501,107 @@
     "submit": "يُقدِّم",
     "continue": "يكمل"
   },
+  "admin": {
+    "photography": {
+      "panel": {
+        "title": "لوحة التصوير",
+        "subtitle": "إدارة معرض التصوير",
+        "tabs": {
+          "photos": "الصور",
+          "albums": "الألبومات"
+        },
+        "buttons": {
+          "viewGallery": "عرض المعرض",
+          "hideGallery": "إخفاء المعرض",
+          "addPhoto": "إضافة صورة",
+          "importImages": "استيراد الصور",
+          "importInstagram": "استيراد من إنستغرام",
+          "importUrls": "استيراد من الروابط",
+          "createAlbum": "إنشاء ألبوم"
+        },
+        "forms": {
+          "createNewAlbum": "إنشاء ألبوم جديد",
+          "albumTitle": "عنوان الألبوم",
+          "albumDescription": "الوصف",
+          "coverImageUrl": "رابط صورة الغلاف",
+          "order": "الترتيب",
+          "selectPhotos": "اختيار الصور",
+          "selectPhotosCount": "اختيار الصور ({count} / 10)",
+          "createAlbumWithPhotos": "إنشاء ألبوم ({count} صورة)",
+          "photoTitle": "عنوان الصورة",
+          "category": "الفئة",
+          "imageUrl": "رابط الصورة",
+          "photoDescription": "الوصف",
+          "featured": "مميز",
+          "uploadImage": "رفع صورة"
+        },
+        "modal": {
+          "importInstagram": {
+            "title": "استيراد من إنستغرام",
+            "instagramUrl": "رابط الملف الشخصي في إنستغرام",
+            "albumTitle": "عنوان الألبوم",
+            "import": "استيراد"
+          },
+          "importUrls": {
+            "title": "استيراد من الروابط",
+            "urlsLabel": "روابط الصور (واحد في كل سطر، حد أقصى 10)",
+            "albumTitle": "عنوان الألبوم",
+            "import": "استيراد"
+          },
+          "importImages": {
+            "title": "استيراد الصور",
+            "filesSelected": "الملفات المحددة: {count}",
+            "albumTitle": "عنوان الألبوم",
+            "import": "استيراد"
+          }
+        },
+        "messages": {
+          "loading": "تحميل...",
+          "noAlbums": "لم يتم العثور على ألبومات. أنشئ ألبومك الأول!",
+          "noPhotos": "لم يتم العثور على صور. أضف صورتك الأولى!",
+          "photosCount": "الصور ({count})",
+          "albumsCount": "الألبومات ({count})",
+          "photosInAlbum": "{count} صورة",
+          "photosInAlbumCount": "{count} / 10",
+          "order": "الترتيب: {order}"
+        },
+        "alerts": {
+          "maxPhotos": "الحد الأقصى 10 صور لكل ألبوم",
+          "invalidInstagramUrl": "رابط إنستغرام غير صالح",
+          "albumTitleRequired": "عنوان الألبوم مطلوب",
+          "noValidUrls": "لم يتم توفير روابط صالحة",
+          "maxImages": "الحد الأقصى 10 صور لكل ألبوم",
+          "enterInstagramUrl": "يرجى إدخال رابط ملف شخصي صالح في إنستغرام",
+          "enterUrls": "يرجى إدخال روابط الصور",
+          "noFilesSelected": "لم يتم اختيار أي ملفات",
+          "enterAlbumTitle": "يرجى إدخال عنوان الألبوم"
+        }
+      },
+      "editPhoto": {
+        "title": "تعديل الصورة",
+        "loading": "تحميل...",
+        "photoNotFound": "الصورة غير موجودة",
+        "updatePhoto": "تحديث الصورة",
+        "backToPanel": "العودة إلى اللوحة"
+      },
+      "editAlbum": {
+        "title": "تعديل الألبوم",
+        "loading": "تحميل...",
+        "albumNotFound": "الألبوم غير موجود",
+        "photosInAlbum": "الصور في الألبوم ({current} / 10)",
+        "noPhotosInAlbum": "لا توجد صور في هذا الألبوم بعد. أضف بعضًا!",
+        "addPhoto": "إضافة صورة إلى الألبوم",
+        "orientation": "الاتجاه",
+        "orientationHorizontal": "أفقي",
+        "orientationVertical": "عمودي",
+        "descriptionForAlbum": "الوصف للألبوم",
+        "removeFromAlbum": "إزالة من الألبوم",
+        "selectPhoto": "اختيار صورة",
+        "selectPhotoPlaceholder": "اختر صورة للإضافة",
+        "maxPhotosReached": "يمكن أن يحتوي الألبوم على حد أقصى 10 صور فقط"
+      }
+    }
+  },
   "services": {
     "news": {
       "title": "أخبار العالم من إيشك",
@@ -495,6 +637,68 @@
       "title": "حزب إيشك",
       "subtitle": "تخطيط الفعاليات بالخدمة الكاملة",
       "description": "خدمات تنسيق الموسيقى، والمأكولات والمشروبات، وتنظيم الفعاليات بالكامل. تخطيط وتنفيذ فعاليات متكاملة."
+    }
+  },
+  "imageGallery": {
+    "title": "لحظات مهمة",
+    "subtitle": "التقاط جوهر العيش البطيء من خلال التجارب الأصيلة",
+    "images": {
+      "gardenMoments": {
+        "title": "لحظات الحديقة",
+        "description": "لحظات هادئة في الطبيعة"
+      },
+      "slowLiving": {
+        "title": "العيش البطيء",
+        "description": "طقوس يومية واعية"
+      },
+      "community": {
+        "title": "المجتمع",
+        "description": "التواصل مع الآخرين"
+      },
+      "nature": {
+        "title": "الطبيعة",
+        "description": "احتضان الهواء الطلق"
+      }
+    },
+    "cta": {
+      "question": "هل أنت مستعد لبدء رحلتك نحو العيش الواعي؟",
+      "button": "استكشف خدماتنا"
+    }
+  },
+  "features": {
+    "title": "لماذا تختار عشق؟",
+    "subtitle": "أكثر من منصة—حركة نحو العيش المتعمد",
+    "items": {
+      "globalReach": {
+        "title": "الوصول العالمي",
+        "description": "متاح بـ 5 لغات، يربط الناس في جميع أنحاء العالم"
+      },
+      "sustainable": {
+        "title": "مستدام",
+        "description": "منتجات وممارسات صديقة للبيئة في جوهرنا"
+      },
+      "communityDriven": {
+        "title": "مدفوع بالمجتمع",
+        "description": "بُنيت من قبل ومن أجل الأشخاص الذين يقدرون الروابط ذات المعنى"
+      },
+      "curatedQuality": {
+        "title": "جودة مختارة",
+        "description": "كل منتج وخدمة مختارة بعناية للتميز"
+      },
+      "trusted": {
+        "title": "موثوق",
+        "description": "آمن وموثوق وشفاف في كل ما نقوم به"
+      },
+      "verified": {
+        "title": "متحقق منه",
+        "description": "جميع الشركاء والمنتجات تلبي معاييرنا العالية"
+      }
+    },
+    "stats": {
+      "services": "خدمات",
+      "languages": "لغات",
+      "sustainable": "مستدام",
+      "possibilities": "إمكانيات"
     }
   }
 }

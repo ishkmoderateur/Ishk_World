@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShoppingBag, Heart, Camera, Sparkles } from "lucide-react";
+import { ShoppingBag, Heart, Camera } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function ServiceCards() {
@@ -39,16 +39,6 @@ export default function ServiceCards() {
       accent: "photo-accent",
       gradient: "from-gold/10 to-gold/5",
     },
-    {
-      id: "party-services",
-      icon: Sparkles,
-      title: t("services.partyServices.title"),
-      subtitle: t("services.partyServices.subtitle"),
-      description: t("services.partyServices.description"),
-      href: "/party",
-      accent: "party-services-accent",
-      gradient: "from-coral/10 to-coral/5",
-    },
   ];
   return (
     <section id="services-section" className="py-24 px-4 md:px-8 bg-gradient-to-b from-cream to-white">
@@ -62,10 +52,10 @@ export default function ServiceCards() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
-            Your Journey Begins
+            {t("home.servicesSection.title")}
           </h2>
           <p className="text-lg text-stone max-w-2xl mx-auto">
-            Discover four pathways to a more mindful, connected life
+            {t("home.servicesSection.subtitle")}
           </p>
         </motion.div>
 
@@ -121,7 +111,7 @@ export default function ServiceCards() {
                       whileHover={{ x: 5 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <span>Explore</span>
+                      <span>{t("home.servicesSection.explore")}</span>
                       <svg 
                         className="w-5 h-5" 
                         fill="none" 
