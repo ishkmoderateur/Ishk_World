@@ -52,6 +52,7 @@ const authConfig: NextAuthConfig = {
           const password = credentials.password as string;
           
           console.log("🔐 Server: Attempting auth for:", email);
+          console.log("🔐 Server: DATABASE_URL:", process.env.DATABASE_URL);
           
           if (!email || !password) {
             console.log("🔐 Server: Empty email or password after trim");
