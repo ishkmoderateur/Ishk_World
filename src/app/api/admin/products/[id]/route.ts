@@ -120,7 +120,7 @@ export async function PUT(
         );
       }
       // Ensure images array is properly typed for Prisma Json field
-      updateData.images = images as unknown as Prisma.InputJsonValue;
+      updateData.images = images as Prisma.InputJsonValue;
     }
     if (inStock !== undefined) updateData.inStock = Boolean(inStock);
     if (stockCount !== undefined) {
