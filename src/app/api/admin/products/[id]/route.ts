@@ -120,7 +120,8 @@ export async function PUT(
         );
       }
       // Ensure images array is properly typed for Prisma Json field
-      updateData.images = images as Prisma.InputJsonValue;
+      // Use type assertion to satisfy TypeScript's strict type checking
+      (updateData as any).images = images;
     }
     if (inStock !== undefined) updateData.inStock = Boolean(inStock);
     if (stockCount !== undefined) {
