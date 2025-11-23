@@ -37,7 +37,7 @@ export default function CartPage() {
       const shippingAddress = {
         name: session.user.name || "",
         email: session.user.email || "",
-        phone: session.user.phone || "",
+        phone: "", // Phone not available in session
         address: "",
         city: "",
         country: "",
