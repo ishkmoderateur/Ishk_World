@@ -13,13 +13,26 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔐 Server: Registration request received:", {
+        email: body.email ? "***" : "MISSING",
+        hasPassword: !!body.password,
+        passwordLength: body.password?.length || 0,
+        hasName: !!body.name,
+      });
+    }
+    
     const { email, password, name, phone } = body;
 
     // Validate required fields
     const requiredValidation = validateRequired(body, ["email", "password"]);
     if (!requiredValidation.valid) {
+      const errorMsg = `Missing required fields: ${requiredValidation.missing.join(", ")}`;
+      if (process.env.NODE_ENV === "development") {
+        console.log("❌ Server: Registration validation failed:", errorMsg);
+      }
       return NextResponse.json(
-        { error: `Missing required fields: ${requiredValidation.missing.join(", ")}` },
+        { error: errorMsg },
         { status: 400 }
       );
     }
@@ -27,8 +40,12 @@ export async function POST(request: NextRequest) {
     // Validate and sanitize email
     const sanitizedEmail = validateAndSanitizeEmail(email);
     if (!sanitizedEmail) {
+      const errorMsg = "Invalid email address";
+      if (process.env.NODE_ENV === "development") {
+        console.log("❌ Server: Email validation failed for:", email);
+      }
       return NextResponse.json(
-        { error: "Invalid email address" },
+        { error: errorMsg },
         { status: 400 }
       );
     }
@@ -36,8 +53,12 @@ export async function POST(request: NextRequest) {
     // Validate password
     const passwordValidation = isValidPassword(password);
     if (!passwordValidation.valid) {
+      const errorMsg = passwordValidation.error || "Invalid password";
+      if (process.env.NODE_ENV === "development") {
+        console.log("❌ Server: Password validation failed:", errorMsg);
+      }
       return NextResponse.json(
-        { error: passwordValidation.error || "Invalid password" },
+        { error: errorMsg },
         { status: 400 }
       );
     }
@@ -53,8 +74,12 @@ export async function POST(request: NextRequest) {
     // Check if user already exists
     const existing = await prisma.user.findUnique({ where: { email: sanitizedEmail } });
     if (existing) {
+      const errorMsg = "An account with this email already exists";
+      if (process.env.NODE_ENV === "development") {
+        console.log("❌ Server: User already exists:", sanitizedEmail);
+      }
       return NextResponse.json(
-        { error: "An account with this email already exists" },
+        { error: errorMsg },
         { status: 409 }
       );
     }
@@ -82,6 +107,14 @@ export async function POST(request: NextRequest) {
         createdAt: true,
       },
     });
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("✅ Server: User created successfully:", {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      });
+    }
 
     return NextResponse.json({ user }, { status: 201 });
   } catch (error: unknown) {

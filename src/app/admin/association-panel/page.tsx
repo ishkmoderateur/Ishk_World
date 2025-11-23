@@ -23,6 +23,11 @@ export default function AssociationPanel() {
 
   useEffect(() => {
     fetchCampaigns();
+    // Check if we should open the form (from "New Campaign" button)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === 'true' || params.get('add') === 'true') {
+      setShowForm(true);
+    }
   }, []);
 
   const fetchCampaigns = async () => {

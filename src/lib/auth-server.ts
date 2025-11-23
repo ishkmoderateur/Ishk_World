@@ -4,18 +4,33 @@ import { UserRole } from "@/types/next-auth.d";
 
 // Helper function to get server session (NextAuth v5 compatible)
 // Uses the new auth() function from NextAuth v5
+// In NextAuth v5, auth() automatically reads from headers/cookies in API routes
 export async function getAuthSession() {
   try {
     const session = await auth();
     
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔐 Auth session check:", {
+        hasSession: !!session,
+        hasUser: !!session?.user,
+        userRole: session?.user?.role,
+        userId: session?.user?.id,
+      });
+    }
+    
     // Return null if there's no user
     if (!session || !session.user) {
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔐 No session or user found");
+      }
       return null;
     }
     
     return session;
   } catch (error) {
-    console.error("Error getting session:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("❌ Error getting session:", error);
+    }
     return null;
   }
 }
@@ -27,8 +42,22 @@ export async function getAuthSession() {
 export async function requireAdmin() {
   const session = await getAuthSession();
   
-  if (!session?.user || !isAdmin(session.user.role)) {
+  if (!session?.user) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔐 requireAdmin: No user in session");
+    }
     return null;
+  }
+  
+  if (!isAdmin(session.user.role)) {
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔐 requireAdmin: User is not admin. Role:", session.user.role);
+    }
+    return null;
+  }
+  
+  if (process.env.NODE_ENV === "development") {
+    console.log("✅ requireAdmin: Admin access granted for role:", session.user.role);
   }
   
   return session;
@@ -57,8 +86,22 @@ export async function requireSectionAccess(
 ) {
   const session = await getAuthSession();
   
-  if (!session?.user || !canAccessSection(session.user.role, section)) {
+  if (!session?.user) {
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🔐 requireSectionAccess(${section}): No user in session`);
+    }
     return null;
+  }
+  
+  if (!canAccessSection(session.user.role, section)) {
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🔐 requireSectionAccess(${section}): Access denied. User role: ${session.user.role}`);
+    }
+    return null;
+  }
+  
+  if (process.env.NODE_ENV === "development") {
+    console.log(`✅ requireSectionAccess(${section}): Access granted for role: ${session.user.role}`);
   }
   
   return session;

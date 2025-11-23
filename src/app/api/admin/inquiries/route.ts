@@ -33,8 +33,10 @@ export async function GET() {
     });
 
     return NextResponse.json(inquiries);
-  } catch (error) {
-    console.error("Error fetching inquiries:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error fetching inquiries:", error);
+    }
     return NextResponse.json(
       { error: "Failed to fetch inquiries" },
       { status: 500 }
@@ -52,7 +54,24 @@ export async function PATCH(request: NextRequest) {
         { status: 401 }
       );
     }
-    const { id, status } = await request.json();
+    const body = await request.json();
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json(
+        { error: "ID and status are required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate status
+    const validStatuses = ["NEW", "CONTACTED", "QUOTED", "BOOKED", "DECLINED"];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: "Invalid status" },
+        { status: 400 }
+      );
+    }
 
     const inquiry = await prisma.venueInquiry.update({
       where: { id },
@@ -63,8 +82,21 @@ export async function PATCH(request: NextRequest) {
     });
 
     return NextResponse.json(inquiry);
-  } catch (error) {
-    console.error("Error updating inquiry:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error updating inquiry:", error);
+    }
+    
+    // Handle Prisma errors
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2025") {
+        return NextResponse.json(
+          { error: "Inquiry not found" },
+          { status: 404 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: "Failed to update inquiry" },
       { status: 500 }
@@ -97,8 +129,21 @@ export async function DELETE(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting inquiry:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error deleting inquiry:", error);
+    }
+    
+    // Handle Prisma errors
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2025") {
+        return NextResponse.json(
+          { error: "Inquiry not found" },
+          { status: 404 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: "Failed to delete inquiry" },
       { status: 500 }

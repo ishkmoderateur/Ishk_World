@@ -21,8 +21,21 @@ export async function GET(
     }
 
     return NextResponse.json(product);
-  } catch (error) {
-    console.error("Error fetching product:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error fetching product:", error);
+    }
+    
+    // Handle Prisma errors
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2025") {
+        return NextResponse.json(
+          { error: "Product not found" },
+          { status: 404 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { error: "Failed to fetch product" },
       { status: 500 }

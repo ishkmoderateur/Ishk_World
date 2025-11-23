@@ -8,6 +8,7 @@ import { ShoppingBag, Leaf, Heart, Star, ArrowRight, Filter, Search, ShoppingCar
 import { useLanguage } from "@/contexts/language-context";
 import Link from "next/link";
 import Image from "next/image";
+import PriceDisplay from "@/components/price-display";
 
 export default function BoutiquePage() {
   const { t } = useLanguage();
@@ -313,7 +314,13 @@ export default function BoutiquePage() {
                           {product.name}
                         </h3>
                         <div className="flex items-center justify-between">
-                          <span className="text-2xl font-bold text-sage">{formatPrice(product.price)}</span>
+                          <PriceDisplay
+                            price={product.price}
+                            comparePrice={product.comparePrice}
+                            currency="EUR"
+                            size="md"
+                            showDiscount={true}
+                          />
                           <button 
                             onClick={(e) => {
                               e.preventDefault();

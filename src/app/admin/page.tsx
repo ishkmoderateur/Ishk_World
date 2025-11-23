@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   Package,
@@ -23,6 +23,7 @@ import {
   MessageSquare,
   Newspaper,
   Shield,
+  Music,
 } from "lucide-react";
 import Link from "next/link";
 import { isSuperAdmin, isAdmin, canAccessSection, getUserAccessibleSections, getRoleDisplayName } from "@/lib/roles";
@@ -42,6 +43,7 @@ interface Stats {
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState<Stats>({
     products: 0,
     venues: 0,
@@ -53,9 +55,16 @@ export default function AdminDashboard() {
     pendingInquiries: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users" | "inquiries" | "donations" | "news" | "photography-bookings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "products" | "venues" | "campaigns" | "orders" | "users" | "inquiries" | "donations" | "news" | "photography-bookings" | "party-services" | "photography-services">("overview");
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     if (status === "unauthenticated") {
       router.push("/auth/signin?callbackUrl=/admin");
       return;
@@ -67,7 +76,7 @@ export default function AdminDashboard() {
       }
       fetchStats();
     }
-  }, [status, session, router]);
+  }, [status, session, router, mounted]);
 
   const fetchStats = async () => {
     try {
@@ -75,9 +84,17 @@ export default function AdminDashboard() {
       if (response.ok) {
         const data = await response.json();
         setStats(data);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to fetch stats" }));
+        console.error("Error fetching stats:", errorData);
+        // Show error to user
+        if (errorData.error) {
+          alert(`Error: ${errorData.error}`);
+        }
       }
     } catch (error) {
       console.error("Error fetching stats:", error);
+      alert("Failed to fetch admin statistics. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -174,6 +191,17 @@ export default function AdminDashboard() {
     return colors[color] || colors.sage;
   };
 
+  // Prevent hydration mismatch - show loading state until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cream via-white to-sage/5 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-charcoal/60">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-white to-sage/5">
       {/* Header */}
@@ -193,11 +221,17 @@ export default function AdminDashboard() {
               <p className="text-charcoal/60 mt-1">Manage your ISHK platform</p>
             </div>
             <div className="flex items-center gap-4">
-              <button className="px-4 py-2 text-charcoal/70 hover:text-charcoal transition-colors flex items-center gap-2">
+              <Link 
+                href="/admin/settings"
+                className="px-4 py-2 text-charcoal/70 hover:text-charcoal transition-colors flex items-center gap-2"
+              >
                 <Settings className="w-5 h-5" />
                 Settings
-              </button>
-              <button className="px-4 py-2 text-coral hover:text-coral/80 transition-colors flex items-center gap-2">
+              </Link>
+              <button 
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="px-4 py-2 text-coral hover:text-coral/80 transition-colors flex items-center gap-2"
+              >
                 <LogOut className="w-5 h-5" />
                 Logout
               </button>
@@ -221,14 +255,29 @@ export default function AdminDashboard() {
               { id: "donations", label: "Donations", icon: DollarSign, section: "association" },
               { id: "news", label: "News", icon: Newspaper, section: "news" },
               { id: "photography-bookings", label: "Photography Bookings", icon: Camera, section: "photography" },
+              { id: "party-services", label: "Party Services", icon: Music, section: "party", link: "/admin/party-services-panel" },
+              { id: "photography-services", label: "Photography Services", icon: Camera, section: "photography", link: "/admin/photography-services-panel" },
             ]
             .filter((tab) => {
               if (tab.section === null) return true; // Overview always visible
               if (tab.section === "orders" || tab.section === "users") return isSuper;
+              // Check section access for all tabs (including those with links)
               return accessibleSections.includes(tab.section);
             })
             .map((tab) => {
               const Icon = tab.icon;
+              if (tab.link) {
+                return (
+                  <Link
+                    key={tab.id}
+                    href={tab.link}
+                    className="px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 text-charcoal/70 hover:bg-sage/10 hover:text-sage"
+                  >
+                    <Icon className="w-5 h-5" />
+                    {tab.label}
+                  </Link>
+                );
+              }
               return (
                 <button
                   key={tab.id}
@@ -326,21 +375,77 @@ export default function AdminDashboard() {
                     color: "coral",
                     section: "association",
                   },
+                  {
+                    href: "/admin/users-panel",
+                    title: "Users Panel",
+                    description: "Manage user accounts",
+                    icon: Users,
+                    color: "sage",
+                    section: "users",
+                  },
+                  {
+                    href: "/admin/orders-panel",
+                    title: "Orders Panel",
+                    description: "Manage customer orders",
+                    icon: ShoppingBag,
+                    color: "sage",
+                    section: "orders",
+                  },
+                  {
+                    href: "/admin/donations-panel",
+                    title: "Donations Panel",
+                    description: "Manage donations",
+                    icon: DollarSign,
+                    color: "coral",
+                    section: "association",
+                  },
+                  {
+                    href: "/admin/party-services-panel",
+                    title: "Party Services",
+                    description: "Manage party services",
+                    icon: Music,
+                    color: "amber",
+                    section: "party",
+                  },
+                  {
+                    href: "/admin/photography-services-panel",
+                    title: "Photography Services",
+                    description: "Manage photography services",
+                    icon: Camera,
+                    color: "gold",
+                    section: "photography",
+                  },
                 ]
-                  .filter((panel) => accessibleSections.includes(panel.section))
+                  .filter((panel) => {
+                    if (panel.section === "users" || panel.section === "orders") {
+                      return isSuper;
+                    }
+                    return accessibleSections.includes(panel.section);
+                  })
                   .map((panel) => {
                     const Icon = panel.icon;
+                    const getColorClasses = (color: string) => {
+                      const colors: Record<string, { bg: string; bgHover: string; text: string; iconBg: string }> = {
+                        sky: { bg: "bg-sky/10", bgHover: "hover:bg-sky/20", text: "group-hover:text-sky", iconBg: "bg-sky" },
+                        gold: { bg: "bg-gold/10", bgHover: "hover:bg-gold/20", text: "group-hover:text-gold", iconBg: "bg-gold" },
+                        sage: { bg: "bg-sage/10", bgHover: "hover:bg-sage/20", text: "group-hover:text-sage", iconBg: "bg-sage" },
+                        amber: { bg: "bg-amber/10", bgHover: "hover:bg-amber/20", text: "group-hover:text-amber", iconBg: "bg-amber" },
+                        coral: { bg: "bg-coral/10", bgHover: "hover:bg-coral/20", text: "group-hover:text-coral", iconBg: "bg-coral" },
+                      };
+                      return colors[color] || colors.sage;
+                    };
+                    const colors = getColorClasses(panel.color);
                     return (
                       <Link
                         key={panel.href}
                         href={panel.href}
-                        className={`flex items-center gap-3 p-4 bg-${panel.color}/10 hover:bg-${panel.color}/20 rounded-xl transition-colors group`}
+                        className={`flex items-center gap-3 p-4 ${colors.bg} ${colors.bgHover} rounded-xl transition-colors group`}
                       >
-                        <div className={`w-12 h-12 bg-${panel.color} rounded-xl flex items-center justify-center`}>
+                        <div className={`w-12 h-12 ${colors.iconBg} rounded-xl flex items-center justify-center`}>
                           <Icon className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                          <h3 className={`font-semibold text-charcoal group-hover:text-${panel.color} transition-colors`}>
+                          <h3 className={`font-semibold text-charcoal ${colors.text} transition-colors`}>
                             {panel.title}
                           </h3>
                           <p className="text-sm text-charcoal/60">{panel.description}</p>
@@ -359,7 +464,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">Products Management</h2>
               <Link
-                href="/admin/products/new"
+                href="/admin/boutique-panel?new=true"
                 className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
@@ -376,7 +481,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">Venues Management</h2>
               <Link
-                href="/admin/venues/new"
+                href="/admin/party-panel?new=true"
                 className="px-6 py-3 bg-amber text-white rounded-xl font-medium hover:bg-amber/90 transition-colors flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
@@ -393,7 +498,7 @@ export default function AdminDashboard() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-heading font-bold text-charcoal">Campaigns Management</h2>
               <Link
-                href="/admin/campaigns/new"
+                href="/admin/association-panel?new=true"
                 className="px-6 py-3 bg-coral text-white rounded-xl font-medium hover:bg-coral/90 transition-colors flex items-center gap-2"
               >
                 <Plus className="w-5 h-5" />
@@ -407,7 +512,16 @@ export default function AdminDashboard() {
         {/* Orders Tab */}
         {activeTab === "orders" && isSuper && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
-            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Orders Management</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-charcoal">Orders Management</h2>
+              <Link
+                href="/admin/orders-panel"
+                className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center gap-2"
+              >
+                <Eye className="w-5 h-5" />
+                Open Orders Panel
+              </Link>
+            </div>
             <OrdersManager />
           </div>
         )}
@@ -415,7 +529,16 @@ export default function AdminDashboard() {
         {/* Users Tab */}
         {activeTab === "users" && isSuper && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
-            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Users Management</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-charcoal">Users Management</h2>
+              <Link
+                href="/admin/users-panel"
+                className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center gap-2"
+              >
+                <Eye className="w-5 h-5" />
+                Open Users Panel
+              </Link>
+            </div>
             <UsersManager />
           </div>
         )}
@@ -431,7 +554,16 @@ export default function AdminDashboard() {
         {/* Donations Tab */}
         {activeTab === "donations" && canAccessSection(userRole, "association") && (
           <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
-            <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Donations Management</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-charcoal">Donations Management</h2>
+              <Link
+                href="/admin/donations-panel"
+                className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center gap-2"
+              >
+                <Eye className="w-5 h-5" />
+                Open Donations Panel
+              </Link>
+            </div>
             <DonationsManager />
           </div>
         )}
@@ -469,6 +601,7 @@ export default function AdminDashboard() {
 function ProductsManager() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     fetchProducts();
@@ -476,13 +609,19 @@ function ProductsManager() {
 
   const fetchProducts = async () => {
     try {
+      setError("");
       const response = await fetch("/api/admin/products");
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to fetch products" }));
+        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        console.error("Error fetching products:", errorData);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setError("Failed to fetch products. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -504,6 +643,21 @@ function ProductsManager() {
 
   if (loading) {
     return <div className="text-center py-12 text-charcoal/60">Loading products...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="bg-coral/10 border border-coral/30 rounded-xl p-6">
+        <div className="text-coral font-semibold mb-2">Error Loading Products</div>
+        <div className="text-charcoal/70 text-sm mb-4">{error}</div>
+        <button
+          onClick={fetchProducts}
+          className="px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -782,6 +936,7 @@ function CampaignsManager() {
 function OrdersManager() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     fetchOrders();
@@ -789,13 +944,19 @@ function OrdersManager() {
 
   const fetchOrders = async () => {
     try {
+      setError("");
       const response = await fetch("/api/admin/orders");
       if (response.ok) {
         const data = await response.json();
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : []);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to fetch orders" }));
+        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        console.error("Error fetching orders:", errorData);
       }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setError("Failed to fetch orders. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -803,6 +964,21 @@ function OrdersManager() {
 
   if (loading) {
     return <div className="text-center py-12 text-charcoal/60">Loading orders...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="bg-coral/10 border border-coral/30 rounded-xl p-6">
+        <div className="text-coral font-semibold mb-2">Error Loading Orders</div>
+        <div className="text-charcoal/70 text-sm mb-4">{error}</div>
+        <button
+          onClick={fetchOrders}
+          className="px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   const getStatusColor = (status: string) => {
@@ -874,6 +1050,21 @@ function OrdersManager() {
 function UsersManager() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "USER" as string,
+    password: "",
+    image: "",
+  });
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveError, setSaveError] = useState<string>("");
+  const [saveSuccess, setSaveSuccess] = useState<string>("");
 
   useEffect(() => {
     fetchUsers();
@@ -881,15 +1072,114 @@ function UsersManager() {
 
   const fetchUsers = async () => {
     try {
+      setError("");
       const response = await fetch("/api/admin/users");
       if (response.ok) {
         const data = await response.json();
-        setUsers(data);
+        setUsers(Array.isArray(data) ? data : []);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to fetch users" }));
+        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        console.error("Error fetching users:", errorData);
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+      setError("Failed to fetch users. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserDetails = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`);
+      if (response.ok) {
+        const user = await response.json();
+        setSelectedUser(user);
+        setFormData({
+          name: user.name || "",
+          email: user.email || "",
+          phone: user.phone || "",
+          role: user.role || "USER",
+          password: "",
+          image: user.image || "",
+        });
+        setShowModal(true);
+        setEditing(false);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to fetch user" }));
+        setSaveError(errorData.error || "Failed to load user details");
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      setSaveError("Failed to load user details");
+    }
+  };
+
+  const handleView = (user: any) => {
+    fetchUserDetails(user.id);
+  };
+
+  const handleEdit = () => {
+    setEditing(true);
+    setSaveError("");
+    setSaveSuccess("");
+  };
+
+  const handleSave = async () => {
+    if (!selectedUser) return;
+    setSaveLoading(true);
+    setSaveError("");
+    setSaveSuccess("");
+
+    try {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          password: formData.password || undefined, // Only send if provided
+        }),
+      });
+
+      if (response.ok) {
+        setSaveSuccess("User updated successfully!");
+        fetchUsers();
+        setTimeout(() => {
+          setEditing(false);
+          setSaveSuccess("");
+        }, 2000);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to update user" }));
+        setSaveError(errorData.error || "Failed to update user");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setSaveError("An error occurred while updating the user");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        fetchUsers();
+        if (selectedUser?.id === userId) {
+          setShowModal(false);
+          setSelectedUser(null);
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to delete user" }));
+        alert(errorData.error || "Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("An error occurred while deleting the user");
     }
   };
 
@@ -897,50 +1187,303 @@ function UsersManager() {
     return <div className="text-center py-12 text-charcoal/60">Loading users...</div>;
   }
 
+  if (error) {
+    return (
+      <div className="bg-coral/10 border border-coral/30 rounded-xl p-6">
+        <div className="text-coral font-semibold mb-2">Error Loading Users</div>
+        <div className="text-charcoal/70 text-sm mb-4">{error}</div>
+        <button
+          onClick={fetchUsers}
+          className="px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-sage/10">
-            <th className="text-left py-3 px-4 font-semibold text-charcoal">Name</th>
-            <th className="text-left py-3 px-4 font-semibold text-charcoal">Email</th>
-            <th className="text-left py-3 px-4 font-semibold text-charcoal">Joined</th>
-            <th className="text-left py-3 px-4 font-semibold text-charcoal">Orders</th>
-            <th className="text-right py-3 px-4 font-semibold text-charcoal">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="text-center py-12 text-charcoal/60">
-                No users found.
-              </td>
+    <>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-sage/10">
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Name</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Email</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Phone</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Role</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Joined</th>
+              <th className="text-left py-3 px-4 font-semibold text-charcoal">Orders</th>
+              <th className="text-right py-3 px-4 font-semibold text-charcoal">Actions</th>
             </tr>
-          ) : (
-            users.map((user) => (
-              <tr key={user.id} className="border-b border-sage/5 hover:bg-sage/5 transition-colors">
-                <td className="py-4 px-4 font-medium text-charcoal">{user.name || "No name"}</td>
-                <td className="py-4 px-4 text-charcoal/70">{user.email}</td>
-                <td className="py-4 px-4 text-charcoal/70">
-                  {new Date(user.createdAt).toLocaleDateString()}
-                </td>
-                <td className="py-4 px-4 text-charcoal">{user.orders?.length || 0}</td>
-                <td className="py-4 px-4">
-                  <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+          </thead>
+          <tbody>
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="text-center py-12 text-charcoal/60">
+                  No users found.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              users.map((user) => (
+                <tr key={user.id} className="border-b border-sage/5 hover:bg-sage/5 transition-colors">
+                  <td className="py-4 px-4 font-medium text-charcoal">{user.name || "No name"}</td>
+                  <td className="py-4 px-4 text-charcoal/70">{user.email}</td>
+                  <td className="py-4 px-4 text-charcoal/70">{user.phone || "—"}</td>
+                  <td className="py-4 px-4">
+                    <span className="px-3 py-1 rounded-full text-sm bg-sage/10 text-sage">
+                      {user.role || "USER"}
+                    </span>
+                  </td>
+                  <td className="py-4 px-4 text-charcoal/70">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="py-4 px-4 text-charcoal">{user.orders?.length || 0}</td>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleView(user)}
+                        className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors"
+                        title="View/Edit user"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.id)}
+                        className="p-2 text-coral hover:bg-coral/10 rounded-lg transition-colors"
+                        title="Delete user"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* User Detail/Edit Modal */}
+      {showModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-charcoal">
+                {editing ? "Edit User" : "User Details"}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedUser(null);
+                  setEditing(false);
+                  setSaveError("");
+                  setSaveSuccess("");
+                }}
+                className="p-2 text-charcoal/70 hover:text-charcoal transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {saveError && (
+              <div className="mb-4 p-4 bg-coral/10 border border-coral/20 rounded-xl text-coral text-sm">
+                {saveError}
+              </div>
+            )}
+
+            {saveSuccess && (
+              <div className="mb-4 p-4 bg-sage/10 border border-sage/20 rounded-xl text-sage text-sm">
+                {saveSuccess}
+              </div>
+            )}
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Name</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  />
+                ) : (
+                  <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5">
+                    {selectedUser.name || "No name"}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Email</label>
+                {editing ? (
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  />
+                ) : (
+                  <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5">
+                    {selectedUser.email}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Phone</label>
+                {editing ? (
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                    placeholder="+1234567890"
+                  />
+                ) : (
+                  <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5">
+                    {selectedUser.phone || "—"}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Role</label>
+                {editing ? (
+                  <select
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                  >
+                    <option value="USER">User</option>
+                    <option value="SUPER_ADMIN">Super Admin</option>
+                    <option value="ADMIN_NEWS">News Admin</option>
+                    <option value="ADMIN_PARTY">Party Admin</option>
+                    <option value="ADMIN_BOUTIQUE">Boutique Admin</option>
+                    <option value="ADMIN_ASSOCIATION">Association Admin</option>
+                    <option value="ADMIN_PHOTOGRAPHY">Photography Admin</option>
+                  </select>
+                ) : (
+                  <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5">
+                    {selectedUser.role || "USER"}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Password Hash</label>
+                <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5 text-xs font-mono text-charcoal/70 break-all">
+                  {selectedUser.password ? (
+                    <>
+                      {selectedUser.password.substring(0, 50)}...
+                      <div className="mt-2 text-charcoal/60 text-xs">
+                        (This is a hashed password. You cannot see the original password, but you can reset it below.)
+                      </div>
+                    </>
+                  ) : (
+                    "No password set (OAuth user)"
+                  )}
+                </div>
+              </div>
+
+              {editing && (
+                <div>
+                  <label className="block text-sm font-medium text-charcoal mb-2">
+                    Reset Password (leave empty to keep current)
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                    placeholder="Enter new password (min 6 characters)"
+                  />
+                  <p className="text-xs text-charcoal/60 mt-1">
+                    Leave empty to keep the current password
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Account Created</label>
+                <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5">
+                  {new Date(selectedUser.createdAt).toLocaleString()}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">Last Updated</label>
+                <div className="px-4 py-3 rounded-xl border border-sage/10 bg-sage/5">
+                  {new Date(selectedUser.updatedAt).toLocaleString()}
+                </div>
+              </div>
+
+              {selectedUser._count && (
+                <div className="grid grid-cols-3 gap-4 pt-4 border-t border-sage/10">
+                  <div>
+                    <div className="text-sm text-charcoal/60">Orders</div>
+                    <div className="text-lg font-semibold text-charcoal">{selectedUser._count.orders || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-charcoal/60">Cart Items</div>
+                    <div className="text-lg font-semibold text-charcoal">{selectedUser._count.cartItems || 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-charcoal/60">Wishlist</div>
+                    <div className="text-lg font-semibold text-charcoal">{selectedUser._count.wishlistItems || 0}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 mt-6 pt-6 border-t border-sage/10">
+              {editing ? (
+                <>
+                  <button
+                    onClick={handleSave}
+                    disabled={saveLoading}
+                    className="flex-1 px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors disabled:opacity-50"
+                  >
+                    {saveLoading ? "Saving..." : "Save Changes"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditing(false);
+                      setSaveError("");
+                      setSaveSuccess("");
+                      fetchUserDetails(selectedUser.id);
+                    }}
+                    className="px-6 py-3 bg-charcoal/10 text-charcoal rounded-xl font-medium hover:bg-charcoal/20 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleEdit}
+                    className="flex-1 px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors"
+                  >
+                    Edit User
+                  </button>
+                  <button
+                    onClick={() => handleDelete(selectedUser.id)}
+                    className="px-6 py-3 bg-coral text-white rounded-xl font-medium hover:bg-coral/90 transition-colors"
+                  >
+                    Delete User
+                  </button>
+                </>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </>
   );
 }
 

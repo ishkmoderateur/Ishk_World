@@ -477,7 +477,6 @@ export default function PhotographyPanel() {
 
       if (!albumResponse.ok) {
         alert("Failed to create album");
-        e.target.value = "";
         return;
       }
 
@@ -533,8 +532,6 @@ export default function PhotographyPanel() {
       console.error("Error importing images:", error);
       alert("Error importing images. Please try again.");
     }
-
-    e.target.value = "";
   };
 
   const handleImportAlbum = async (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -67,23 +67,46 @@ export default function PhotographyPage() {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("📸 Form submission started", formData);
+    
+    // Validate required fields
+    if (!formData.name || !formData.email) {
+      setError("Please fill in all required fields (name and email)");
+      return;
+    }
+
     setError(null);
     setSuccess(null);
     setLoading(true);
 
     try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone?.trim() || null,
+        preferredDate: formData.preferredDate || null,
+        serviceType: formData.serviceType || "portrait",
+        message: formData.message?.trim() || null,
+      };
+
+      console.log("📸 Sending booking request:", payload);
+
       const response = await fetch("/api/photography/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          preferredDate: formData.preferredDate || null,
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log("📸 Response status:", response.status);
+
+      const data = await response.json().catch(() => ({ error: "Unknown error" }));
+
       if (response.ok) {
+        console.log("✅ Booking submitted successfully:", data);
         setSuccess("Booking request submitted successfully! We'll contact you soon.");
         setFormData({
           name: "",
@@ -94,12 +117,12 @@ export default function PhotographyPage() {
           message: "",
         });
       } else {
-        const data = await response.json();
-        setError(data.error || "Failed to submit booking request");
+        console.error("❌ Booking submission failed:", data);
+        setError(data.error || "Failed to submit booking request. Please try again.");
       }
     } catch (error) {
-      console.error("Error submitting booking:", error);
-      setError("An error occurred. Please try again.");
+      console.error("❌ Error submitting booking:", error);
+      setError(error instanceof Error ? error.message : "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -358,7 +381,7 @@ export default function PhotographyPage() {
                   ))}
                 </div>
                 <p className="text-charcoal/70 mb-4 leading-relaxed">
-                  "{testimonial.text}"
+                  &quot;{testimonial.text}&quot;
                 </p>
                 <div>
                   <div className="font-semibold text-charcoal">
@@ -402,7 +425,11 @@ export default function PhotographyPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="bg-white rounded-2xl p-8 shadow-lg border border-gold/10"
           >
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form 
+              onSubmit={handleSubmit} 
+              className="space-y-6"
+              noValidate
+            >
               {error && (
                 <div className="rounded-lg border border-coral/30 bg-coral/10 text-coral px-4 py-3 text-sm">
                   {error}
@@ -421,6 +448,7 @@ export default function PhotographyPage() {
                   <input
                     type="text"
                     required
+                    name="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
@@ -434,6 +462,7 @@ export default function PhotographyPage() {
                   <input
                     type="email"
                     required
+                    name="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
@@ -498,15 +527,21 @@ export default function PhotographyPage() {
                 />
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !formData.name.trim() || !formData.email.trim()}
                 className="w-full py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={(e) => {
+                  // Ensure form validation
+                  if (!formData.name.trim() || !formData.email.trim()) {
+                    e.preventDefault();
+                    setError("Please fill in name and email fields");
+                    return;
+                  }
+                }}
               >
                 {loading ? "Submitting..." : t("photography.booking.submit")}
-              </motion.button>
+              </button>
 
               <p className="text-center text-sm text-charcoal/60">
                 {t("photography.booking.responseTime")}

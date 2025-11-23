@@ -51,8 +51,10 @@ export async function POST(request: NextRequest) {
       minCapacity,
       maxCapacity,
       price,
+      comparePrice,
       currency,
       images,
+      videos,
       features,
       amenities,
       isActive,
@@ -61,6 +63,34 @@ export async function POST(request: NextRequest) {
     if (!name || !slug || !city || !country || !price) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // Validate images (min 1, max 10)
+    if (!images || !Array.isArray(images) || images.length < 1) {
+      return NextResponse.json(
+        { error: "At least 1 image is required" },
+        { status: 400 }
+      );
+    }
+    if (images.length > 10) {
+      return NextResponse.json(
+        { error: "Maximum 10 images allowed" },
+        { status: 400 }
+      );
+    }
+
+    // Validate videos (max 2)
+    if (videos && !Array.isArray(videos)) {
+      return NextResponse.json(
+        { error: "Videos must be an array" },
+        { status: 400 }
+      );
+    }
+    if (videos && videos.length > 2) {
+      return NextResponse.json(
+        { error: "Maximum 2 videos allowed" },
         { status: 400 }
       );
     }
@@ -78,8 +108,10 @@ export async function POST(request: NextRequest) {
         minCapacity: minCapacity ? parseInt(minCapacity) : 0,
         maxCapacity: maxCapacity ? parseInt(maxCapacity) : 0,
         price: parseFloat(price),
+        comparePrice: comparePrice ? parseFloat(comparePrice) : null,
         currency: currency || "EUR",
-        images: images || [],
+        images: images,
+        videos: videos && videos.length > 0 ? videos : null,
         features: features || [],
         amenities: amenities || null,
         isActive: isActive !== undefined ? isActive : true,

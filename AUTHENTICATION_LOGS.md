@@ -300,3 +300,4 @@ For User: Redirects to /profile (user profile)
 - **Session Role**: Fetched from database on every login
 - **Redirect Logic**: Checked after successful login and session update
 
+

@@ -65,14 +65,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if item already exists
-    const existing = await prisma.cartItem.findUnique({
+    const existing = await prisma.cartItem.findFirst({
       where: {
-        userId_productId_size_color: {
-          userId: session.user.id,
-          productId,
-          size: size || "",
-          color: color || "",
-        },
+        userId: session.user.id,
+        productId,
+        size: size || null,
+        color: color || null,
       },
     });
 

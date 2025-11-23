@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+/playwright/.cache
 
 # next.js
 /.next/
@@ -36,21 +39,25 @@ yarn-error.log*
 next-env.d.ts
 
 # prisma
-/src/generated
-*.db
-*.db-journal
-prisma/*.db
-prisma/*.db-journal
-
-# logs
-*.log
-/var/log
+/prisma/dev.db
+/prisma/dev.db-journal
+/prisma/*.db
+/prisma/*.db-journal
 
 # IDE
 .vscode
 .idea
 *.swp
 *.swo
+*~
 
 # OS
 Thumbs.db
+.DS_Store
+
+# Audit artifacts
+audit-report.json
+AUDIT_REPORT.md
+test-results/
+playwright-report/
+*.log

@@ -178,7 +178,7 @@ export default function NewsPage() {
               <Sparkles className="w-8 h-8 text-sky" />
             </div>
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mb-4">
-              Today's Curated Briefs
+              Today&apos;s Curated Briefs
             </h2>
             <p className="text-sky/80 text-lg">
               AI-powered summaries of what matters most

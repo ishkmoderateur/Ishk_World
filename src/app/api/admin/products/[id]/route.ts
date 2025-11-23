@@ -66,6 +66,7 @@ export async function PUT(
       category,
       isIshkOriginal,
       images,
+      videos,
       inStock,
       stockCount,
       badge,
@@ -119,9 +120,36 @@ export async function PUT(
           { status: 400 }
         );
       }
+      if (images.length < 1) {
+        return NextResponse.json(
+          { error: "At least 1 image is required" },
+          { status: 400 }
+        );
+      }
+      if (images.length > 10) {
+        return NextResponse.json(
+          { error: "Maximum 10 images allowed" },
+          { status: 400 }
+        );
+      }
       // Ensure images array is properly typed for Prisma Json field
       // Use type assertion to satisfy TypeScript's strict type checking
       (updateData as any).images = images;
+    }
+    if (videos !== undefined) {
+      if (videos !== null && !Array.isArray(videos)) {
+        return NextResponse.json(
+          { error: "Videos must be an array or null" },
+          { status: 400 }
+        );
+      }
+      if (videos && videos.length > 2) {
+        return NextResponse.json(
+          { error: "Maximum 2 videos allowed" },
+          { status: 400 }
+        );
+      }
+      (updateData as any).videos = videos && videos.length > 0 ? videos : null;
     }
     if (inStock !== undefined) updateData.inStock = Boolean(inStock);
     if (stockCount !== undefined) {

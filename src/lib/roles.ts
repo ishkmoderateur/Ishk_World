@@ -46,7 +46,7 @@ export function getUserAccessibleSections(role?: UserRole | string): string[] {
   if (!role || role === "USER") return [];
   
   if (isSuperAdmin(role)) {
-    return ["news", "party", "boutique", "association", "photography", "users", "orders", "inquiries", "donations"];
+    return ["news", "party", "boutique", "association", "photography", "users", "orders", "inquiries", "donations", "packages", "membership", "credits"];
   }
   
   const roleToSection: Record<string, string> = {
@@ -79,6 +79,7 @@ export function getRoleDisplayName(role?: UserRole | string): string {
   
   return roleNames[role] || role;
 }
+
 
 
 

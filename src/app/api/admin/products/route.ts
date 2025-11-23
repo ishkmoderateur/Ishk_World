@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireSectionAccess } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 // GET - Fetch all products
 export async function GET() {
@@ -40,7 +41,17 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
-    const body = await request.json();
+    
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
     const {
       name,
       slug,
@@ -50,6 +61,7 @@ export async function POST(request: NextRequest) {
       category,
       isIshkOriginal,
       images,
+      videos,
       inStock,
       stockCount,
       badge,
@@ -93,10 +105,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate images array
-    if (images && !Array.isArray(images)) {
+    // Validate images array (min 1, max 10)
+    if (!images || !Array.isArray(images)) {
       return NextResponse.json(
         { error: "Images must be an array" },
+        { status: 400 }
+      );
+    }
+    if (images.length < 1) {
+      return NextResponse.json(
+        { error: "At least 1 image is required" },
+        { status: 400 }
+      );
+    }
+    if (images.length > 10) {
+      return NextResponse.json(
+        { error: "Maximum 10 images allowed" },
+        { status: 400 }
+      );
+    }
+
+    // Validate videos array (max 2)
+    if (videos && !Array.isArray(videos)) {
+      return NextResponse.json(
+        { error: "Videos must be an array" },
+        { status: 400 }
+      );
+    }
+    if (videos && videos.length > 2) {
+      return NextResponse.json(
+        { error: "Maximum 2 videos allowed" },
         { status: 400 }
       );
     }
@@ -110,6 +148,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Creating product with data:", {
+      name: String(name).trim(),
+      slug: String(slug).trim().toLowerCase(),
+      imagesCount: Array.isArray(images) ? images.length : 0,
+      videosCount: videos && Array.isArray(videos) ? videos.length : 0,
+      price: validatedPrice,
+      comparePrice: validatedComparePrice,
+    });
+
     const product = await prisma.product.create({
       data: {
         name: String(name).trim(),
@@ -119,7 +166,8 @@ export async function POST(request: NextRequest) {
         comparePrice: validatedComparePrice,
         category: String(category).trim(),
         isIshkOriginal: Boolean(isIshkOriginal),
-        images: Array.isArray(images) ? images : [],
+        images: images,
+        videos: videos && videos.length > 0 ? videos : null,
         inStock: inStock !== undefined ? Boolean(inStock) : true,
         stockCount: validatedStockCount,
         badge: badge ? String(badge).trim() : null,
@@ -129,23 +177,50 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(product, { status: 201 });
   } catch (error: unknown) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error creating product:", error);
-    }
+    console.error("Error creating product:", error);
     
-    if (error && typeof error === "object" && "code" in error) {
+    // Handle Prisma errors
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
+        const target = (error.meta?.target as string[]) || [];
+        const field = target[0] || "field";
         return NextResponse.json(
-          { error: "Product with this slug already exists" },
+          { error: `Product with this ${field} already exists` },
           { status: 409 }
         );
       }
+      return NextResponse.json(
+        { error: `Database error: ${error.message}`, code: error.code },
+        { status: 400 }
+      );
     }
     
-    return NextResponse.json(
-      { error: "Failed to create product" },
-      { status: 500 }
-    );
+    if (error instanceof Prisma.PrismaClientValidationError) {
+      return NextResponse.json(
+        { error: "Validation error: Invalid data provided" },
+        { status: 400 }
+      );
+    }
+    
+    // Extract error message
+    let errorMessage = "Failed to create product";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (error && typeof error === "object" && "message" in error) {
+      errorMessage = String(error.message);
+    }
+    
+    // Return error with details (but don't expose sensitive info in production)
+    const errorResponse: any = { error: errorMessage };
+    if (process.env.NODE_ENV === "development") {
+      errorResponse.details = error instanceof Error ? {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      } : String(error);
+    }
+    
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
 

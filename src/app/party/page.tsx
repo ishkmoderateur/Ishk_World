@@ -6,11 +6,23 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { PartyPopper, Music, UtensilsCrossed, Wine, Sparkles, Calendar, Mail, Phone, ArrowRight, Search, Filter, Headphones, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import PriceDisplay from "@/components/price-display";
 
 export default function PartyPage() {
   const { t } = useLanguage();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    eventDate: "",
+    guestCount: "",
+    message: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -33,6 +45,67 @@ export default function PartyPage() {
   const formatPrice = (price: number | null | undefined) => {
     if (price === null || price === undefined) return t("party.from") + " €0";
     return `${t("party.from")} €${price.toFixed(0)}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("🎉 Party inquiry form submission started", formData);
+    
+    // Validate required fields
+    if (!formData.name.trim() || !formData.email.trim() || !formData.eventDate || !formData.guestCount) {
+      setError("Please fill in all required fields (name, email, event date, and number of guests)");
+      return;
+    }
+
+    setError(null);
+    setSuccess(null);
+    setSubmitting(true);
+
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone?.trim() || null,
+        eventDate: formData.eventDate,
+        guestCount: parseInt(formData.guestCount) || 0,
+        message: formData.message?.trim() || null,
+      };
+
+      console.log("🎉 Sending party inquiry:", payload);
+
+      const response = await fetch("/api/party/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      console.log("🎉 Response status:", response.status);
+
+      const data = await response.json().catch(() => ({ error: "Unknown error" }));
+
+      if (response.ok) {
+        console.log("✅ Party inquiry submitted successfully:", data);
+        setSuccess("Inquiry submitted successfully! We'll contact you soon.");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          eventDate: "",
+          guestCount: "",
+          message: "",
+        });
+      } else {
+        console.error("❌ Party inquiry submission failed:", data);
+        setError(data.error || "Failed to submit inquiry. Please try again.");
+      }
+    } catch (error) {
+      console.error("❌ Error submitting party inquiry:", error);
+      setError(error instanceof Error ? error.message : "An error occurred. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -199,7 +272,13 @@ export default function PartyPage() {
                           <span>{service.reviewCount} {t("party.reviews")}</span>
                         </div>
                       )}
-                      <div className="text-amber font-semibold">{formatPrice(service.price)}</div>
+                      <PriceDisplay
+                        price={service.price}
+                        comparePrice={service.comparePrice}
+                        currency="EUR"
+                        size="sm"
+                        showDiscount={true}
+                      />
                     </div>
 
                     {features.length > 0 && (
@@ -259,24 +338,42 @@ export default function PartyPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="bg-white rounded-2xl p-8 shadow-lg border border-amber/10"
           >
-            <form className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+              {error && (
+                <div className="rounded-lg border border-coral/30 bg-coral/10 text-coral px-4 py-3 text-sm">
+                  {error}
+                </div>
+              )}
+              {success && (
+                <div className="rounded-lg border border-sage/30 bg-sage/10 text-sage px-4 py-3 text-sm">
+                  {success}
+                </div>
+              )}
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    {t("party.inquiry.name")}
+                    {t("party.inquiry.name")} <span className="text-coral">*</span>
                   </label>
                   <input
                     type="text"
+                    required
+                    name="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
                     placeholder="John Doe"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    {t("party.inquiry.email")}
+                    {t("party.inquiry.email")} <span className="text-coral">*</span>
                   </label>
                   <input
                     type="email"
+                    required
+                    name="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
                     placeholder="john@example.com"
                   />
@@ -289,6 +386,9 @@ export default function PartyPage() {
                 </label>
                 <input
                   type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
                   placeholder="+33 6 12 34 56 78"
                 />
@@ -297,19 +397,28 @@ export default function PartyPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    {t("party.inquiry.eventDate")}
+                    {t("party.inquiry.eventDate")} <span className="text-coral">*</span>
                   </label>
                   <input
                     type="date"
+                    required
+                    name="eventDate"
+                    value={formData.eventDate}
+                    onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    {t("party.inquiry.guests")}
+                    {t("party.inquiry.guests")} <span className="text-coral">*</span>
                   </label>
                   <input
                     type="number"
+                    required
+                    min="1"
+                    name="guestCount"
+                    value={formData.guestCount}
+                    onChange={(e) => setFormData({ ...formData, guestCount: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
                     placeholder="50"
                   />
@@ -322,19 +431,29 @@ export default function PartyPage() {
                 </label>
                 <textarea
                   rows={4}
+                  name="message"
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   className="w-full px-4 py-3 rounded-lg border border-amber/20 focus:outline-none focus:ring-2 focus:ring-amber/50"
                   placeholder={t("party.inquiry.messagePlaceholder")}
                 />
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 type="submit"
-                className="w-full py-4 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors"
+                disabled={submitting || !formData.name.trim() || !formData.email.trim() || !formData.eventDate || !formData.guestCount}
+                className="w-full py-4 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={(e) => {
+                  // Ensure form validation
+                  if (!formData.name.trim() || !formData.email.trim() || !formData.eventDate || !formData.guestCount) {
+                    e.preventDefault();
+                    setError("Please fill in all required fields");
+                    return;
+                  }
+                }}
               >
-                {t("party.inquiry.submit")}
-              </motion.button>
+                {submitting ? "Submitting..." : t("party.inquiry.submit")}
+              </button>
 
               <p className="text-center text-sm text-charcoal/60">
                 {t("party.inquiry.responseTime")}

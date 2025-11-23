@@ -29,8 +29,10 @@ export async function PUT(
       minCapacity,
       maxCapacity,
       price,
+      comparePrice,
       currency,
       images,
+      videos,
       features,
       isActive,
     } = body;
@@ -47,8 +49,10 @@ export async function PUT(
     if (minCapacity !== undefined) updateData.minCapacity = parseInt(minCapacity);
     if (maxCapacity !== undefined) updateData.maxCapacity = parseInt(maxCapacity);
     if (price !== undefined) updateData.price = parseFloat(price);
+    if (comparePrice !== undefined) updateData.comparePrice = comparePrice ? parseFloat(comparePrice) : null;
     if (currency) updateData.currency = currency;
     if (images !== undefined) updateData.images = images;
+    if (videos !== undefined) updateData.videos = videos && videos.length > 0 ? videos : null;
     if (features !== undefined) updateData.features = features;
     if (isActive !== undefined) updateData.isActive = isActive;
 

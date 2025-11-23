@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 import {
   validateRequired,
@@ -10,7 +10,7 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getAuthSession();
     const body = await request.json();
 
     const { name, email, phone, preferredDate, serviceType, message } = body;
@@ -85,4 +85,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 

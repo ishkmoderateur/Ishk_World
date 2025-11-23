@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus, Edit, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import MediaUpload from "@/components/media-upload";
+import PriceInput from "@/components/price-input";
 
 export default function BoutiquePanel() {
   const [products, setProducts] = useState<any[]>([]);
@@ -21,6 +24,7 @@ export default function BoutiquePanel() {
     category: "",
     isIshkOriginal: false,
     images: [] as string[],
+    videos: [] as string[],
     inStock: true,
     stockCount: "",
     badge: "",
@@ -29,31 +33,62 @@ export default function BoutiquePanel() {
 
   useEffect(() => {
     fetchProducts();
+    // Check if we should open the form (from "Add Product" button)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === 'true' || params.get('add') === 'true') {
+      setShowForm(true);
+    }
   }, []);
 
   const fetchProducts = async () => {
     try {
+      setError("");
       const response = await fetch("/api/admin/products");
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Failed to fetch products" }));
+        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        console.error("Error fetching products:", errorData);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setError("Failed to fetch products. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent | React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     setError("");
     setSuccess("");
+    
+    if (process.env.NODE_ENV === "development") {
+      console.log("Form submission started", { formData });
+    }
+    
     try {
       const url = editing
         ? `/api/admin/products/${editing.id}`
         : "/api/admin/products";
       const method = editing ? "PUT" : "POST";
+
+      // Validate images (min 1, max 10)
+      if (formData.images.length < 1) {
+        setError("At least 1 image is required");
+        return;
+      }
+      if (formData.images.length > 10) {
+        setError("Maximum 10 images allowed");
+        return;
+      }
+      if (formData.videos.length > 2) {
+        setError("Maximum 2 videos allowed");
+        return;
+      }
 
       const payload = {
         ...formData,
@@ -61,13 +96,33 @@ export default function BoutiquePanel() {
         comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
         stockCount: parseInt(formData.stockCount) || 0,
         images: formData.images,
+        videos: formData.videos.length > 0 ? formData.videos : null,
       };
 
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      if (process.env.NODE_ENV === "development") {
+        console.log("Payload being sent:", {
+          ...payload,
+          images: payload.images?.length,
+          videos: payload.videos?.length,
+          imagePreview: payload.images?.[0]?.substring(0, 50) + "...",
+        });
+      }
+
+      let response;
+      try {
+        response = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (process.env.NODE_ENV === "development") {
+          console.log("Response status:", response.status, response.statusText);
+        }
+      } catch (fetchError) {
+        console.error("Fetch error:", fetchError);
+        setError("Network error: Failed to connect to server");
+        return;
+      }
 
       if (response.ok) {
         setSuccess(editing ? "Product updated successfully!" : "Product created successfully!");
@@ -77,8 +132,21 @@ export default function BoutiquePanel() {
           setSuccess("");
         }, 2000);
       } else {
-        const data = await response.json();
-        setError(data.error || "Failed to save product");
+        let errorMessage = `Failed to save product (${response.status})`;
+        try {
+          const data = await response.json();
+          console.error("Product creation error response:", data);
+          errorMessage = data.error || data.message || errorMessage;
+          if (data.details && process.env.NODE_ENV === "development") {
+            console.error("Error details:", data.details);
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+          const text = await response.text().catch(() => "");
+          console.error("Response text:", text);
+          errorMessage = text || errorMessage;
+        }
+        setError(errorMessage);
       }
     } catch (error) {
       console.error("Error saving product:", error);
@@ -103,6 +171,7 @@ export default function BoutiquePanel() {
   const handleEdit = (product: any) => {
     setEditing(product);
     const images = Array.isArray(product.images) ? product.images : [];
+    const videos = Array.isArray(product.videos) ? product.videos : [];
     setFormData({
       name: product.name,
       slug: product.slug,
@@ -112,6 +181,7 @@ export default function BoutiquePanel() {
       category: product.category,
       isIshkOriginal: product.isIshkOriginal,
       images: images,
+      videos: videos,
       inStock: product.inStock,
       stockCount: product.stockCount.toString(),
       badge: product.badge || "",
@@ -130,6 +200,7 @@ export default function BoutiquePanel() {
       category: "",
       isIshkOriginal: false,
       images: [],
+      videos: [],
       inStock: true,
       stockCount: "",
       badge: "",
@@ -137,20 +208,6 @@ export default function BoutiquePanel() {
     });
     setEditing(null);
     setShowForm(false);
-  };
-
-  const addImage = () => {
-    const url = prompt("Enter image URL:");
-    if (url) {
-      setFormData({ ...formData, images: [...formData.images, url] });
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter((_, i) => i !== index),
-    });
   };
 
   if (loading) {
@@ -221,21 +278,32 @@ export default function BoutiquePanel() {
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      // Auto-generate slug from name if slug is empty or matches previous name
+                      const newSlug = formData.slug === "" || formData.slug === formData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                        ? name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+                        : formData.slug;
+                      setFormData({ ...formData, name, slug: newSlug });
+                    }}
                     className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
-                    Slug *
+                    Slug * <span className="text-xs text-charcoal/60 font-normal">(auto-generated, can edit)</span>
                   </label>
                   <input
                     type="text"
                     value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    onChange={(e) => {
+                      const slug = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+                      setFormData({ ...formData, slug });
+                    }}
                     className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
                     required
+                    placeholder="product-slug"
                   />
                 </div>
               </div>
@@ -251,30 +319,15 @@ export default function BoutiquePanel() {
                   required
                 />
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">
-                    Price (€) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">
-                    Compare Price (€)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.comparePrice}
-                    onChange={(e) => setFormData({ ...formData, comparePrice: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <PriceInput
+                    price={formData.price}
+                    comparePrice={formData.comparePrice}
+                    onPriceChange={(price) => setFormData({ ...formData, price })}
+                    onComparePriceChange={(comparePrice) => setFormData({ ...formData, comparePrice })}
+                    label="Product Price"
+                    currency="EUR"
                   />
                 </div>
                 <div>
@@ -290,36 +343,16 @@ export default function BoutiquePanel() {
                   />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
-                  Images
-                </label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={img}
-                        alt={`Image ${index + 1}`}
-                        className="w-20 h-20 object-cover rounded-lg border border-sage/20"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-coral text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={addImage}
-                  className="px-4 py-2 border border-sage/20 rounded-lg text-sm text-charcoal/70 hover:bg-sage/10"
-                >
-                  + Add Image URL
-                </button>
-              </div>
+              <MediaUpload
+                images={formData.images}
+                videos={formData.videos}
+                onImagesChange={(images) => setFormData((prev) => ({ ...prev, images }))}
+                onVideosChange={(videos) => setFormData((prev) => ({ ...prev, videos }))}
+                maxImages={10}
+                maxVideos={2}
+                minImages={1}
+                label="Product Media"
+              />
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-charcoal mb-2">
@@ -377,6 +410,10 @@ export default function BoutiquePanel() {
               <div className="flex gap-4">
                 <button
                   type="submit"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }}
                   className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors"
                 >
                   {editing ? "Update" : "Create"}

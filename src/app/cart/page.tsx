@@ -1,34 +1,95 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Package } from "lucide-react";
+import { useCart } from "@/contexts/cart-context";
+import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Package, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function CartPage() {
-  // Sample cart items (in real app, this would come from context/state)
-  const cartItems = [
-    {
-      id: 1,
-      name: "Classic Tee",
-      price: 45,
-      quantity: 2,
-      image: "bg-gradient-to-br from-sage/20 to-sand/20",
-      size: "M",
-    },
-    {
-      id: 2,
-      name: "Canvas Tote Bag",
-      price: 35,
-      quantity: 1,
-      image: "bg-gradient-to-br from-sand/20 to-clay/20",
-    },
-  ];
+  const { items, removeItem, updateQuantity, total: cartTotal, isLoading } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartTotal;
   const shipping = subtotal > 75 ? 0 : 5.90;
   const total = subtotal + shipping;
+
+  const handleCheckout = async () => {
+    if (!session?.user) {
+      router.push("/auth/signin?callbackUrl=/cart");
+      return;
+    }
+
+    if (items.length === 0) {
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      // Get user's address from session or use defaults
+      const shippingAddress = {
+        name: session.user.name || "",
+        email: session.user.email || "",
+        phone: session.user.phone || "",
+        address: "",
+        city: "",
+        country: "",
+        zipCode: "",
+      };
+
+      const billingAddress = { ...shippingAddress };
+
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+          })),
+          shippingAddress,
+          billingAddress,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.url) {
+          // Redirect to Stripe Checkout
+          window.location.href = data.url;
+        } else {
+          console.error("No checkout URL returned", data);
+          alert("Failed to create checkout session. Please check your Stripe configuration.");
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        console.error("Checkout failed:", errorData);
+        
+        // Show user-friendly error message
+        let errorMessage = errorData.error || "Checkout failed. Please try again.";
+        if (errorData.hint) {
+          errorMessage += `\n\nHint: ${errorData.hint}`;
+        }
+        alert(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      alert("An error occurred during checkout. Please try again.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const cartItems = items;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
@@ -51,7 +112,7 @@ export default function CartPage() {
               Shopping Cart
             </h1>
             <p className="text-lg text-charcoal/60">
-              {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in your cart
+              {isLoading ? "Loading..." : `${cartItems.length} ${cartItems.length === 1 ? "item" : "items"} in your cart`}
             </p>
           </motion.div>
         </div>
@@ -104,8 +165,18 @@ export default function CartPage() {
                   >
                     <div className="flex flex-col sm:flex-row gap-6">
                       {/* Product Image */}
-                      <div className={`w-full sm:w-32 h-32 ${item.image} rounded-xl flex-shrink-0 flex items-center justify-center`}>
-                        <Package className="w-12 h-12 text-white/30" />
+                      <div className="w-full sm:w-32 h-32 rounded-xl flex-shrink-0 bg-gradient-to-br from-sage/20 to-sand/20 flex items-center justify-center overflow-hidden">
+                        {item.image ? (
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            width={128}
+                            height={128}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package className="w-12 h-12 text-white/30" />
+                        )}
                       </div>
 
                       {/* Product Details */}
@@ -124,6 +195,7 @@ export default function CartPage() {
                               </div>
                             </div>
                             <button 
+                              onClick={() => removeItem(item.productId, item.size, item.color)}
                               className="p-2 text-charcoal/40 hover:text-coral hover:bg-coral/10 rounded-lg transition-colors"
                               title="Remove item"
                             >
@@ -134,13 +206,20 @@ export default function CartPage() {
                           {/* Quantity Controls */}
                           <div className="flex items-center gap-3">
                             <span className="text-sm text-charcoal/60 mr-2">Quantity:</span>
-                            <button className="w-10 h-10 rounded-lg border border-sage/20 hover:bg-sage/10 transition-colors flex items-center justify-center">
+                            <button 
+                              onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.size, item.color)}
+                              className="w-10 h-10 rounded-lg border border-sage/20 hover:bg-sage/10 transition-colors flex items-center justify-center disabled:opacity-50"
+                              disabled={item.quantity <= 1}
+                            >
                               <Minus className="w-4 h-4" />
                             </button>
                             <span className="text-lg font-medium text-charcoal w-12 text-center">
                               {item.quantity}
                             </span>
-                            <button className="w-10 h-10 rounded-lg border border-sage/20 hover:bg-sage/10 transition-colors flex items-center justify-center">
+                            <button 
+                              onClick={() => updateQuantity(item.productId, item.quantity + 1, item.size, item.color)}
+                              className="w-10 h-10 rounded-lg border border-sage/20 hover:bg-sage/10 transition-colors flex items-center justify-center"
+                            >
                               <Plus className="w-4 h-4" />
                             </button>
                           </div>
@@ -195,10 +274,21 @@ export default function CartPage() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 bg-sage text-white rounded-full font-medium hover:bg-sage/90 transition-colors flex items-center justify-center gap-2 mb-4 shadow-lg"
+                  onClick={handleCheckout}
+                  disabled={checkoutLoading || items.length === 0 || isLoading}
+                  className="w-full py-4 bg-sage text-white rounded-full font-medium hover:bg-sage/90 transition-colors flex items-center justify-center gap-2 mb-4 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <CreditCard className="w-5 h-5" />
-                  Proceed to Checkout
+                  {checkoutLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      Proceed to Checkout
+                    </>
+                  )}
                 </motion.button>
 
                 <Link

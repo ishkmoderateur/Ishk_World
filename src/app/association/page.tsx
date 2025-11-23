@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { Heart, TrendingUp, Users, Target, ArrowRight, CheckCircle, Leaf, Globe } from "lucide-react";
+import { Heart, TrendingUp, Target, ArrowRight, CheckCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function AssociationPage() {
@@ -49,12 +49,6 @@ export default function AssociationPage() {
     return `€${raised.toLocaleString()}`;
   };
 
-  const impactStats = [
-    { label: t("association.impact.stats.treesPlanted"), value: "12,500+", icon: Leaf },
-    { label: t("association.impact.stats.livesImpacted"), value: "5,000+", icon: Users },
-    { label: t("association.impact.stats.projectsCompleted"), value: "25+", icon: CheckCircle },
-    { label: t("association.impact.stats.countriesReached"), value: "12", icon: Globe },
-  ];
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-coral/5 via-cream to-white">
@@ -110,35 +104,6 @@ export default function AssociationPage() {
               ease: "easeInOut",
             }}
           />
-        </div>
-      </section>
-
-      {/* Impact Stats */}
-      <section className="py-16 px-4 md:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {impactStats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="text-center"
-                >
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-coral/10 mb-4">
-                    <Icon className="w-8 h-8 text-coral" />
-                  </div>
-                  <div className="text-3xl md:text-4xl font-heading font-bold text-charcoal mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-charcoal/60">{stat.label}</div>
-                </motion.div>
-              );
-            })}
-          </div>
         </div>
       </section>
 

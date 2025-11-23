@@ -13,7 +13,7 @@ export async function GET() {
       );
     }
 
-    const [products, venues, campaigns, orders, users, donations, inquiries] = await Promise.all([
+    const [products, venues, campaigns, orders, users, donations, inquiries, revenueResult] = await Promise.all([
       prisma.product.count(),
       prisma.venue.count(),
       prisma.campaign.count(),
@@ -21,13 +21,15 @@ export async function GET() {
       prisma.user.count(),
       prisma.donation.count(),
       prisma.venueInquiry.count({ where: { status: "NEW" } }),
+      // Optimize: Use aggregate instead of fetching all orders
+      prisma.order.aggregate({
+        _sum: {
+          total: true,
+        },
+      }),
     ]);
 
-    const ordersData = await prisma.order.findMany({
-      select: { total: true },
-    });
-
-    const totalRevenue = ordersData.reduce((sum: number, order: { total: number }) => sum + order.total, 0);
+    const totalRevenue = revenueResult._sum.total || 0;
 
     return NextResponse.json({
       products,
@@ -39,8 +41,10 @@ export async function GET() {
       totalRevenue,
       pendingInquiries: inquiries,
     });
-  } catch (error) {
-    console.error("Error fetching admin stats:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error fetching admin stats:", error);
+    }
     return NextResponse.json(
       { error: "Failed to fetch stats" },
       { status: 500 }

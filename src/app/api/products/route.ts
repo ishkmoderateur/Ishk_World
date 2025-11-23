@@ -8,14 +8,25 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
     
-    const where: any = {};
+    const where: {
+      category?: string;
+      featured?: boolean;
+    } = {};
     
+    // Sanitize and validate category input
     if (category && category !== "all") {
-      where.category = category;
+      // Only allow alphanumeric, spaces, hyphens, and ampersands
+      const sanitizedCategory = category.trim().replace(/[^a-zA-Z0-9\s\-&]/g, "");
+      if (sanitizedCategory.length > 0 && sanitizedCategory.length <= 100) {
+        where.category = sanitizedCategory;
+      }
     }
     
+    // Validate featured parameter
     if (featured === "true") {
       where.featured = true;
+    } else if (featured === "false") {
+      where.featured = false;
     }
 
     const products = await prisma.product.findMany({
@@ -27,8 +38,10 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(products);
-  } catch (error) {
-    console.error("Error fetching products:", error);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error fetching products:", error);
+    }
     return NextResponse.json(
       { error: "Failed to fetch products" },
       { status: 500 }

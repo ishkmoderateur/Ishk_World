@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus, Edit, Trash2, MapPin, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import MediaUpload from "@/components/media-upload";
+import PriceInput from "@/components/price-input";
 
 export default function PartyPanel() {
   const [venues, setVenues] = useState<any[]>([]);
@@ -22,14 +25,21 @@ export default function PartyPanel() {
     minCapacity: "",
     maxCapacity: "",
     price: "",
+    comparePrice: "",
     currency: "EUR",
     images: [] as string[],
+    videos: [] as string[],
     features: [] as string[],
     isActive: true,
   });
 
   useEffect(() => {
     fetchVenues();
+    // Check if we should open the form (from "Add Venue" button)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('new') === 'true' || params.get('add') === 'true') {
+      setShowForm(true);
+    }
   }, []);
 
   const fetchVenues = async () => {
@@ -48,6 +58,21 @@ export default function PartyPanel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate images (min 1, max 10)
+    if (formData.images.length < 1) {
+      alert("At least 1 image is required");
+      return;
+    }
+    if (formData.images.length > 10) {
+      alert("Maximum 10 images allowed");
+      return;
+    }
+    if (formData.videos.length > 2) {
+      alert("Maximum 2 videos allowed");
+      return;
+    }
+
     try {
       const url = editing ? `/api/admin/venues/${editing.id}` : "/api/admin/venues";
       const method = editing ? "PUT" : "POST";
@@ -55,9 +80,11 @@ export default function PartyPanel() {
       const payload = {
         ...formData,
         price: parseFloat(formData.price),
+        comparePrice: formData.comparePrice ? parseFloat(formData.comparePrice) : null,
         minCapacity: parseInt(formData.minCapacity) || 0,
         maxCapacity: parseInt(formData.maxCapacity) || 0,
         images: formData.images,
+        videos: formData.videos.length > 0 ? formData.videos : null,
         features: formData.features,
       };
 
@@ -93,6 +120,7 @@ export default function PartyPanel() {
   const handleEdit = (venue: any) => {
     setEditing(venue);
     const images = Array.isArray(venue.images) ? venue.images : [];
+    const videos = Array.isArray(venue.videos) ? venue.videos : [];
     const features = Array.isArray(venue.features) ? venue.features : [];
     setFormData({
       name: venue.name,
@@ -106,8 +134,10 @@ export default function PartyPanel() {
       minCapacity: venue.minCapacity.toString(),
       maxCapacity: venue.maxCapacity.toString(),
       price: venue.price.toString(),
+      comparePrice: venue.comparePrice?.toString() || "",
       currency: venue.currency,
       images: images,
+      videos: videos,
       features: features,
       isActive: venue.isActive,
     });
@@ -127,8 +157,10 @@ export default function PartyPanel() {
       minCapacity: "",
       maxCapacity: "",
       price: "",
+      comparePrice: "",
       currency: "EUR",
       images: [],
+      videos: [],
       features: [],
       isActive: true,
     });
@@ -136,29 +168,18 @@ export default function PartyPanel() {
     setShowForm(false);
   };
 
-  const addItem = (type: "image" | "feature") => {
-    const value = prompt(`Enter ${type === "image" ? "image URL" : "feature"}:`);
+  const addItem = (type: "feature") => {
+    const value = prompt(`Enter ${type}:`);
     if (value) {
-      if (type === "image") {
-        setFormData({ ...formData, images: [...formData.images, value] });
-      } else {
-        setFormData({ ...formData, features: [...formData.features, value] });
-      }
+      setFormData({ ...formData, features: [...formData.features, value] });
     }
   };
 
-  const removeItem = (type: "image" | "feature", index: number) => {
-    if (type === "image") {
-      setFormData({
-        ...formData,
-        images: formData.images.filter((_, i) => i !== index),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        features: formData.features.filter((_, i) => i !== index),
-      });
-    }
+  const removeItem = (type: "feature", index: number) => {
+    setFormData({
+      ...formData,
+      features: formData.features.filter((_, i) => i !== index),
+    });
   };
 
   if (loading) {
@@ -274,19 +295,16 @@ export default function PartyPanel() {
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-charcoal mb-2">
-                    Price (€) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
-                    required
-                  />
-                </div>
+              </div>
+              <div>
+                <PriceInput
+                  price={formData.price}
+                  comparePrice={formData.comparePrice}
+                  onPriceChange={(price) => setFormData({ ...formData, price })}
+                  onComparePriceChange={(comparePrice) => setFormData({ ...formData, comparePrice })}
+                  label="Venue Price"
+                  currency={formData.currency}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -312,36 +330,16 @@ export default function PartyPanel() {
                   />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
-                  Images
-                </label>
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {formData.images.map((img, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={img}
-                        alt={`Image ${index + 1}`}
-                        className="w-20 h-20 object-cover rounded-lg border border-sage/20"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeItem("image", index)}
-                        className="absolute -top-2 -right-2 bg-coral text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => addItem("image")}
-                  className="px-4 py-2 border border-sage/20 rounded-lg text-sm text-charcoal/70 hover:bg-sage/10"
-                >
-                  + Add Image URL
-                </button>
-              </div>
+              <MediaUpload
+                images={formData.images}
+                videos={formData.videos}
+                onImagesChange={(images) => setFormData({ ...formData, images })}
+                onVideosChange={(videos) => setFormData({ ...formData, videos })}
+                maxImages={10}
+                maxVideos={2}
+                minImages={1}
+                label="Venue Media"
+              />
               <div>
                 <label className="block text-sm font-medium text-charcoal mb-2">
                   Features
