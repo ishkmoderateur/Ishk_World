@@ -15,14 +15,10 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/avif', 'image/webp'],
   },
-  // Turbopack configuration for Next.js 16
+  // Turbopack configuration removed - not supported in current Next.js version
+  // The webpack config below handles .d.mts file issues
   experimental: {
-    turbo: {
-      resolveAlias: {
-        // Ignore problematic .d.mts files by aliasing them
-        '@jridgewell/sourcemap-codec/types/sourcemap-codec.d.mts': false,
-      },
-    },
+    // Add any valid experimental features here if needed
   },
   // Fallback webpack config (only used if --webpack flag is used)
   webpack: (config, { isServer }) => {
