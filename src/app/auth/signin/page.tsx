@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, Suspense } from "react";
+import { useState, FormEvent, Suspense, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -14,13 +14,23 @@ import { isAdmin } from "@/lib/roles";
 function SignInForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const { data: session, update } = useSession();
+  const { data: session, update, status } = useSession();
   const callbackUrl = params.get("callbackUrl");
+  const emailParam = params.get("email");
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailParam || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      const redirectUrl = callbackUrl || "/profile";
+      console.log("✅ Already authenticated, redirecting to:", redirectUrl);
+      window.location.href = redirectUrl;
+    }
+  }, [status, session, callbackUrl]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,71 +68,37 @@ function SignInForm() {
       
       if (res.ok) {
         console.log("✅ Client: Login successful");
-        setLoading(false);
         
-        // Update session to ensure it's synced before redirect
+        // Determine redirect URL - default to profile
+        let redirectUrl = callbackUrl || "/profile";
+        
+        // Update session and check role
         try {
-          // Force session refresh
           await update();
-          console.log("✅ Client: Session updated successfully");
+          await new Promise(resolve => setTimeout(resolve, 400));
           
-          // Wait a moment for session to be fully synced
-          await new Promise(resolve => setTimeout(resolve, 300));
-          
-          // Fetch fresh session to get user role
           const response = await fetch("/api/auth/session");
           const sessionData = await response.json();
           
-          console.log("🔐 Session data:", sessionData);
-          
-          // Determine redirect URL based on user role
-          let redirectUrl = callbackUrl || "/profile";
-          
-          // If callbackUrl is explicitly set to /admin, use it
-          // If callbackUrl is /profile or not set, check if user is admin
+          // Check if user is admin and redirect accordingly
           if (!callbackUrl || callbackUrl === "/profile") {
             if (sessionData?.user?.role && isAdmin(sessionData.user.role)) {
-              // Admin users go to admin dashboard
               redirectUrl = "/admin";
-              console.log("🔐 Admin user detected (role: " + sessionData.user.role + "), redirecting to admin dashboard");
+              console.log("🔐 Admin user, redirecting to /admin");
             } else {
-              // Regular users go to profile
               redirectUrl = "/profile";
-              console.log("👤 Regular user, redirecting to profile");
+              console.log("👤 Regular user, redirecting to /profile");
             }
-          } else {
-            // Use the explicitly set callbackUrl
-            console.log("🔗 Using explicit callbackUrl:", callbackUrl);
-            redirectUrl = callbackUrl;
-          }
-          
-          console.log("✅ Client: Redirecting to:", redirectUrl);
-          
-          // Use router.push for better Next.js integration, with fallback to window.location
-          try {
-            router.push(redirectUrl);
-            // Also use window.location as backup to ensure redirect happens
-            setTimeout(() => {
-              if (window.location.pathname === "/auth/signin") {
-                console.log("⚠️ Router push didn't work, using window.location");
-                window.location.href = redirectUrl;
-              }
-            }, 500);
-          } catch (redirectError) {
-            console.warn("⚠️ Router push failed, using window.location:", redirectError);
-            window.location.href = redirectUrl;
           }
         } catch (sessionError) {
-          console.warn("⚠️ Client: Session update warning (might still work):", sessionError);
-          // Fallback to default redirect
-          const fallbackUrl = callbackUrl || "/profile";
-          router.push(fallbackUrl);
-          setTimeout(() => {
-            if (window.location.pathname === "/auth/signin") {
-              window.location.href = fallbackUrl;
-            }
-          }, 500);
+          console.warn("⚠️ Session check warning, using default redirect:", sessionError);
         }
+        
+        console.log("✅ Client: Redirecting to:", redirectUrl);
+        
+        // Force redirect using window.location for reliability
+        setLoading(false);
+        window.location.href = redirectUrl;
       } else {
         console.error("❌ Client: SignIn not OK:", res);
         setError("Login failed. Please try again.");

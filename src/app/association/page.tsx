@@ -6,9 +6,11 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Heart, TrendingUp, Target, ArrowRight, CheckCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useCurrency } from "@/contexts/currency-context";
 
 export default function AssociationPage() {
   const { t } = useLanguage();
+  const { formatPrice: formatCurrencyPrice } = useCurrency();
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,14 +41,14 @@ export default function AssociationPage() {
     if (category && category.toLowerCase().includes("tree")) {
       return `${goal.toLocaleString()} trees`;
     }
-    return `€${goal.toLocaleString()}`;
+    return formatCurrencyPrice(goal, 0);
   };
 
   const formatRaised = (raised: number, category?: string) => {
     if (category && category.toLowerCase().includes("tree")) {
       return `${raised.toLocaleString()} trees`;
     }
-    return `€${raised.toLocaleString()}`;
+    return formatCurrencyPrice(raised, 0);
   };
 
 

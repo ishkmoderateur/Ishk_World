@@ -13,32 +13,42 @@ function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: session, status } = useSession();
-  const sessionId = searchParams.get("session_id");
+  const paymentMethod = searchParams.get("paymentMethod");
+  
+  // PayPal uses 'token' parameter, Stripe uses 'session_id'
+  const paypalToken = searchParams.get("token");
+  const stripeSessionId = searchParams.get("session_id");
+  const orderId = paymentMethod === "paypal" ? paypalToken : stripeSessionId;
+  
   const [loading, setLoading] = useState(true);
   const [orderVerified, setOrderVerified] = useState(false);
 
   useEffect(() => {
-    // Wait a bit for session to load after Stripe redirect
+    // Wait a bit for session to load after payment redirect
     const timer = setTimeout(() => {
       setLoading(false);
       
-      // Try to verify order if we have session and sessionId
-      if (sessionId && status === "authenticated" && session?.user) {
-        verifyAndCreateOrder();
+      // Try to verify order if we have session and orderId
+      if (orderId && status === "authenticated" && session?.user) {
+        if (paymentMethod === "paypal") {
+          verifyPayPalOrder();
+        } else {
+          verifyAndCreateOrder();
+        }
       }
     }, 1000); // Give NextAuth time to restore session
 
     return () => clearTimeout(timer);
-  }, [session, status, sessionId]);
+  }, [session, status, orderId, paymentMethod]);
 
   const verifyAndCreateOrder = async () => {
-    if (!sessionId || orderVerified) return;
+    if (!orderId || orderVerified) return;
     
     try {
       const response = await fetch("/api/orders/verify-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
+        body: JSON.stringify({ sessionId: orderId }),
       });
 
       if (response.ok) {
@@ -55,6 +65,50 @@ function SuccessContent() {
       }
     } catch (error) {
       console.error("❌ Error verifying order:", error);
+      // Still show success page
+    }
+  };
+
+  const verifyPayPalOrder = async () => {
+    if (!orderId || orderVerified) return;
+    
+    try {
+      // Get stored order metadata from sessionStorage
+      const orderMetadata = sessionStorage.getItem("paypal_order_metadata");
+      const storedOrderId = sessionStorage.getItem("paypal_order_id");
+      
+      if (!orderMetadata) {
+        console.error("⚠️ PayPal order metadata not found");
+        return;
+      }
+
+      const metadata = JSON.parse(orderMetadata);
+
+      const response = await fetch("/api/paypal/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: orderId, // PayPal order ID (token) from URL
+          orderMetadata: metadata,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ PayPal order captured:", data);
+        if (data.orderNumber) {
+          setOrderVerified(true);
+          // Clear sessionStorage
+          sessionStorage.removeItem("paypal_order_metadata");
+          sessionStorage.removeItem("paypal_order_id");
+        }
+      } else {
+        const error = await response.json();
+        console.error("⚠️ PayPal order capture failed:", error.error);
+        // Still show success page - webhook might handle it later
+      }
+    } catch (error) {
+      console.error("❌ Error capturing PayPal order:", error);
       // Still show success page
     }
   };

@@ -126,6 +126,64 @@ const authConfig: NextAuthConfig = {
     signOut: "/auth/signout",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Handle Google OAuth sign-in
+      if (account?.provider === "google" && user?.email) {
+        try {
+          // Check if user exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+            select: { id: true, name: true, image: true, role: true, emailVerified: true },
+          });
+
+          if (!existingUser) {
+            // Create new user from Google OAuth
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name || (profile as any)?.name || null,
+                image: user.image || (profile as any)?.picture || null,
+                emailVerified: new Date(), // Google emails are verified
+                role: "USER", // Default role
+                // No password for OAuth users
+              },
+            });
+            console.log("✅ Created new user from Google OAuth:", newUser.email);
+            // Update user object with database ID
+            user.id = newUser.id;
+            (user as any).role = newUser.role;
+          } else {
+            // Update existing user with Google info if needed
+            const updateData: any = {};
+            if (!existingUser.image && user.image) {
+              updateData.image = user.image;
+            }
+            if (!existingUser.name && user.name) {
+              updateData.name = user.name;
+            }
+            if (!existingUser.emailVerified) {
+              updateData.emailVerified = new Date();
+            }
+            
+            if (Object.keys(updateData).length > 0) {
+              await prisma.user.update({
+                where: { id: existingUser.id },
+                data: updateData,
+              });
+              console.log("✅ Updated user from Google OAuth:", existingUser.email);
+            }
+            
+            // Update user object with database data
+            user.id = existingUser.id;
+            (user as any).role = existingUser.role;
+          }
+        } catch (error) {
+          console.error("❌ Error handling Google OAuth sign-in:", error);
+          // Allow sign-in to continue even if DB update fails
+        }
+      }
+      return true; // Allow sign-in
+    },
     async jwt({ token, user, trigger }) {
       // On initial login, user object is provided
       if (user) {
@@ -168,6 +226,27 @@ const authConfig: NextAuthConfig = {
         }
         if (token.picture) {
           session.user.image = token.picture as string;
+        }
+        
+        // Fetch fresh user data from DB to ensure we have latest info
+        if (token.id) {
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: token.id as string },
+              select: { name: true, image: true, email: true, role: true },
+            });
+            if (dbUser) {
+              session.user.name = dbUser.name || session.user.name;
+              session.user.image = dbUser.image || session.user.image;
+              session.user.email = dbUser.email || session.user.email;
+              session.user.role = dbUser.role as UserRole;
+            }
+          } catch (error) {
+            // Silently fail - use token data as fallback
+            if (process.env.NODE_ENV === "development") {
+              console.error("Error fetching user data for session:", error);
+            }
+          }
         }
       }
       return session;

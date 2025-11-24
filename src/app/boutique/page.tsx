@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ShoppingBag, Leaf, Heart, Star, ArrowRight, Filter, Search, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useCurrency } from "@/contexts/currency-context";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -13,6 +14,7 @@ import PriceDisplay from "@/components/price-display";
 
 function BoutiqueContent() {
   const { t } = useLanguage();
+  const { formatPrice: formatCurrencyPrice } = useCurrency();
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,7 @@ function BoutiqueContent() {
   };
   
   const formatPrice = (price: number) => {
-    return `€${price.toFixed(0)}`;
+    return formatCurrencyPrice(price, 0);
   };
 
   return (

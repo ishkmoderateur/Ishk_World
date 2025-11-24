@@ -8,7 +8,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { Mail, Lock, User, Loader2, UserPlus } from "lucide-react";
+import { Mail, Lock, User, Loader2, UserPlus, Globe } from "lucide-react";
 import { isAdmin } from "@/lib/roles";
 
 function RegisterForm() {
@@ -97,99 +97,74 @@ function RegisterForm() {
       
       console.log("✅ Client: Registration successful");
       
+      // Wait a moment for database to be ready
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // Auto sign-in after registration
-      const signInRes = await signIn("credentials", {
-        redirect: false,
-        email: trimmedEmail,
-        password: trimmedPassword,
-        callbackUrl: callbackUrl || undefined,
-      });
-      
-      console.log("🔐 Client: SignIn response:", JSON.stringify(signInRes, null, 2));
-      
-      if (signInRes?.error) {
-        console.log("⚠️ Auto sign-in failed, redirecting to sign-in page");
-        setError("Registration successful but auto sign-in failed. Please sign in manually.");
-        setLoading(false);
-        // Redirect to sign-in page after a short delay
-        setTimeout(() => {
-          router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`);
-        }, 2000);
-        return;
-      }
-      
-      if (signInRes?.ok) {
-        console.log("✅ Client: Auto sign-in successful");
-        setLoading(false);
+      try {
+        console.log("🔐 Client: Attempting auto sign-in with:", trimmedEmail);
+        const signInRes = await signIn("credentials", {
+          redirect: false,
+          email: trimmedEmail.toLowerCase().trim(),
+          password: trimmedPassword,
+        });
         
-        // Update session and determine redirect based on role
-        try {
+        console.log("🔐 Client: SignIn response:", JSON.stringify(signInRes, null, 2));
+        
+        if (signInRes?.error) {
+          console.error("❌ Auto sign-in error:", signInRes.error);
+          setError("Registration successful! Please sign in with your new account.");
+          setLoading(false);
+          setTimeout(() => {
+            window.location.href = `/auth/signin?email=${encodeURIComponent(trimmedEmail)}&callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`;
+          }, 2000);
+          return;
+        }
+        
+        if (signInRes?.ok) {
+          console.log("✅ Client: Auto sign-in successful");
+          
+          // Force session refresh
           await update();
-          console.log("✅ Client: Session updated successfully");
-          // Wait a moment for session to be fully synced
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, 500));
           
-          // Fetch fresh session to get user role
-          const response = await fetch("/api/auth/session");
-          const sessionData = await response.json();
-          
-          console.log("🔐 Session data:", sessionData);
-          
-          // Determine redirect URL based on user role
-          let redirectUrl = callbackUrl || "/profile";
-          
-          // If callbackUrl is explicitly set to /admin, use it
-          // If callbackUrl is /profile or not set, check if user is admin
-          if (!callbackUrl || callbackUrl === "/profile") {
-            if (sessionData?.user?.role && isAdmin(sessionData.user.role)) {
-              // Admin users go to admin dashboard
-              redirectUrl = "/admin";
-              console.log("🔐 Admin user detected (role: " + sessionData.user.role + "), redirecting to admin dashboard");
-            } else {
-              // Regular users go to profile
-              redirectUrl = "/profile";
-              console.log("👤 Regular user, redirecting to profile");
-            }
-          } else {
-            // Use the explicitly set callbackUrl
-            console.log("🔗 Using explicit callbackUrl:", callbackUrl);
-            redirectUrl = callbackUrl;
-          }
-          
+          // Determine redirect URL
+          const redirectUrl = callbackUrl || "/profile";
           console.log("✅ Client: Redirecting to:", redirectUrl);
           
-          // Use router.push for better Next.js integration, with fallback to window.location
-          try {
-            router.push(redirectUrl);
-            // Also use window.location as backup to ensure redirect happens
-            setTimeout(() => {
-              if (window.location.pathname === "/auth/register") {
-                console.log("⚠️ Router push didn't work, using window.location");
-                window.location.href = redirectUrl;
-              }
-            }, 500);
-          } catch (redirectError) {
-            console.warn("⚠️ Router push failed, using window.location:", redirectError);
-            window.location.href = redirectUrl;
-          }
-        } catch (sessionError) {
-          console.warn("⚠️ Session update warning (might still work):", sessionError);
-          // Fallback to default redirect
-          const fallbackUrl = callbackUrl || "/profile";
-          router.push(fallbackUrl);
+          // Force full page reload to ensure session is set
+          setLoading(false);
+          window.location.href = redirectUrl;
+        } else {
+          console.warn("⚠️ Sign-in response unclear");
+          setError("Registration successful! Please sign in with your new account.");
+          setLoading(false);
           setTimeout(() => {
-            if (window.location.pathname === "/auth/register") {
-              window.location.href = fallbackUrl;
-            }
-          }, 500);
+            window.location.href = `/auth/signin?email=${encodeURIComponent(trimmedEmail)}&callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`;
+          }, 2000);
         }
-      } else {
-        setError("Registration successful but auto sign-in failed. Please sign in manually.");
+      } catch (signInError) {
+        console.error("❌ Exception during auto sign-in:", signInError);
+        setError("Registration successful! Please sign in with your new account.");
         setLoading(false);
+        setTimeout(() => {
+          window.location.href = `/auth/signin?email=${encodeURIComponent(trimmedEmail)}&callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`;
+        }, 2000);
       }
     } catch (err) {
       console.error("❌ Client: Registration error:", err);
       setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const onGoogle = async () => {
+    setLoading(true);
+    try {
+      await signIn("google", { callbackUrl: callbackUrl || "/profile" });
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      setError("Google sign-in failed. Please try again.");
       setLoading(false);
     }
   };
@@ -295,6 +270,21 @@ function RegisterForm() {
                 Create account
               </button>
             </form>
+
+            <div className="flex items-center gap-3 my-6">
+              <div className="h-px bg-sage/20 flex-1" />
+              <span className="text-sm text-charcoal/50">or</span>
+              <div className="h-px bg-sage/20 flex-1" />
+            </div>
+
+            <button
+              onClick={onGoogle}
+              disabled={loading}
+              className="w-full py-3 border border-sage/20 rounded-xl font-medium hover:bg-sage/5 transition-colors flex items-center justify-center gap-2 text-charcoal"
+            >
+              <Globe className="w-4 h-4" />
+              Continue with Google
+            </button>
 
             <p className="text-sm text-charcoal/60 mt-6 text-center">
               Already have an account?{" "}

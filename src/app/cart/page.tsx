@@ -7,15 +7,18 @@ import { useSession } from "next-auth/react";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useCart } from "@/contexts/cart-context";
-import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Package, Loader2 } from "lucide-react";
+import { useCurrency } from "@/contexts/currency-context";
+import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, CreditCard, Package, Loader2, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total: cartTotal, isLoading } = useCart();
+  const { formatPrice: formatCurrencyPrice, currency } = useCurrency();
   const { data: session } = useSession();
   const router = useRouter();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"contact" | "paypal">("contact");
 
   const subtotal = cartTotal;
   const shipping = subtotal > 75 ? 0 : 5.90;
@@ -46,40 +49,126 @@ export default function CartPage() {
 
       const billingAddress = { ...shippingAddress };
 
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      if (paymentMethod === "paypal") {
+        // PayPal checkout
+        let response: Response;
+        try {
+          response = await fetch("/api/paypal/create-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: items.map(item => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                size: item.size,
+                color: item.color,
+              })),
+              shippingAddress,
+              billingAddress,
+              currency: currency,
+            }),
+          });
+        } catch (networkError) {
+          console.error("Network error during PayPal checkout:", networkError);
+          alert("Network error. Please check your connection and try again.");
+          return;
+        }
+
+        if (!response.ok) {
+          // Try to get error message from response
+          let errorMessage = "PayPal checkout failed. Please try again.";
+          let errorDetails: any = null;
+          
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.message || errorMessage;
+            errorDetails = errorData;
+            
+            // Add helpful hints if available
+            if (errorData.hint) {
+              errorMessage += `\n\n${errorData.hint}`;
+            }
+          } catch (parseError) {
+            // If JSON parsing fails, try to get text
+            try {
+              const errorText = await response.text();
+              if (errorText) {
+                errorMessage = errorText;
+              } else {
+                errorMessage = `PayPal checkout failed (${response.status}: ${response.statusText})`;
+              }
+            } catch (textError) {
+              // If all else fails, use status text
+              errorMessage = `PayPal checkout failed (${response.status}: ${response.statusText})`;
+            }
+          }
+          
+          // Log error details for debugging (only in development)
+          if (process.env.NODE_ENV === "development") {
+            console.error("PayPal checkout failed:", {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorDetails || "No error details available"
+            });
+          }
+          
+          alert(errorMessage);
+          return;
+        }
+
+        // Parse successful response
+        let data: any;
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error("Failed to parse PayPal response:", parseError);
+          alert("Failed to process PayPal response. Please try again.");
+          return;
+        }
+
+        if (data?.approvalUrl) {
+          try {
+            // Store order metadata in sessionStorage for capture
+            sessionStorage.setItem("paypal_order_metadata", JSON.stringify(data.metadata));
+            sessionStorage.setItem("paypal_order_id", data.orderId);
+            // Redirect to PayPal
+            window.location.href = data.approvalUrl;
+          } catch (storageError) {
+            console.error("Failed to store PayPal order data:", storageError);
+            // Still try to redirect even if storage fails
+            if (data.approvalUrl) {
+              window.location.href = data.approvalUrl;
+            } else {
+              alert("Failed to create PayPal order. Please try again.");
+            }
+          }
+        } else {
+          if (process.env.NODE_ENV === "development") {
+            console.error("No PayPal approval URL returned", data);
+          }
+          alert("Failed to create PayPal order. Please try again.");
+        }
+      } else if (paymentMethod === "contact") {
+        // Contact agent - redirect to contact page with cart details
+        const cartDetails = {
           items: items.map(item => ({
-            productId: item.productId,
+            name: item.name,
             quantity: item.quantity,
             size: item.size,
             color: item.color,
+            price: item.price,
           })),
-          shippingAddress,
-          billingAddress,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.url) {
-          // Redirect to Stripe Checkout
-          window.location.href = data.url;
-        } else {
-          console.error("No checkout URL returned", data);
-          alert("Failed to create checkout session. Please check your Stripe configuration.");
-        }
-      } else {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-        console.error("Checkout failed:", errorData);
+          subtotal,
+          shipping,
+          total,
+          currency,
+        };
         
-        // Show user-friendly error message
-        let errorMessage = errorData.error || "Checkout failed. Please try again.";
-        if (errorData.hint) {
-          errorMessage += `\n\nHint: ${errorData.hint}`;
-        }
-        alert(errorMessage);
+        // Store cart details in sessionStorage for contact form
+        sessionStorage.setItem("cart_inquiry", JSON.stringify(cartDetails));
+        
+        // Redirect to contact page
+        router.push("/contact?type=order");
       }
     } catch (error) {
       console.error("Error during checkout:", error);
@@ -191,7 +280,7 @@ export default function CartPage() {
                                 <p className="text-sm text-charcoal/60 mb-2">Size: {item.size}</p>
                               )}
                               <div className="text-xl font-bold text-sage">
-                                €{item.price * item.quantity}
+                                {formatCurrencyPrice(item.price * item.quantity)}
                               </div>
                             </div>
                             <button 
@@ -246,7 +335,7 @@ export default function CartPage() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between text-charcoal/70">
                     <span>Subtotal</span>
-                    <span className="font-medium">€{subtotal.toFixed(2)}</span>
+                    <span className="font-medium">{formatCurrencyPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-charcoal/70">
                     <span>Shipping</span>
@@ -254,20 +343,59 @@ export default function CartPage() {
                       {shipping === 0 ? (
                         <span className="text-sage font-medium">Free</span>
                       ) : (
-                        `€${shipping.toFixed(2)}`
+                        formatCurrencyPrice(shipping)
                       )}
                     </span>
                   </div>
                   {subtotal < 75 && (
                     <div className="bg-sage/5 border border-sage/20 rounded-lg p-3">
                       <p className="text-sm text-sage font-medium">
-                        Add €{(75 - subtotal).toFixed(2)} more for free shipping
+                        Add {formatCurrencyPrice(75 - subtotal)} more for free shipping
                       </p>
                     </div>
                   )}
                   <div className="border-t border-sage/20 pt-4 flex justify-between text-xl font-bold text-charcoal">
                     <span>Total</span>
-                    <span className="text-sage">€{total.toFixed(2)}</span>
+                    <span className="text-sage">{formatCurrencyPrice(total)}</span>
+                  </div>
+                </div>
+
+                {/* Payment Method Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-charcoal mb-3">
+                    Payment Method
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("contact")}
+                      className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                        paymentMethod === "contact"
+                          ? "border-sage bg-sage/10 text-sage font-semibold"
+                          : "border-charcoal/20 hover:border-sage/50 text-charcoal/70"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <MessageCircle className="w-5 h-5" />
+                        <span>Contact Agent</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("paypal")}
+                      className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                        paymentMethod === "paypal"
+                          ? "border-sage bg-sage/10 text-sage font-semibold"
+                          : "border-charcoal/20 hover:border-sage/50 text-charcoal/70"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.203zm14.146-14.42a.695.695 0 0 0-.679.506l-.577 3.703a.695.695 0 0 1-.679.506h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.203a.641.641 0 0 1-.633.74H9.23a.641.641 0 0 1-.633-.74l1.12-7.203c.082-.518.526-.9 1.05-.9h2.19c.524 0 .968-.382 1.05-.9l.577-3.703a.695.695 0 0 1 .679-.506h7.46c.524 0 .968.382 1.05.9l.577 3.703a.695.695 0 0 0 .679.506z"/>
+                        </svg>
+                        <span>PayPal</span>
+                      </div>
+                    </button>
                   </div>
                 </div>
 
@@ -285,8 +413,19 @@ export default function CartPage() {
                     </>
                   ) : (
                     <>
-                      <CreditCard className="w-5 h-5" />
-                      Proceed to Checkout
+                      {paymentMethod === "paypal" ? (
+                        <>
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.203zm14.146-14.42a.695.695 0 0 0-.679.506l-.577 3.703a.695.695 0 0 1-.679.506h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.203a.641.641 0 0 1-.633.74H9.23a.641.641 0 0 1-.633-.74l1.12-7.203c.082-.518.526-.9 1.05-.9h2.19c.524 0 .968-.382 1.05-.9l.577-3.703a.695.695 0 0 1 .679-.506h7.46c.524 0 .968.382 1.05.9l.577 3.703a.695.695 0 0 0 .679.506z"/>
+                          </svg>
+                          Pay with PayPal
+                        </>
+                      ) : (
+                        <>
+                          <MessageCircle className="w-5 h-5" />
+                          Contact our Agent
+                        </>
+                      )}
                     </>
                   )}
                 </motion.button>

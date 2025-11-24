@@ -9,6 +9,7 @@ import Footer from "@/components/footer";
 import { useCart } from "@/contexts/cart-context";
 import { ArrowLeft, Heart, Star, ShoppingCart, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useCurrency } from "@/contexts/currency-context";
 import Link from "next/link";
 import Image from "next/image";
 import PriceDisplay from "@/components/price-display";
@@ -144,8 +145,10 @@ export default function ProductDetailPage() {
     }
   };
 
+  const { formatPrice: formatCurrencyPrice } = useCurrency();
+  
   const formatPrice = (price: number) => {
-    return `€${price.toFixed(0)}`;
+    return formatCurrencyPrice(price, 0);
   };
 
   const getProductImage = (product: any) => {

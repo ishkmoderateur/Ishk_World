@@ -96,8 +96,9 @@ model Product {
   name           String
   slug           String   @unique
   description    String
-  price          Float
-  comparePrice   Float? // Original price for discounts
+  price          Float // Price in USD
+  comparePrice   Float? // Original price in USD for discounts
+  currency       String   @default("USD") // Stored currency (always USD)
   category       String
   isIshkOriginal Boolean  @default(false)
   images         Json // Array of image URLs (stored as JSON) - min 1, max 10
@@ -217,9 +218,9 @@ model Venue {
   capacity     String // "30-50 guests"
   minCapacity  Int
   maxCapacity  Int
-  price        Float // Starting price
-  comparePrice Float? // Original price for discounts/promotions
-  currency     String   @default("EUR")
+  price        Float // Starting price in USD
+  comparePrice Float? // Original price in USD for discounts/promotions
+  currency     String   @default("USD") // Stored currency (always USD)
   rating       Float    @default(0)
   reviewCount  Int      @default(0)
   images       Json // Array of image URLs (stored as JSON) - min 1, max 10
@@ -274,8 +275,9 @@ model Campaign {
   slug        String   @unique
   description String
   category    String // "Environment", "Community", "Education", "Wildlife"
-  goal        Float
-  raised      Float    @default(0)
+  goal        Float // Goal amount in USD
+  raised      Float    @default(0) // Raised amount in USD
+  currency    String   @default("USD") // Stored currency (always USD)
   image       String?
   impact      String? // "🌳 7,500 trees planted"
   isActive    Boolean  @default(true)
@@ -293,8 +295,10 @@ model Donation {
   id              String   @id @default(cuid())
   userId          String?
   campaignId      String
-  amount          Float
-  currency        String   @default("EUR")
+  amount          Float // Amount in USD (converted at time of donation)
+  currency        String   @default("USD") // Stored currency (always USD)
+  originalAmount  Float? // Original amount in user's selected currency
+  originalCurrency String? // User's selected currency at time of donation
   paymentIntentId String? // Stripe payment intent ID
   anonymous       Boolean  @default(false)
   message         String?
@@ -408,8 +412,9 @@ model PhotographyService {
   slug         String   @unique
   description  String
   duration     String // "2 hours", "4 hours", "Full day"
-  price        Float?
-  comparePrice Float? // Original price for discounts/promotions
+  price        Float? // Price in USD
+  comparePrice Float? // Original price in USD for discounts/promotions
+  currency     String   @default("USD") // Stored currency (always USD)
   features     Json // Array of features (stored as JSON)
   image        String?
   featured     Boolean  @default(false)
@@ -427,8 +432,8 @@ model PartyService {
   name        String
   slug        String   @unique
   description String
-  price       Float // Starting price
-  currency    String   @default("EUR")
+  price       Float // Starting price in USD
+  currency    String   @default("USD") // Stored currency (always USD)
   rating      Float    @default(0)
   reviewCount Int      @default(0)
   features    Json // Array of features (stored as JSON)

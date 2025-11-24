@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/contexts/cart-context";
 import { isAdmin } from "@/lib/roles";
+import CurrencySelector from "@/components/currency-selector";
 
 export default function Navbar() {
   const { t, language } = useLanguage();
@@ -100,6 +101,9 @@ export default function Navbar() {
 
           {/* Right Side Actions */}
           <div className="hidden md:flex items-center gap-3 ml-6">
+            {/* Currency Selector */}
+            <CurrencySelector />
+            
             <motion.div
               whileHover={{ y: -3 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -200,6 +204,9 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <div className="border-t border-charcoal/10 mt-2 pt-2 px-4 py-2">
+              <CurrencySelector />
+            </div>
             <div className="border-t border-charcoal/10 mt-2 pt-2">
               <Link
                 href="/cart"

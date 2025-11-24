@@ -6,10 +6,12 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { PartyPopper, Music, UtensilsCrossed, Wine, Sparkles, Calendar, Mail, Phone, ArrowRight, Search, Filter, Headphones, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useCurrency } from "@/contexts/currency-context";
 import PriceDisplay from "@/components/price-display";
 
 export default function PartyPage() {
   const { t } = useLanguage();
+  const { formatPrice: formatCurrencyPrice } = useCurrency();
   const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -47,8 +49,8 @@ export default function PartyPage() {
   };
 
   const formatPrice = (price: number | null | undefined) => {
-    if (price === null || price === undefined) return t("party.from") + " €0";
-    return `${t("party.from")} €${price.toFixed(0)}`;
+    if (price === null || price === undefined) return `${t("party.from")} ${formatCurrencyPrice(0, 0)}`;
+    return `${t("party.from")} ${formatCurrencyPrice(price, 0)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
