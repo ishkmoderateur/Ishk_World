@@ -315,9 +315,52 @@ export default function AssociationPage() {
               {t("association.cta.description")}
             </p>
             <motion.button
+              type="button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors inline-flex items-center gap-2"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log("💚 Start Making an Impact clicked");
+                
+                // Scroll to campaigns section
+                const scrollToCampaigns = () => {
+                  const campaignsSection = document.getElementById('active-campaigns');
+                  if (campaignsSection) {
+                    console.log("💚 Found campaigns section, scrolling...");
+                    
+                    // Method 1: scrollIntoView with options
+                    campaignsSection.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start',
+                      inline: 'nearest'
+                    });
+                    
+                    // Method 2: Calculate position and scroll (backup)
+                    setTimeout(() => {
+                      const rect = campaignsSection.getBoundingClientRect();
+                      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                      const targetPosition = rect.top + scrollTop - 100;
+                      
+                      window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                      });
+                    }, 50);
+                  } else {
+                    console.error("❌ Campaigns section not found!");
+                    // Try again after a short delay in case DOM isn't ready
+                    setTimeout(scrollToCampaigns, 200);
+                  }
+                };
+                
+                // Try immediately and also after delays
+                scrollToCampaigns();
+                setTimeout(scrollToCampaigns, 100);
+                setTimeout(scrollToCampaigns, 300);
+              }}
+              className="px-8 py-4 bg-coral text-white rounded-full font-medium hover:bg-coral/90 transition-colors inline-flex items-center gap-2 cursor-pointer"
             >
               {t("association.cta.startMakingImpact")}
               <ArrowRight className="w-5 h-5" />

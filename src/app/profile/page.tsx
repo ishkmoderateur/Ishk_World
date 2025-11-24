@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { User, Package, Heart, Settings, LogOut, Mail, Edit, ArrowRight } from "lucide-react";
+import { User, Package, Heart, Settings, LogOut, Mail, Edit, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -17,6 +18,41 @@ export default function ProfilePage() {
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAllOrders, setShowAllOrders] = useState(false);
+  
+  // Modal states
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showChangeEmail, setShowChangeEmail] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Form states
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [emailForm, setEmailForm] = useState({
+    newEmail: "",
+    password: "",
+  });
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    emailNotifications: true,
+    orderUpdates: true,
+    promotions: true,
+    newsletter: false,
+  });
+  
+  // Loading and error states
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  
+  const [notificationLoading, setNotificationLoading] = useState(false);
+  const [notificationError, setNotificationError] = useState<string | null>(null);
+  const [notificationSuccess, setNotificationSuccess] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -98,6 +134,141 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/" });
   };
+
+  // Password change handler
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const response = await fetch("/api/profile/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setPasswordError(data.error || "Failed to change password");
+        return;
+      }
+
+      setPasswordSuccess(true);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setTimeout(() => {
+        setShowChangePassword(false);
+        setPasswordSuccess(false);
+      }, 2000);
+    } catch (error) {
+      setPasswordError("An error occurred. Please try again.");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  // Email change handler
+  const handleChangeEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError(null);
+    setEmailSuccess(false);
+
+    if (!emailForm.newEmail || !emailForm.password) {
+      setEmailError("All fields are required");
+      return;
+    }
+
+    setEmailLoading(true);
+    try {
+      const response = await fetch("/api/profile/change-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          newEmail: emailForm.newEmail,
+          password: emailForm.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setEmailError(data.error || "Failed to change email");
+        return;
+      }
+
+      setEmailSuccess(true);
+      // Sign out user after email change (they need to sign in with new email)
+      setTimeout(() => {
+        signOut({ callbackUrl: "/auth/signin" });
+      }, 2000);
+    } catch (error) {
+      setEmailError("An error occurred. Please try again.");
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  // Notification preferences handler
+  const handleSaveNotifications = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNotificationError(null);
+    setNotificationSuccess(false);
+
+    setNotificationLoading(true);
+    try {
+      const response = await fetch("/api/profile/notifications", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notificationPrefs),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setNotificationError(data.error || "Failed to update preferences");
+        return;
+      }
+
+      setNotificationSuccess(true);
+      setTimeout(() => {
+        setShowNotifications(false);
+        setNotificationSuccess(false);
+      }, 2000);
+    } catch (error) {
+      setNotificationError("An error occurred. Please try again.");
+    } finally {
+      setNotificationLoading(false);
+    }
+  };
+
+  // Fetch notification preferences on mount
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/profile/notifications")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.emailNotifications !== undefined) {
+            setNotificationPrefs(data);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [status]);
 
   const menuItems = [
     { icon: Package, label: "Orders", count: orders.length, sectionId: "orders", color: "sage" },
@@ -490,21 +661,30 @@ export default function ProfilePage() {
               <div className="p-4 bg-cream/30 rounded-xl border border-sage/5">
                 <h3 className="font-semibold text-charcoal mb-2">Email Address</h3>
                 <p className="text-charcoal/60 mb-3">{session.user.email || "No email"}</p>
-                <button className="text-sm text-sage hover:text-sage/80 font-medium">
+                <button 
+                  onClick={() => setShowChangeEmail(true)}
+                  className="text-sm text-sage hover:text-sage/80 font-medium transition-colors"
+                >
                   Change Email
                 </button>
               </div>
               <div className="p-4 bg-cream/30 rounded-xl border border-sage/5">
                 <h3 className="font-semibold text-charcoal mb-2">Password</h3>
                 <p className="text-charcoal/60 mb-3">••••••••</p>
-                <button className="text-sm text-sage hover:text-sage/80 font-medium">
+                <button 
+                  onClick={() => setShowChangePassword(true)}
+                  className="text-sm text-sage hover:text-sage/80 font-medium transition-colors"
+                >
                   Change Password
                 </button>
               </div>
               <div className="p-4 bg-cream/30 rounded-xl border border-sage/5">
                 <h3 className="font-semibold text-charcoal mb-2">Notifications</h3>
                 <p className="text-charcoal/60 mb-3">Manage your notification preferences</p>
-                <button className="text-sm text-sage hover:text-sage/80 font-medium">
+                <button 
+                  onClick={() => setShowNotifications(true)}
+                  className="text-sm text-sage hover:text-sage/80 font-medium transition-colors"
+                >
                   Configure
                 </button>
               </div>
@@ -530,6 +710,381 @@ export default function ProfilePage() {
       </section>
 
       <Footer />
+
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-heading font-bold text-charcoal">Change Password</h3>
+              <button
+                onClick={() => {
+                  setShowChangePassword(false);
+                  setPasswordError(null);
+                  setPasswordSuccess(false);
+                  setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                }}
+                className="text-charcoal/60 hover:text-charcoal transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) =>
+                    setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) =>
+                    setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) =>
+                    setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
+                  required
+                  minLength={8}
+                />
+              </div>
+
+              {passwordError && (
+                <div className="p-3 bg-coral/10 text-coral rounded-lg text-sm">
+                  {passwordError}
+                </div>
+              )}
+
+              {passwordSuccess && (
+                <div className="p-3 bg-sage/10 text-sage rounded-lg text-sm">
+                  Password changed successfully!
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowChangePassword(false);
+                    setPasswordError(null);
+                    setPasswordSuccess(false);
+                    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                  }}
+                  className="flex-1 px-4 py-2 border border-charcoal/20 text-charcoal rounded-lg hover:bg-cream/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={passwordLoading}
+                  className="flex-1 px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {passwordLoading ? "Changing..." : "Change Password"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Change Email Modal */}
+      {showChangeEmail && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-heading font-bold text-charcoal">Change Email</h3>
+              <button
+                onClick={() => {
+                  setShowChangeEmail(false);
+                  setEmailError(null);
+                  setEmailSuccess(false);
+                  setEmailForm({ newEmail: "", password: "" });
+                }}
+                className="text-charcoal/60 hover:text-charcoal transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleChangeEmail} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  New Email Address
+                </label>
+                <input
+                  type="email"
+                  value={emailForm.newEmail}
+                  onChange={(e) =>
+                    setEmailForm({ ...emailForm, newEmail: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-2">
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  value={emailForm.password}
+                  onChange={(e) =>
+                    setEmailForm({ ...emailForm, password: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
+                  required
+                />
+                <p className="text-xs text-charcoal/60 mt-1">
+                  You'll need to sign in again with your new email after changing it.
+                </p>
+              </div>
+
+              {emailError && (
+                <div className="p-3 bg-coral/10 text-coral rounded-lg text-sm">
+                  {emailError}
+                </div>
+              )}
+
+              {emailSuccess && (
+                <div className="p-3 bg-sage/10 text-sage rounded-lg text-sm">
+                  Email changed successfully! Redirecting to sign in...
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowChangeEmail(false);
+                    setEmailError(null);
+                    setEmailSuccess(false);
+                    setEmailForm({ newEmail: "", password: "" });
+                  }}
+                  className="flex-1 px-4 py-2 border border-charcoal/20 text-charcoal rounded-lg hover:bg-cream/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={emailLoading}
+                  className="flex-1 px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {emailLoading ? "Changing..." : "Change Email"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Notifications Modal */}
+      {showNotifications && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-heading font-bold text-charcoal">Notification Preferences</h3>
+              <button
+                onClick={() => {
+                  setShowNotifications(false);
+                  setNotificationError(null);
+                  setNotificationSuccess(false);
+                }}
+                className="text-charcoal/60 hover:text-charcoal transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveNotifications} className="space-y-4">
+              <div className="space-y-4">
+                {/* Email Notifications Toggle */}
+                <div className="flex items-center justify-between p-4 bg-cream/30 rounded-xl border border-sage/10 hover:border-sage/20 transition-colors">
+                  <div className="flex-1">
+                    <span className="text-charcoal font-medium block mb-1">Email Notifications</span>
+                    <span className="text-sm text-charcoal/60">Receive email updates</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNotificationPrefs({
+                        ...notificationPrefs,
+                        emailNotifications: !notificationPrefs.emailNotifications,
+                      })
+                    }
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2 ${
+                      notificationPrefs.emailNotifications ? "bg-sage" : "bg-charcoal/20"
+                    }`}
+                    role="switch"
+                    aria-checked={notificationPrefs.emailNotifications}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                        notificationPrefs.emailNotifications ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Order Updates Toggle */}
+                <div className="flex items-center justify-between p-4 bg-cream/30 rounded-xl border border-sage/10 hover:border-sage/20 transition-colors">
+                  <div className="flex-1">
+                    <span className="text-charcoal font-medium block mb-1">Order Updates</span>
+                    <span className="text-sm text-charcoal/60">Get notified about your orders</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNotificationPrefs({
+                        ...notificationPrefs,
+                        orderUpdates: !notificationPrefs.orderUpdates,
+                      })
+                    }
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2 ${
+                      notificationPrefs.orderUpdates ? "bg-sage" : "bg-charcoal/20"
+                    }`}
+                    role="switch"
+                    aria-checked={notificationPrefs.orderUpdates}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                        notificationPrefs.orderUpdates ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Promotions Toggle */}
+                <div className="flex items-center justify-between p-4 bg-cream/30 rounded-xl border border-sage/10 hover:border-sage/20 transition-colors">
+                  <div className="flex-1">
+                    <span className="text-charcoal font-medium block mb-1">Promotions</span>
+                    <span className="text-sm text-charcoal/60">Special offers and discounts</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNotificationPrefs({
+                        ...notificationPrefs,
+                        promotions: !notificationPrefs.promotions,
+                      })
+                    }
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2 ${
+                      notificationPrefs.promotions ? "bg-sage" : "bg-charcoal/20"
+                    }`}
+                    role="switch"
+                    aria-checked={notificationPrefs.promotions}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                        notificationPrefs.promotions ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Newsletter Toggle */}
+                <div className="flex items-center justify-between p-4 bg-cream/30 rounded-xl border border-sage/10 hover:border-sage/20 transition-colors">
+                  <div className="flex-1">
+                    <span className="text-charcoal font-medium block mb-1">Newsletter</span>
+                    <span className="text-sm text-charcoal/60">Monthly updates and news</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNotificationPrefs({
+                        ...notificationPrefs,
+                        newsletter: !notificationPrefs.newsletter,
+                      })
+                    }
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2 ${
+                      notificationPrefs.newsletter ? "bg-sage" : "bg-charcoal/20"
+                    }`}
+                    role="switch"
+                    aria-checked={notificationPrefs.newsletter}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                        notificationPrefs.newsletter ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {notificationError && (
+                <div className="p-3 bg-coral/10 text-coral rounded-lg text-sm">
+                  {notificationError}
+                </div>
+              )}
+
+              {notificationSuccess && (
+                <div className="p-3 bg-sage/10 text-sage rounded-lg text-sm">
+                  Preferences updated successfully!
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    setNotificationError(null);
+                    setNotificationSuccess(false);
+                  }}
+                  className="flex-1 px-4 py-2 border border-charcoal/20 text-charcoal rounded-lg hover:bg-cream/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={notificationLoading}
+                  className="flex-1 px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {notificationLoading ? "Saving..." : "Save Preferences"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </main>
   );
 }

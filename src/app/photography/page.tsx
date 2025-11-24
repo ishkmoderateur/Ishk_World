@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Camera, Calendar, Star, ArrowRight, Mail, Phone, Image as ImageIcon, Video, Edit } from "lucide-react";
@@ -12,6 +13,7 @@ import { useSession } from "next-auth/react";
 export default function PhotographyPage() {
   const { t } = useLanguage();
   const { data: session } = useSession();
+  const router = useRouter();
   const [portfolio, setPortfolio] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [portfolioLoading, setPortfolioLoading] = useState(true);
@@ -58,10 +60,14 @@ export default function PhotographyPage() {
       const response = await fetch("/api/photography/services");
       if (response.ok) {
         const data = await response.json();
+        console.log("📸 Fetched services:", data);
         setServices(data);
+      } else {
+        const errorData = await response.json();
+        console.error("❌ Error response:", errorData);
       }
     } catch (error) {
-      console.error("Error fetching services:", error);
+      console.error("❌ Error fetching services:", error);
     } finally {
       setServicesLoading(false);
     }
@@ -176,9 +182,52 @@ export default function PhotographyPage() {
               {t("photography.hero.description")}
             </p>
             <motion.button
+              type="button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors flex items-center gap-2 mx-auto"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log("📸 Book a Session clicked");
+                
+                // Scroll to form - try multiple methods for reliability
+                const scrollToForm = () => {
+                  const formSection = document.getElementById('booking-form');
+                  if (formSection) {
+                    console.log("📸 Found booking form, scrolling...");
+                    
+                    // Method 1: scrollIntoView with options
+                    formSection.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start',
+                      inline: 'nearest'
+                    });
+                    
+                    // Method 2: Calculate position and scroll (backup)
+                    setTimeout(() => {
+                      const rect = formSection.getBoundingClientRect();
+                      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                      const targetPosition = rect.top + scrollTop - 100;
+                      
+                      window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                      });
+                    }, 50);
+                  } else {
+                    console.error("❌ Booking form section not found!");
+                    // Try again after a short delay in case DOM isn't ready
+                    setTimeout(scrollToForm, 200);
+                  }
+                };
+                
+                // Try immediately and also after delays
+                scrollToForm();
+                setTimeout(scrollToForm, 100);
+                setTimeout(scrollToForm, 300);
+              }}
+              className="px-8 py-4 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors flex items-center gap-2 mx-auto cursor-pointer"
             >
               {t("photography.hero.bookSession")}
               <ArrowRight className="w-5 h-5" />
@@ -288,7 +337,19 @@ export default function PhotographyPage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {services.map((service, index) => {
-                const features = Array.isArray(service.features) ? service.features : [];
+                // Parse features if it's a string (JSON stored in DB)
+                let features: string[] = [];
+                if (typeof service.features === 'string') {
+                  try {
+                    features = JSON.parse(service.features);
+                  } catch (e) {
+                    console.error("Error parsing features:", e);
+                    features = [];
+                  }
+                } else if (Array.isArray(service.features)) {
+                  features = service.features;
+                }
+                
                 const formatPrice = (price: number | null | undefined) => {
                   if (price === null || price === undefined) return t("photography.services.contactForPrice");
                   return `€${price.toFixed(0)}`;
@@ -301,7 +362,7 @@ export default function PhotographyPage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                     whileHover={{ y: -5 }}
-                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gold/10"
+                    className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-gold/10 flex flex-col h-full"
                   >
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/20 mb-4">
                       <Camera className="w-8 h-8 text-gold" />
@@ -316,7 +377,7 @@ export default function PhotographyPage() {
                       {service.duration || ""}
                     </div>
                     {features.length > 0 && (
-                      <ul className="space-y-2 mb-6">
+                      <ul className="space-y-2 mb-6 flex-grow">
                         {features.map((item: string, idx: number) => (
                           <li key={idx} className="flex items-start gap-2 text-sm text-charcoal/70">
                             <span className="text-gold mt-1">✓</span>
@@ -326,16 +387,61 @@ export default function PhotographyPage() {
                       </ul>
                     )}
                     <motion.button
+                      type="button"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => {
-                        const formSection = document.getElementById('booking-form');
-                        if (formSection) {
-                          formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                        setFormData({ ...formData, serviceType: service.slug || service.name.toLowerCase() });
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log("📸 Book Now clicked for service:", service.name);
+                        
+                        // Set the service type
+                        const serviceValue = service.slug || service.name.toLowerCase().replace(/\s+/g, '-');
+                        console.log("📸 Setting serviceType to:", serviceValue);
+                        setFormData((prev) => {
+                          const updated = { ...prev, serviceType: serviceValue };
+                          console.log("📸 Updated formData:", updated);
+                          return updated;
+                        });
+                        
+                        // Scroll to form - try multiple methods for reliability
+                        const scrollToForm = () => {
+                          const formSection = document.getElementById('booking-form');
+                          if (formSection) {
+                            console.log("📸 Found booking form, scrolling...");
+                            
+                            // Method 1: scrollIntoView with options
+                            formSection.scrollIntoView({ 
+                              behavior: 'smooth', 
+                              block: 'start',
+                              inline: 'nearest'
+                            });
+                            
+                            // Method 2: Calculate position and scroll (backup)
+                            setTimeout(() => {
+                              const rect = formSection.getBoundingClientRect();
+                              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                              const targetPosition = rect.top + scrollTop - 100;
+                              
+                              window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                              });
+                            }, 50);
+                          } else {
+                            console.error("❌ Booking form section not found!");
+                            // Try again after a short delay in case DOM isn't ready
+                            setTimeout(scrollToForm, 200);
+                          }
+                        };
+                        
+                        // Try immediately and also after delays
+                        scrollToForm();
+                        setTimeout(scrollToForm, 100);
+                        setTimeout(scrollToForm, 300);
                       }}
-                      className="w-full py-3 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors"
+                      className="w-full py-3 bg-gold text-white rounded-full font-medium hover:bg-gold/90 transition-colors mt-auto cursor-pointer"
                     >
                       {t("photography.services.bookNow")}
                     </motion.button>
@@ -398,7 +504,7 @@ export default function PhotographyPage() {
       </section>
 
       {/* Booking Form */}
-      <section className="py-16 px-4 md:px-8 bg-gradient-to-br from-gold/5 to-amber/5">
+      <section id="booking-form" className="py-16 px-4 md:px-8 bg-gradient-to-br from-gold/5 to-amber/5">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -505,11 +611,21 @@ export default function PhotographyPage() {
                     onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
                     className="w-full px-4 py-3 rounded-lg border border-gold/20 focus:outline-none focus:ring-2 focus:ring-gold/50"
                   >
-                    <option value="portrait">{t("photography.booking.serviceTypes.portrait")}</option>
-                    <option value="event">{t("photography.booking.serviceTypes.event")}</option>
-                    <option value="commercial">{t("photography.booking.serviceTypes.commercial")}</option>
-                    <option value="wedding">{t("photography.booking.serviceTypes.wedding")}</option>
-                    <option value="other">{t("photography.booking.serviceTypes.other")}</option>
+                    {services.length > 0 ? (
+                      services.map((service) => (
+                        <option key={service.id} value={service.slug || service.name.toLowerCase().replace(/\s+/g, '-')}>
+                          {service.name}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="portrait">{t("photography.booking.serviceTypes.portrait")}</option>
+                        <option value="event">{t("photography.booking.serviceTypes.event")}</option>
+                        <option value="commercial">{t("photography.booking.serviceTypes.commercial")}</option>
+                        <option value="wedding">{t("photography.booking.serviceTypes.wedding")}</option>
+                        <option value="other">{t("photography.booking.serviceTypes.other")}</option>
+                      </>
+                    )}
                   </select>
                 </div>
               </div>

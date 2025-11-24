@@ -33,10 +33,14 @@ export default function PartyPage() {
       const response = await fetch("/api/party/services");
       if (response.ok) {
         const data = await response.json();
+        console.log("🎉 Fetched party services:", data);
         setServices(data);
+      } else {
+        const errorData = await response.json();
+        console.error("❌ Error response:", errorData);
       }
     } catch (error) {
-      console.error("Error fetching party services:", error);
+      console.error("❌ Error fetching party services:", error);
     } finally {
       setLoading(false);
     }
@@ -218,7 +222,18 @@ export default function PartyPage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {services.map((service, index) => {
-                const features = Array.isArray(service.features) ? service.features : [];
+                // Parse features if it's a string (JSON stored in DB)
+                let features: string[] = [];
+                if (typeof service.features === 'string') {
+                  try {
+                    features = JSON.parse(service.features);
+                  } catch (e) {
+                    console.error("Error parsing features:", e);
+                    features = [];
+                  }
+                } else if (Array.isArray(service.features)) {
+                  features = service.features;
+                }
                 const getIcon = () => {
                   return <PartyPopper className="w-16 h-16 text-white/30" />;
                 };
@@ -235,7 +250,7 @@ export default function PartyPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all cursor-pointer border border-amber/10"
+                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all cursor-pointer border border-amber/10 flex flex-col h-full"
                 >
                   {/* Image Placeholder */}
                   <div className={`h-48 ${service.image || getImageGradient()} relative`}>
@@ -245,7 +260,7 @@ export default function PartyPage() {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
+                  <div className="p-6 flex flex-col flex-grow">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="text-2xl font-heading font-bold text-charcoal">
                         {service.name}
@@ -295,9 +310,52 @@ export default function PartyPage() {
                     )}
 
                     <motion.button
+                      type="button"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full py-3 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        console.log("🎉 Get Quote clicked for service:", service.name);
+                        
+                        // Scroll to form - try multiple methods for reliability
+                        const scrollToForm = () => {
+                          const formSection = document.getElementById('party-inquiry-form');
+                          if (formSection) {
+                            console.log("🎉 Found party inquiry form, scrolling...");
+                            
+                            // Method 1: scrollIntoView with options
+                            formSection.scrollIntoView({ 
+                              behavior: 'smooth', 
+                              block: 'start',
+                              inline: 'nearest'
+                            });
+                            
+                            // Method 2: Calculate position and scroll (backup)
+                            setTimeout(() => {
+                              const rect = formSection.getBoundingClientRect();
+                              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                              const targetPosition = rect.top + scrollTop - 100;
+                              
+                              window.scrollTo({
+                                top: targetPosition,
+                                behavior: 'smooth'
+                              });
+                            }, 50);
+                          } else {
+                            console.error("❌ Party inquiry form section not found!");
+                            // Try again after a short delay in case DOM isn't ready
+                            setTimeout(scrollToForm, 200);
+                          }
+                        };
+                        
+                        // Try immediately and also after delays
+                        scrollToForm();
+                        setTimeout(scrollToForm, 100);
+                        setTimeout(scrollToForm, 300);
+                      }}
+                      className="w-full py-3 bg-amber text-white rounded-full font-medium hover:bg-amber/90 transition-colors mt-auto cursor-pointer"
                     >
                       {t("party.getQuote")}
                     </motion.button>
@@ -311,7 +369,7 @@ export default function PartyPage() {
       </section>
 
       {/* Inquiry Form Section */}
-      <section className="py-16 px-4 md:px-8 bg-gradient-to-br from-amber/5 to-coral/5">
+      <section id="party-inquiry-form" className="py-16 px-4 md:px-8 bg-gradient-to-br from-amber/5 to-coral/5">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

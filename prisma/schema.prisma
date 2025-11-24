@@ -413,6 +413,7 @@ model PhotographyService {
   features     Json // Array of features (stored as JSON)
   image        String?
   featured     Boolean  @default(false)
+  isActive     Boolean  @default(true)
   order        Int      @default(0)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

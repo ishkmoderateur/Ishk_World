@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { ShoppingBag, Leaf, Heart, Star, ArrowRight, Filter, Search, ShoppingCart } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import PriceDisplay from "@/components/price-display";
 
-export default function BoutiquePage() {
+function BoutiqueContent() {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -30,11 +32,25 @@ export default function BoutiquePage() {
 
   const fetchProducts = async () => {
     try {
-      const categoryParam = selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
+      const filter = searchParams?.get("filter");
+      let categoryParam = selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
+      
+      // If filter is "originals", filter by isIshkOriginal
+      if (filter === "originals") {
+        categoryParam = categoryParam ? `${categoryParam}&isIshkOriginal=true` : "?isIshkOriginal=true";
+      }
+      
       const response = await fetch(`/api/products${categoryParam}`);
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        let filteredData = data;
+        
+        // Client-side filter for originals if needed
+        if (filter === "originals") {
+          filteredData = data.filter((p: any) => p.isIshkOriginal === true);
+        }
+        
+        setProducts(filteredData);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -45,7 +61,7 @@ export default function BoutiquePage() {
 
   useEffect(() => {
     fetchProducts();
-  }, [selectedCategory]);
+  }, [selectedCategory, searchParams]);
 
   const ishkOriginals = products.filter((p) => p.isIshkOriginal === true);
   
@@ -139,47 +155,81 @@ export default function BoutiquePage() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {ishkOriginals.slice(0, 4).map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-sage/10 group"
-              >
-                <div className={`h-64 ${product.image} relative`}>
-                  {product.badge && (
-                    <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
+            {ishkOriginals.slice(0, 4).map((product, index) => {
+              const productImage = getProductImage(product);
+              const isImageUrl = typeof productImage === 'string' && (productImage.startsWith('http') || productImage.startsWith('/'));
+              
+              return (
+                <Link key={product.id} href={`/boutique/${product.slug}`}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ y: -5 }}
+                    className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border border-sage/10 group"
+                  >
+                    <div className={`h-64 ${!isImageUrl ? productImage : ''} relative`}>
+                      {isImageUrl && (
+                        <Image
+                          src={productImage}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                      {product.badge && (
+                        <div className="absolute top-4 left-4 bg-amber text-white text-xs font-medium px-3 py-1 rounded-full z-10">
+                          {product.badge === "Bestseller" ? t("boutique.products.bestseller") : product.badge === "New" ? t("boutique.products.new") : product.badge}
+                        </div>
+                      )}
+                      {product.isIshkOriginal && (
+                        <div className="absolute top-4 right-4 bg-amber/20 backdrop-blur-sm rounded-full px-3 py-1 z-10">
+                          <Star className="w-4 h-4 text-amber" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                        <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 z-10">
+                          <ShoppingCart className="w-6 h-6 text-sage" />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-4">
-                      <ShoppingCart className="w-6 h-6 text-sage" />
+                    <div className="p-6">
+                      {product.rating > 0 && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <Star className="w-4 h-4 text-amber fill-amber" />
+                          <span className="text-sm text-charcoal/60">
+                            {product.rating.toFixed(1)} ({product.reviewCount || 0})
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-xs text-charcoal/40 mb-1">{product.category}</p>
+                      <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <PriceDisplay
+                          price={product.price}
+                          comparePrice={product.comparePrice}
+                          currency="EUR"
+                          size="md"
+                          showDiscount={true}
+                        />
+                        <button 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          className="text-charcoal/40 hover:text-sage transition-colors"
+                        >
+                          <Heart className="w-5 h-5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-1 mb-2">
-                    <Star className="w-4 h-4 text-amber fill-amber" />
-                    <span className="text-sm text-charcoal/60">
-                      {product.rating} ({product.reviews})
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-heading font-semibold text-charcoal mb-2">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-sage">{product.price}</span>
-                    <button className="text-sage hover:text-sage/80 transition-colors">
-                      <Heart className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  </motion.div>
+                </Link>
+              );
+            })}
           </div>
 
           <motion.div
@@ -188,9 +238,16 @@ export default function BoutiquePage() {
             viewport={{ once: true }}
             className="text-center mt-12"
           >
-            <button className="px-8 py-3 bg-sage text-white rounded-full font-medium hover:bg-sage/90 transition-colors">
-              {t("boutique.originals.viewAll")}
-            </button>
+            <Link href="/boutique?filter=originals">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 bg-sage text-white rounded-full font-medium hover:bg-sage/90 transition-colors flex items-center gap-2 mx-auto"
+              >
+                {t("boutique.originals.viewAll")}
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -402,5 +459,21 @@ export default function BoutiquePage() {
 
       <Footer />
     </main>
+  );
+}
+
+export default function BoutiquePage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
+        <Navbar />
+        <div className="pt-32 pb-16 px-4 md:px-8 text-center">
+          <div className="animate-pulse text-charcoal/60">Loading...</div>
+        </div>
+        <Footer />
+      </main>
+    }>
+      <BoutiqueContent />
+    </Suspense>
   );
 }

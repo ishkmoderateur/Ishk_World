@@ -1491,6 +1491,8 @@ function UsersManager() {
 function InquiriesManager() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedInquiry, setSelectedInquiry] = useState<any | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchInquiries();
@@ -1576,7 +1578,14 @@ function InquiriesManager() {
                 </td>
                 <td className="py-4 px-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors">
+                    <button 
+                      onClick={() => {
+                        setSelectedInquiry(inquiry);
+                        setShowModal(true);
+                      }}
+                      className="p-2 text-sage hover:bg-sage/10 rounded-lg transition-colors cursor-pointer"
+                      title="View inquiry details"
+                    >
                       <Eye className="w-4 h-4" />
                     </button>
                   </div>
@@ -1586,6 +1595,137 @@ function InquiriesManager() {
           )}
         </tbody>
       </table>
+
+      {/* Inquiry Details Modal */}
+      {showModal && selectedInquiry && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-heading font-bold text-charcoal">Inquiry Details</h3>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedInquiry(null);
+                }}
+                className="p-2 text-charcoal/60 hover:text-charcoal hover:bg-charcoal/5 rounded-lg transition-colors"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Venue */}
+              <div>
+                <label className="block text-sm font-medium text-charcoal/60 mb-1">Venue</label>
+                <p className="text-charcoal font-medium">{selectedInquiry.venue?.name || "N/A"}</p>
+              </div>
+
+              {/* Contact Information */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/60 mb-1">Name</label>
+                  <p className="text-charcoal">{selectedInquiry.name}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/60 mb-1">Email</label>
+                  <p className="text-charcoal">
+                    <a href={`mailto:${selectedInquiry.email}`} className="text-sage hover:underline">
+                      {selectedInquiry.email}
+                    </a>
+                  </p>
+                </div>
+                {selectedInquiry.phone && (
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal/60 mb-1">Phone</label>
+                    <p className="text-charcoal">
+                      <a href={`tel:${selectedInquiry.phone}`} className="text-sage hover:underline">
+                        {selectedInquiry.phone}
+                      </a>
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Event Details */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/60 mb-1">Event Date</label>
+                  <p className="text-charcoal">
+                    {new Date(selectedInquiry.eventDate).toLocaleDateString('en-GB', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/60 mb-1">Number of Guests</label>
+                  <p className="text-charcoal">{selectedInquiry.guestCount}</p>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-medium text-charcoal/60 mb-1">Status</label>
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                  selectedInquiry.status === 'NEW' ? 'bg-blue/10 text-blue' :
+                  selectedInquiry.status === 'CONTACTED' ? 'bg-amber/10 text-amber' :
+                  selectedInquiry.status === 'QUOTED' ? 'bg-gold/10 text-gold' :
+                  selectedInquiry.status === 'BOOKED' ? 'bg-sage/10 text-sage' :
+                  'bg-coral/10 text-coral'
+                }`}>
+                  {selectedInquiry.status}
+                </span>
+              </div>
+
+              {/* Message */}
+              {selectedInquiry.message && (
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/60 mb-1">Message</label>
+                  <p className="text-charcoal whitespace-pre-wrap bg-sage/5 p-4 rounded-lg">
+                    {selectedInquiry.message}
+                  </p>
+                </div>
+              )}
+
+              {/* Timestamps */}
+              <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-sage/10">
+                <div>
+                  <label className="block text-sm font-medium text-charcoal/60 mb-1">Submitted</label>
+                  <p className="text-sm text-charcoal/70">
+                    {new Date(selectedInquiry.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                {selectedInquiry.updatedAt && selectedInquiry.updatedAt !== selectedInquiry.createdAt && (
+                  <div>
+                    <label className="block text-sm font-medium text-charcoal/60 mb-1">Last Updated</label>
+                    <p className="text-sm text-charcoal/70">
+                      {new Date(selectedInquiry.updatedAt).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedInquiry(null);
+                }}
+                className="px-6 py-2 border border-sage/20 text-charcoal rounded-lg hover:bg-sage/5 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
