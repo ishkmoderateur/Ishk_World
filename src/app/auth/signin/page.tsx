@@ -126,16 +126,12 @@ function SignInForm() {
         setError(null);
         try {
           const redirectUrl = callbackUrl || "/profile";
-          console.log("🔐 Google OAuth: Starting sign-in, redirect to:", redirectUrl);
+          console.log("🔐 Google OAuth: Starting direct OAuth flow, redirect to:", redirectUrl);
           
-          // Use redirect: true to let NextAuth handle the full OAuth flow
-          await signIn("google", { 
-            callbackUrl: redirectUrl,
-            redirect: true
-          });
+          // Redirect to our direct Google OAuth endpoint
+          window.location.href = `/api/auth/google?callbackUrl=${encodeURIComponent(redirectUrl)}`;
           
-          // Note: If redirect is true, we won't reach here as the page will redirect
-          // If we do reach here, it means redirect was false and there might be an issue
+          // Note: We won't reach here as the page will redirect
         } catch (err) {
           console.error("❌ Google OAuth exception:", err);
           setError("Something went wrong with Google sign-in. Please try again.");

@@ -160,11 +160,18 @@ function RegisterForm() {
 
   const onGoogle = async () => {
     setLoading(true);
+    setError(null);
     try {
-      await signIn("google", { callbackUrl: callbackUrl || "/profile" });
-    } catch (error) {
-      console.error("Google sign-in error:", error);
-      setError("Google sign-in failed. Please try again.");
+      const redirectUrl = callbackUrl || "/profile";
+      console.log("🔐 Google OAuth: Starting direct OAuth flow, redirect to:", redirectUrl);
+      
+      // Redirect to our direct Google OAuth endpoint
+      window.location.href = `/api/auth/google?callbackUrl=${encodeURIComponent(redirectUrl)}`;
+      
+      // Note: We won't reach here as the page will redirect
+    } catch (err) {
+      console.error("❌ Google OAuth exception:", err);
+      setError("Something went wrong with Google sign-in. Please try again.");
       setLoading(false);
     }
   };
