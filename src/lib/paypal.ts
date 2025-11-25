@@ -94,11 +94,15 @@ export async function getPayPalAccessToken(
     }
 
     const data = await response.json();
-    accessToken = data.access_token;
+    if (!data.access_token) {
+      throw new Error("PayPal auth response missing access_token");
+    }
+    const token: string = data.access_token;
+    accessToken = token;
     // Set expiry (usually 32400 seconds = 9 hours)
     tokenExpiry = Date.now() + (data.expires_in * 1000);
 
-    return accessToken;
+    return token;
   } catch (error) {
     console.error("PayPal access token error:", error);
     throw error;

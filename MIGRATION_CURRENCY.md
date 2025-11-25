@@ -129,3 +129,4 @@ Current exchange rates (approximate):
 - Default currency is USD if detection fails
 
 
+

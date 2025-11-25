@@ -123,3 +123,4 @@ The system automatically:
 3. Update `.env` file on your VPS/server
 4. Restart your application
 
+

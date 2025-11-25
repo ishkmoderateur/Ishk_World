@@ -184,7 +184,7 @@ const authConfig: NextAuthConfig = {
                 where: { id: existingUser.id },
                 data: updateData,
               });
-              console.log("✅ Updated user from Google OAuth:", existingUser.email);
+              console.log("✅ Updated user from Google OAuth:", user.email);
             }
             
             // Update user object with database data
