@@ -6,21 +6,30 @@
  *   pm2 save
  *   pm2 startup
  * 
- * Environment variables should be set in .env file or system environment
- * PM2 will automatically load .env from the project root
+ * Environment variables are loaded from .env file using dotenv
  */
+
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 module.exports = {
   apps: [{
     name: 'ishk-platform',
     script: 'node_modules/next/dist/bin/next',
     args: 'start',
-    cwd: process.cwd(), // Use current working directory (works for any path)
+    cwd: __dirname, // Use absolute path to project directory
     instances: 2, // Use 2 instances for load balancing (adjust based on CPU cores)
     exec_mode: 'cluster',
+    env_file: '.env', // Explicitly specify .env file
     env: {
       NODE_ENV: 'production',
-      PORT: 3000
+      PORT: 3000,
+      // Load environment variables from process.env (loaded by dotenv above)
+      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+      DATABASE_URL: process.env.DATABASE_URL,
     },
     // Logging configuration
     error_file: './logs/error.log',
