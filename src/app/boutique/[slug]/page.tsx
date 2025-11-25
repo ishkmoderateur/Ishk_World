@@ -243,7 +243,6 @@ export default function ProductDetailPage() {
                 <PriceDisplay
                   price={product.price}
                   comparePrice={product.comparePrice}
-                  currency="EUR"
                   size="xl"
                   showDiscount={true}
                 />

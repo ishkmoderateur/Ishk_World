@@ -213,7 +213,6 @@ function BoutiqueContent() {
                         <PriceDisplay
                           price={product.price}
                           comparePrice={product.comparePrice}
-                          currency="EUR"
                           size="md"
                           showDiscount={true}
                         />

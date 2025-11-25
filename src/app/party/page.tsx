@@ -292,7 +292,6 @@ export default function PartyPage() {
                       <PriceDisplay
                         price={service.price}
                         comparePrice={service.comparePrice}
-                        currency="EUR"
                         size="sm"
                         showDiscount={true}
                       />
