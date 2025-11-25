@@ -28,7 +28,26 @@ export async function GET(request: NextRequest) {
       JSON.stringify({ callbackUrl, timestamp: Date.now() })
     ).toString("base64");
 
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    // Get base URL from environment or request
+    let baseUrl = process.env.NEXTAUTH_URL;
+    
+    // If not set, try to get from request
+    if (!baseUrl) {
+      const protocol = request.headers.get('x-forwarded-proto') || 
+                       (request.url.startsWith('https') ? 'https' : 'http');
+      const host = request.headers.get('host') || request.headers.get('x-forwarded-host');
+      if (host) {
+        baseUrl = `${protocol}://${host}`;
+      } else {
+        baseUrl = "http://localhost:3000";
+      }
+    }
+    
+    // Force HTTPS in production
+    if (process.env.NODE_ENV === 'production' && baseUrl.startsWith('http://')) {
+      baseUrl = baseUrl.replace('http://', 'https://');
+    }
+    
     const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
     console.log("🔐 Google OAuth: Initiating OAuth flow", {
@@ -36,6 +55,8 @@ export async function GET(request: NextRequest) {
       redirectUri,
       callbackUrl,
       hasClientId: !!clientId,
+      nodeEnv: process.env.NODE_ENV,
+      nextAuthUrl: process.env.NEXTAUTH_URL,
     });
 
     // Store state in a cookie (expires in 10 minutes)
