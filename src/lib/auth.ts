@@ -27,14 +27,28 @@ if (!process.env.NEXTAUTH_URL && process.env.NODE_ENV === "production") {
 // Using JWT strategy, so we don't need PrismaAdapter
 // Adapter is only needed for database sessions, but we're using JWT tokens
 
+// Validate Google OAuth credentials
+const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+
+if (!googleClientId || !googleClientSecret) {
+  if (process.env.NODE_ENV === "development") {
+    console.warn("⚠️  Google OAuth credentials not configured. Google sign-in will be disabled.");
+    console.warn("⚠️  Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your .env file to enable Google OAuth.");
+  }
+}
+
 const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true, // Trust host in development (NextAuth v5 requirement)
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
+    // Only add Google provider if credentials are configured
+    ...(googleClientId && googleClientSecret ? [
+      GoogleProvider({
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+      })
+    ] : []),
     CredentialsProvider({
       name: "Credentials",
       credentials: {

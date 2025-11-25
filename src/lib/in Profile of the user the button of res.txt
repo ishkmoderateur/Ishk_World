@@ -1,0 +1,3 @@
+in Profile of the user the button of reset password doesnt work 
+change email
+notifications too 
