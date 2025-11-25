@@ -7,6 +7,19 @@ import { getGoogleAuthUrl } from "@/lib/google-oauth";
  */
 export async function GET(request: NextRequest) {
   try {
+    // Check if Google OAuth is configured
+    const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+    if (!clientId) {
+      console.error("❌ GOOGLE_CLIENT_ID is not configured");
+      return NextResponse.json(
+        { 
+          error: "Google OAuth is not configured. Please contact the administrator.",
+          details: "GOOGLE_CLIENT_ID environment variable is missing"
+        },
+        { status: 500 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const callbackUrl = searchParams.get("callbackUrl") || "/profile";
     
@@ -15,12 +28,19 @@ export async function GET(request: NextRequest) {
       JSON.stringify({ callbackUrl, timestamp: Date.now() })
     ).toString("base64");
 
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const redirectUri = `${baseUrl}/api/auth/google/callback`;
+
+    console.log("🔐 Google OAuth: Initiating OAuth flow", {
+      baseUrl,
+      redirectUri,
+      callbackUrl,
+      hasClientId: !!clientId,
+    });
+
     // Store state in a cookie (expires in 10 minutes)
     const response = NextResponse.redirect(
-      getGoogleAuthUrl(
-        `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/auth/google/callback`,
-        state
-      )
+      getGoogleAuthUrl(redirectUri, state)
     );
 
     response.cookies.set("google_oauth_state", state, {
@@ -34,8 +54,12 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("❌ Google OAuth initiation error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to initiate Google OAuth" },
+      { 
+        error: "Failed to initiate Google OAuth",
+        details: errorMessage
+      },
       { status: 500 }
     );
   }
