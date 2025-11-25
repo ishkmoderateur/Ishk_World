@@ -42,20 +42,21 @@ const authConfig: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true, // Trust host in development (NextAuth v5 requirement)
   providers: [
-    // Only add Google provider if credentials are configured
-    ...(googleClientId && googleClientSecret ? [
-      GoogleProvider({
-        clientId: googleClientId,
-        clientSecret: googleClientSecret,
-        authorization: {
-          params: {
-            prompt: "consent",
-            access_type: "offline",
-            response_type: "code"
-          }
-        }
-      })
-    ] : []),
+    // Google OAuth is now handled by our direct implementation at /api/auth/google
+    // We don't use NextAuth's GoogleProvider anymore
+    // ...(googleClientId && googleClientSecret ? [
+    //   GoogleProvider({
+    //     clientId: googleClientId,
+    //     clientSecret: googleClientSecret,
+    //     authorization: {
+    //       params: {
+    //         prompt: "consent",
+    //         access_type: "offline",
+    //         response_type: "code"
+    //       }
+    //     }
+    //   })
+    // ] : []),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
