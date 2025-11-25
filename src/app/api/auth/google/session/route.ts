@@ -17,8 +17,29 @@ export async function GET(request: NextRequest) {
     const role = searchParams.get("role") || "USER";
     const redirect = searchParams.get("redirect") || "/profile";
 
+    // Get base URL for redirects
+    const getBaseUrl = () => {
+      let baseUrl = process.env.NEXTAUTH_URL;
+      if (!baseUrl) {
+        const protocol = request.headers.get('x-forwarded-proto') || 
+                         (request.url.startsWith('https') ? 'https' : 'http');
+        const host = request.headers.get('host') || request.headers.get('x-forwarded-host');
+        if (host) {
+          baseUrl = `${protocol}://${host}`;
+        } else {
+          baseUrl = "http://localhost:3000";
+        }
+      }
+      if (process.env.NODE_ENV === 'production' && baseUrl.startsWith('http://')) {
+        baseUrl = baseUrl.replace('http://', 'https://');
+      }
+      return baseUrl;
+    };
+
+    const baseUrl = getBaseUrl();
+
     if (!userId || !email) {
-      return NextResponse.redirect(new URL("/auth/signin?error=missing_user", request.url));
+      return NextResponse.redirect(new URL("/auth/signin?error=missing_user", baseUrl));
     }
 
     // Verify user exists
@@ -28,7 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.redirect(new URL("/auth/signin?error=user_not_found", request.url));
+      return NextResponse.redirect(new URL("/auth/signin?error=user_not_found", baseUrl));
     }
 
     // Create NextAuth JWT token
@@ -53,7 +74,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Create response with redirect
-    const response = NextResponse.redirect(new URL(redirect, request.url));
+    const response = NextResponse.redirect(new URL(redirect, baseUrl));
 
     // Set NextAuth session cookie
     const cookieName = process.env.NODE_ENV === "production" 
@@ -73,7 +94,25 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("❌ Google OAuth session creation error:", error);
-    return NextResponse.redirect(new URL("/auth/signin?error=session_failed", request.url));
+    console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
+    
+    // Get base URL for error redirect
+    let errorBaseUrl = process.env.NEXTAUTH_URL;
+    if (!errorBaseUrl) {
+      const protocol = request.headers.get('x-forwarded-proto') || 
+                       (request.url.startsWith('https') ? 'https' : 'http');
+      const host = request.headers.get('host') || request.headers.get('x-forwarded-host');
+      if (host) {
+        errorBaseUrl = `${protocol}://${host}`;
+      } else {
+        errorBaseUrl = "http://localhost:3000";
+      }
+    }
+    if (process.env.NODE_ENV === 'production' && errorBaseUrl.startsWith('http://')) {
+      errorBaseUrl = errorBaseUrl.replace('http://', 'https://');
+    }
+    
+    return NextResponse.redirect(new URL("/auth/signin?error=session_failed", errorBaseUrl));
   }
 }
 

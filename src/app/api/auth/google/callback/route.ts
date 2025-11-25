@@ -15,17 +15,39 @@ export async function GET(request: NextRequest) {
     const state = searchParams.get("state");
     const error = searchParams.get("error");
 
+    // Get base URL for redirects
+    const getBaseUrl = () => {
+      let baseUrl = process.env.NEXTAUTH_URL;
+      if (!baseUrl) {
+        const protocol = request.headers.get('x-forwarded-proto') || 
+                         (request.url.startsWith('https') ? 'https' : 'http');
+        const host = request.headers.get('host') || request.headers.get('x-forwarded-host');
+        if (host) {
+          baseUrl = `${protocol}://${host}`;
+        } else {
+          baseUrl = "http://localhost:3000";
+        }
+      }
+      // Force HTTPS in production
+      if (process.env.NODE_ENV === 'production' && baseUrl.startsWith('http://')) {
+        baseUrl = baseUrl.replace('http://', 'https://');
+      }
+      return baseUrl;
+    };
+
+    const baseUrl = getBaseUrl();
+
     // Check for OAuth errors
     if (error) {
       console.error("❌ Google OAuth error:", error);
       return NextResponse.redirect(
-        new URL(`/auth/signin?error=${encodeURIComponent(error)}`, request.url)
+        new URL(`/auth/signin?error=${encodeURIComponent(error)}`, baseUrl)
       );
     }
 
     if (!code) {
       return NextResponse.redirect(
-        new URL("/auth/signin?error=missing_code", request.url)
+        new URL("/auth/signin?error=missing_code", baseUrl)
       );
     }
 
@@ -36,7 +58,7 @@ export async function GET(request: NextRequest) {
     if (!state || !storedState || state !== storedState) {
       console.error("❌ Invalid OAuth state");
       return NextResponse.redirect(
-        new URL("/auth/signin?error=invalid_state", request.url)
+        new URL("/auth/signin?error=invalid_state", baseUrl)
       );
     }
 
@@ -49,26 +71,6 @@ export async function GET(request: NextRequest) {
       console.warn("⚠️ Could not parse state, using default callback");
     }
 
-    // Get base URL from environment or request
-    let baseUrl = process.env.NEXTAUTH_URL;
-    
-    // If not set, try to get from request
-    if (!baseUrl) {
-      const protocol = request.headers.get('x-forwarded-proto') || 
-                       (request.url.startsWith('https') ? 'https' : 'http');
-      const host = request.headers.get('host') || request.headers.get('x-forwarded-host');
-      if (host) {
-        baseUrl = `${protocol}://${host}`;
-      } else {
-        baseUrl = "http://localhost:3000";
-      }
-    }
-    
-    // Force HTTPS in production
-    if (process.env.NODE_ENV === 'production' && baseUrl.startsWith('http://')) {
-      baseUrl = baseUrl.replace('http://', 'https://');
-    }
-    
     const redirectUri = `${baseUrl}/api/auth/google/callback`;
 
     // Exchange code for tokens
@@ -79,7 +81,7 @@ export async function GET(request: NextRequest) {
 
     if (!googleUser.email || !googleUser.verified_email) {
       return NextResponse.redirect(
-        new URL("/auth/signin?error=email_not_verified", request.url)
+        new URL("/auth/signin?error=email_not_verified", baseUrl)
       );
     }
 
@@ -123,7 +125,7 @@ export async function GET(request: NextRequest) {
 
     // Create NextAuth session by redirecting to a special endpoint
     // that will create the session and then redirect to the callback URL
-    const sessionUrl = new URL("/api/auth/google/session", request.url);
+    const sessionUrl = new URL("/api/auth/google/session", baseUrl);
     sessionUrl.searchParams.set("userId", user.id);
     sessionUrl.searchParams.set("email", user.email);
     sessionUrl.searchParams.set("name", user.name || "");
@@ -138,10 +140,29 @@ export async function GET(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("❌ Google OAuth callback error:", error);
+    console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
+    console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack trace");
+    
+    // Get base URL for error redirect
+    let errorBaseUrl = process.env.NEXTAUTH_URL;
+    if (!errorBaseUrl) {
+      const protocol = request.headers.get('x-forwarded-proto') || 
+                       (request.url.startsWith('https') ? 'https' : 'http');
+      const host = request.headers.get('host') || request.headers.get('x-forwarded-host');
+      if (host) {
+        errorBaseUrl = `${protocol}://${host}`;
+      } else {
+        errorBaseUrl = "http://localhost:3000";
+      }
+    }
+    if (process.env.NODE_ENV === 'production' && errorBaseUrl.startsWith('http://')) {
+      errorBaseUrl = errorBaseUrl.replace('http://', 'https://');
+    }
+    
     return NextResponse.redirect(
       new URL(
         `/auth/signin?error=${encodeURIComponent("oauth_failed")}`,
-        request.url
+        errorBaseUrl
       )
     );
   }
