@@ -32,6 +32,16 @@ function SignInForm() {
     }
   }, [status, session, callbackUrl]);
 
+  // Check for OAuth callback errors
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (error) {
+      console.error("❌ OAuth error:", error);
+      setError("Authentication failed. Please try again.");
+    }
+  }, []);
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -113,9 +123,22 @@ function SignInForm() {
 
       const onGoogle = async () => {
         setLoading(true);
+        setError(null);
         try {
-          await signIn("google", { callbackUrl: callbackUrl || undefined });
-        } finally {
+          const redirectUrl = callbackUrl || "/profile";
+          console.log("🔐 Google OAuth: Starting sign-in, redirect to:", redirectUrl);
+          
+          // Use redirect: true to let NextAuth handle the full OAuth flow
+          await signIn("google", { 
+            callbackUrl: redirectUrl,
+            redirect: true
+          });
+          
+          // Note: If redirect is true, we won't reach here as the page will redirect
+          // If we do reach here, it means redirect was false and there might be an issue
+        } catch (err) {
+          console.error("❌ Google OAuth exception:", err);
+          setError("Something went wrong with Google sign-in. Please try again.");
           setLoading(false);
         }
       };

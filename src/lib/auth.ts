@@ -47,6 +47,13 @@ const authConfig: NextAuthConfig = {
       GoogleProvider({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
+        authorization: {
+          params: {
+            prompt: "consent",
+            access_type: "offline",
+            response_type: "code"
+          }
+        }
       })
     ] : []),
     CredentialsProvider({
@@ -266,11 +273,35 @@ const authConfig: NextAuthConfig = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Log redirect for debugging
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔄 NextAuth redirect:", { url, baseUrl });
+      }
+      
       // If url is a relative path, use baseUrl
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (url.startsWith("/")) {
+        const redirectUrl = `${baseUrl}${url}`;
+        if (process.env.NODE_ENV === "development") {
+          console.log("🔄 Redirecting to:", redirectUrl);
+        }
+        return redirectUrl;
+      }
       // If url is on same origin, allow it
-      if (new URL(url).origin === baseUrl) return url;
+      try {
+        const urlOrigin = new URL(url).origin;
+        if (urlOrigin === baseUrl) {
+          if (process.env.NODE_ENV === "development") {
+            console.log("🔄 Redirecting to same origin:", url);
+          }
+          return url;
+        }
+      } catch (e) {
+        // Invalid URL, fall through to baseUrl
+      }
       // Otherwise redirect to baseUrl
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔄 Redirecting to baseUrl:", baseUrl);
+      }
       return baseUrl;
     },
   },
