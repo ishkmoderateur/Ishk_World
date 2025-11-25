@@ -10,7 +10,35 @@
  */
 
 const path = require('path');
+const fs = require('fs');
+
+// Load .env file
 require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+// Read .env file and parse all variables
+const envPath = path.join(__dirname, '.env');
+let envVars = {};
+
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    const trimmedLine = line.trim();
+    // Skip comments and empty lines
+    if (trimmedLine && !trimmedLine.startsWith('#')) {
+      const equalIndex = trimmedLine.indexOf('=');
+      if (equalIndex > 0) {
+        const key = trimmedLine.substring(0, equalIndex).trim();
+        const value = trimmedLine.substring(equalIndex + 1).trim();
+        // Remove quotes if present
+        const cleanValue = value.replace(/^["']|["']$/g, '');
+        envVars[key] = cleanValue;
+      }
+    }
+  });
+}
+
+// Merge with process.env (process.env takes precedence)
+const finalEnv = { ...envVars, ...process.env };
 
 module.exports = {
   apps: [{
@@ -24,12 +52,8 @@ module.exports = {
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
-      // Load environment variables from process.env (loaded by dotenv above)
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-      NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-      DATABASE_URL: process.env.DATABASE_URL,
+      // Load all environment variables from .env file
+      ...finalEnv,
     },
     // Logging configuration
     error_file: './logs/error.log',
