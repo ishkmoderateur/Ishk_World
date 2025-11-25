@@ -57,6 +57,10 @@ DATABASE_URL="file:./prisma/dev.db"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
 
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+
 # Stripe (optional for local development)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
 STRIPE_SECRET_KEY=""
@@ -347,6 +351,30 @@ npm run build
 ## 📦 Dependencies
 
 Key dependencies are listed in `package.json`. Run `npm install` to install all dependencies.
+
+## 🔐 Google OAuth Setup
+
+For production deployment with Google OAuth:
+
+1. **Configure Google Cloud Console:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create OAuth 2.0 Client ID
+   - Add authorized redirect URI: `https://ishk-world.com/api/auth/callback/google`
+   - Copy Client ID and Client Secret
+
+2. **Update environment variables on VPS:**
+   ```env
+   NEXTAUTH_URL=https://ishk-world.com
+   GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=your-client-secret
+   ```
+
+3. **Verify configuration:**
+   ```bash
+   node scripts/verify-google-oauth.js
+   ```
+
+See `GOOGLE_OAUTH_SETUP.md` for detailed instructions.
 
 ## 🚢 Deployment
 

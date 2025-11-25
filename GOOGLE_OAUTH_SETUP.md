@@ -1,127 +1,97 @@
-# Google OAuth Setup Guide
+# Google OAuth Setup for ishk-world.com
 
-## Overview
-Google OAuth is now integrated into the Ishk Platform for both sign-in and registration. Users can sign in or register using their Google account.
-
-## Features
-- ✅ Sign in with Google (existing users)
-- ✅ Register with Google (new users automatically created)
-- ✅ Automatic user creation in database
-- ✅ Profile picture and name synced from Google
-- ✅ Email verification automatically set
-
-## Setup Instructions
-
-### 1. Create Google OAuth Credentials
+## Step 1: Configure Google Cloud Console
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
+2. Select your project (or create a new one)
 3. Navigate to **APIs & Services** > **Credentials**
 4. Click **Create Credentials** > **OAuth client ID**
-5. If prompted, configure the OAuth consent screen:
-   - Choose **External** (unless you have a Google Workspace)
-   - Fill in required fields (App name, User support email, Developer contact)
-   - Add scopes: `email`, `profile`, `openid`
-   - Add test users (for development)
+5. If prompted, configure the OAuth consent screen first:
+   - User Type: **External** (unless you have a Google Workspace)
+   - App name: **Ishk World**
+   - User support email: Your email
+   - Developer contact: Your email
+   - Click **Save and Continue**
+   - Scopes: Add `email`, `profile`, `openid`
+   - Test users: Add your email (if in testing mode)
+   - Click **Save and Continue**
+
 6. Create OAuth Client ID:
    - Application type: **Web application**
-   - Name: `Ishk Platform` (or your preferred name)
-   - **Authorized JavaScript origins**:
-     - `http://localhost:3000` (for development)
-     - `https://yourdomain.com` (for production)
-   - **Authorized redirect URIs**:
-     - `http://localhost:3000/api/auth/callback/google` (for development)
-     - `https://yourdomain.com/api/auth/callback/google` (for production)
-7. Click **Create**
-8. Copy the **Client ID** and **Client Secret**
+   - Name: **Ishk World Web Client**
+   - **Authorized JavaScript origins:**
+     ```
+     https://ishk-world.com
+     http://localhost:3000
+     ```
+   - **Authorized redirect URIs:**
+     ```
+     https://ishk-world.com/api/auth/callback/google
+     http://localhost:3000/api/auth/callback/google
+     ```
+   - Click **Create**
 
-### 2. Add to Environment Variables
+7. Copy the **Client ID** and **Client Secret**
 
-Add these to your `.env` file:
+## Step 2: Update VPS Environment Variables
 
-```env
-GOOGLE_CLIENT_ID=your_client_id_here
-GOOGLE_CLIENT_SECRET=your_client_secret_here
-```
-
-### 3. Restart Your Server
-
-After adding the credentials, restart your development server:
+SSH into your VPS and update the `.env` file:
 
 ```bash
-npm run dev
+cd /var/www/ishk-platform
+nano .env
 ```
 
-## How It Works
+Add or update these lines (replace with your actual values):
 
-### Sign In Flow
-1. User clicks "Continue with Google" on sign-in page
-2. Redirected to Google for authentication
-3. User approves access
-4. Google redirects back to your app
-5. System checks if user exists in database
-6. If exists: Updates profile picture/name if needed
-7. If new: Creates user account automatically
-8. User is signed in and redirected
+```env
+NEXTAUTH_URL=https://ishk-world.com
+NEXTAUTH_SECRET=your-secret-key-here
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
 
-### Registration Flow
-1. User clicks "Continue with Google" on register page
-2. Same flow as sign-in
-3. New users are automatically created with:
-   - Email (from Google)
-   - Name (from Google)
-   - Profile picture (from Google)
-   - Email verified (automatically)
-   - Default role: USER
+**Important:**
+- `NEXTAUTH_URL` must be exactly `https://ishk-world.com` (no trailing slash)
+- `NEXTAUTH_SECRET` should be a long random string (you can generate one with: `openssl rand -base64 32`)
 
-## User Data Sync
+## Step 3: Restart the Application
 
-The system automatically:
-- Creates new users when they first sign in with Google
-- Updates profile picture if user doesn't have one
-- Updates name if user doesn't have one
-- Sets email as verified (Google emails are pre-verified)
-- Preserves existing user data (role, etc.)
+```bash
+cd /var/www/ishk-platform
+git pull origin main
+pm2 restart ishk-platform
+pm2 logs ishk-platform
+```
 
-## Security Notes
+## Step 4: Verify Configuration
 
-- Google OAuth users don't have passwords (password field is null)
-- Email verification is automatic for Google accounts
-- Users can still use email/password if they set one later
-- OAuth tokens are handled securely by NextAuth.js
+Run the verification script:
+
+```bash
+cd /var/www/ishk-platform
+node scripts/verify-google-oauth.js
+```
 
 ## Troubleshooting
 
-### "Redirect URI mismatch" error
-- Make sure the redirect URI in Google Console exactly matches:
-  - Development: `http://localhost:3000/api/auth/callback/google`
-  - Production: `https://yourdomain.com/api/auth/callback/google`
-- Check for trailing slashes or typos
+### Issue: "Page just reloads"
+- Check that `NEXTAUTH_URL` is set correctly in `.env`
+- Verify the redirect URI in Google Cloud Console matches exactly: `https://ishk-world.com/api/auth/callback/google`
+- Check PM2 logs: `pm2 logs ishk-platform`
 
-### "Access blocked" error
-- Make sure OAuth consent screen is configured
-- Add your email as a test user (for development)
-- Check that required scopes are added
+### Issue: "Missing client ID"
+- Verify `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are in `.env`
+- Make sure there are no extra spaces or quotes
+- Restart PM2 after updating `.env`
 
-### User not created in database
-- Check server logs for errors
-- Verify database connection
-- Check that Prisma migrations are up to date
+### Issue: "Redirect URI mismatch"
+- In Google Cloud Console, ensure the redirect URI is exactly: `https://ishk-world.com/api/auth/callback/google`
+- Make sure `NEXTAUTH_URL` in `.env` is exactly `https://ishk-world.com`
 
 ## Testing
 
-1. Go to `/auth/signin` or `/auth/register`
+1. Visit: `https://ishk-world.com/auth/signin`
 2. Click "Continue with Google"
-3. Sign in with a Google account
-4. You should be redirected back and signed in
-5. Check your profile page to see your Google account info
-
-## Production Deployment
-
-1. Update Google OAuth credentials with production URLs
-2. Add production redirect URI to Google Console
-3. Update `.env` file on your VPS/server
-4. Restart your application
-
-
-
+3. You should be redirected to Google's login page
+4. After logging in, you should be redirected back to your profile page
