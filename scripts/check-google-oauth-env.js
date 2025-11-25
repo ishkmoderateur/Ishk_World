@@ -5,7 +5,12 @@
  * Run this on the VPS to verify configuration
  */
 
+// Load .env file first
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+
 console.log("🔍 Checking Google OAuth Environment Variables...\n");
+console.log(`📁 Loading .env from: ${path.join(__dirname, '..', '.env')}\n`);
 
 const requiredVars = [
   "GOOGLE_CLIENT_ID",
