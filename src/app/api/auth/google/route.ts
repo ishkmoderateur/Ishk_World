@@ -12,16 +12,16 @@ export async function GET(request: NextRequest) {
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
     
     if (!clientId || !clientSecret) {
+      const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
       console.error("❌ Google OAuth credentials not configured");
       console.error("❌ GOOGLE_CLIENT_ID:", clientId ? "✓ Set" : "✗ Missing");
       console.error("❌ GOOGLE_CLIENT_SECRET:", clientSecret ? "✓ Set" : "✗ Missing");
-      console.error("❌ Please add both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env.local file");
-      console.error("❌ See GOOGLE_OAUTH_SETUP.md for detailed instructions");
+      console.error(`❌ Please add both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your ${envFile} file`);
       
       return NextResponse.json(
         { 
           error: "Google OAuth is not configured",
-          details: `Missing ${!clientId ? 'GOOGLE_CLIENT_ID' : ''}${!clientId && !clientSecret ? ' and ' : ''}${!clientSecret ? 'GOOGLE_CLIENT_SECRET' : ''}. Please add these to your .env.local file. See GOOGLE_OAUTH_SETUP.md for instructions.`
+          details: `Missing ${!clientId ? 'GOOGLE_CLIENT_ID' : ''}${!clientId && !clientSecret ? ' and ' : ''}${!clientSecret ? 'GOOGLE_CLIENT_SECRET' : ''}. Please add these to your ${envFile} file.`
         },
         { status: 500 }
       );
