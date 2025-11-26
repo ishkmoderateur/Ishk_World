@@ -11,17 +11,31 @@ export async function GET(request: NextRequest) {
     const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
     
+    // Debug logging in production to help diagnose
+    if (process.env.NODE_ENV === 'production') {
+      console.log("🔍 Google OAuth Debug:", {
+        hasClientId: !!clientId,
+        hasClientSecret: !!clientSecret,
+        clientIdLength: clientId?.length || 0,
+        clientSecretLength: clientSecret?.length || 0,
+        nodeEnv: process.env.NODE_ENV,
+        // List all env vars that contain GOOGLE (for debugging)
+        googleEnvKeys: Object.keys(process.env).filter(key => key.includes('GOOGLE'))
+      });
+    }
+    
     if (!clientId || !clientSecret) {
       const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.local';
       console.error("❌ Google OAuth credentials not configured");
       console.error("❌ GOOGLE_CLIENT_ID:", clientId ? "✓ Set" : "✗ Missing");
       console.error("❌ GOOGLE_CLIENT_SECRET:", clientSecret ? "✓ Set" : "✗ Missing");
       console.error(`❌ Please add both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your ${envFile} file`);
+      console.error("❌ After adding, restart PM2: pm2 restart ishk-platform");
       
       return NextResponse.json(
         { 
           error: "Google OAuth is not configured",
-          details: `Missing ${!clientId ? 'GOOGLE_CLIENT_ID' : ''}${!clientId && !clientSecret ? ' and ' : ''}${!clientSecret ? 'GOOGLE_CLIENT_SECRET' : ''}. Please add these to your ${envFile} file.`
+          details: `Missing ${!clientId ? 'GOOGLE_CLIENT_ID' : ''}${!clientId && !clientSecret ? ' and ' : ''}${!clientSecret ? 'GOOGLE_CLIENT_SECRET' : ''}. Please add these to your ${envFile} file and restart PM2.`
         },
         { status: 500 }
       );

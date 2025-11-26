@@ -40,6 +40,19 @@ if (fs.existsSync(envPath)) {
 // Merge with process.env (process.env takes precedence)
 const finalEnv = { ...envVars, ...process.env };
 
+// Log loaded environment variables (without values for security)
+if (process.env.NODE_ENV === 'production') {
+  console.log('📋 PM2 Environment Variables Loaded:');
+  const googleKeys = Object.keys(finalEnv).filter(key => key.includes('GOOGLE'));
+  const nextAuthKeys = Object.keys(finalEnv).filter(key => key.includes('NEXTAUTH'));
+  console.log(`   - GOOGLE keys found: ${googleKeys.length}`);
+  console.log(`   - NEXTAUTH keys found: ${nextAuthKeys.length}`);
+  console.log(`   - Total env vars: ${Object.keys(finalEnv).length}`);
+  googleKeys.forEach(key => {
+    console.log(`   - ${key}: ${finalEnv[key] ? '✓ Set (' + finalEnv[key].length + ' chars)' : '✗ Missing'}`);
+  });
+}
+
 module.exports = {
   apps: [{
     name: 'ishk-platform',
