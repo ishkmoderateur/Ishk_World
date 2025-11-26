@@ -57,6 +57,10 @@ next-env.d.ts
 Thumbs.db
 .DS_Store
 
+# Executables
+*.exe
+*.msi
+
 # Audit artifacts
 audit-report.json
 AUDIT_REPORT.md

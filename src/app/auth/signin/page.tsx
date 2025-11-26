@@ -36,11 +36,67 @@ function SignInForm() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get("error");
+    const details = params.get("details");
+    
     if (error) {
       console.error("❌ OAuth error:", error);
-      setError("Authentication failed. Please try again.");
+      console.error("❌ Error details:", details);
+      
+      // Provide more specific error messages
+      let errorMessage = "Authentication failed. Please try again.";
+      
+      if (details) {
+        errorMessage = decodeURIComponent(details);
+        // Log helpful information for token_exchange_failed errors
+        if (error === "token_exchange_failed") {
+          console.error("🔧 TROUBLESHOOTING: Token exchange failed");
+          console.error("🔧 Check your server console logs for the exact redirect URI that was used");
+          console.error("🔧 That redirect URI must be added to Google Cloud Console > OAuth 2.0 Client > Authorized redirect URIs");
+          console.error("🔧 Common redirect URIs:");
+          console.error("   - Development (MAMP port 8888): http://localhost:8888/api/auth/google/callback");
+          console.error("   - Development (standard): http://localhost:3000/api/auth/google/callback");
+          console.error("   - Production: https://ishk-world.com/api/auth/google/callback");
+        }
+      } else {
+        switch (error) {
+          case "token_exchange_failed":
+            errorMessage = "Failed to exchange authorization code. Check server logs for the redirect URI that must be added to Google Cloud Console.";
+            break;
+          case "user_info_failed":
+            errorMessage = "Failed to retrieve user information from Google.";
+            break;
+          case "timeout":
+            errorMessage = "Request timed out. Please try again.";
+            break;
+          case "redirect_mismatch":
+            errorMessage = "Redirect URI mismatch. Please contact support.";
+            break;
+          case "invalid_client":
+            errorMessage = "Invalid OAuth configuration. Please contact support.";
+            break;
+          case "invalid_grant":
+            errorMessage = "Authorization expired. Please try again.";
+            break;
+          case "invalid_state":
+            errorMessage = "Security validation failed. Please try again.";
+            break;
+          case "missing_code":
+            errorMessage = "Authorization code missing. Please try again.";
+            break;
+          default:
+            errorMessage = "Authentication failed. Please try again.";
+        }
+      }
+      
+      setError(errorMessage);
+      
+      // Clean up URL
+      if (window.history.replaceState) {
+        const newUrl = window.location.pathname + (callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : '');
+        window.history.replaceState({}, '', newUrl);
+      }
     }
-  }, []);
+  }, [callbackUrl]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
