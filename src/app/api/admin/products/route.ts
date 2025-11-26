@@ -9,22 +9,34 @@ export async function GET() {
     // Require boutique admin access
     const session = await requireSectionAccess("boutique");
     if (!session) {
+      console.error("❌ Products API: Unauthorized - No session or insufficient permissions");
       return NextResponse.json(
         { error: "Unauthorized: Boutique admin access required" },
         { status: 401 }
       );
     }
+    
+    console.log("✅ Products API: Authorized, fetching products...");
     const products = await prisma.product.findMany({
       orderBy: { createdAt: "desc" },
     });
 
+    console.log(`✅ Products API: Found ${products.length} products`);
     return NextResponse.json(products);
   } catch (error: unknown) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error fetching products:", error);
+    console.error("❌ Products API Error:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     }
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { 
+        error: "Failed to fetch products",
+        details: process.env.NODE_ENV === "development" ? (error instanceof Error ? error.message : String(error)) : undefined
+      },
       { status: 500 }
     );
   }

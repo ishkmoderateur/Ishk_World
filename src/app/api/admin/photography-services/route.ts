@@ -8,12 +8,14 @@ export async function GET(request: NextRequest) {
   try {
     const session = await requireSectionAccess("photography");
     if (!session) {
+      console.error("❌ Photography Services API: Unauthorized - No session or insufficient permissions");
       return NextResponse.json(
         { error: "Unauthorized: Photography admin access required" },
         { status: 401 }
       );
     }
 
+    console.log("✅ Photography Services API: Authorized, fetching services...");
     const { searchParams } = new URL(request.url);
     const featured = searchParams.get("featured");
 
@@ -28,11 +30,22 @@ export async function GET(request: NextRequest) {
       ],
     });
 
+    console.log(`✅ Photography Services API: Found ${services.length} services`);
     return NextResponse.json(services);
   } catch (error) {
-    console.error("Error fetching photography services:", error);
+    console.error("❌ Photography Services API Error:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+    }
     return NextResponse.json(
-      { error: "Failed to fetch photography services" },
+      { 
+        error: "Failed to fetch photography services",
+        details: process.env.NODE_ENV === "development" ? (error instanceof Error ? error.message : String(error)) : undefined
+      },
       { status: 500 }
     );
   }
