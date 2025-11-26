@@ -43,18 +43,31 @@ export default function BoutiquePanel() {
   const fetchProducts = async () => {
     try {
       setError("");
-      const response = await fetch("/api/admin/products");
+      console.log("🔄 Fetching products from /api/admin/products...");
+      const response = await fetch("/api/admin/products", {
+        credentials: "include", // Ensure cookies are sent
+      });
+      
+      console.log("📡 Response status:", response.status, response.statusText);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log("✅ Products fetched successfully:", data.length, "items");
         setProducts(Array.isArray(data) ? data : []);
       } else {
-        const errorData = await response.json().catch(() => ({ error: "Failed to fetch products" }));
-        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
-        console.error("Error fetching products:", errorData);
+        const errorData = await response.json().catch(() => ({ 
+          error: `HTTP ${response.status}: ${response.statusText}` 
+        }));
+        const errorMessage = errorData.error || `Error ${response.status}: ${response.statusText}`;
+        console.error("❌ Error fetching products:", errorData);
+        setError(errorMessage);
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
-      setError("Failed to fetch products. Please check your connection and try again.");
+      console.error("❌ Network error fetching products:", error);
+      const errorMessage = error instanceof Error 
+        ? `Network error: ${error.message}` 
+        : "Failed to fetch products. Please check your connection and try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

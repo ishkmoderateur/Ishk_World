@@ -35,17 +35,31 @@ export default function PhotographyServicesPanel() {
   const fetchServices = async () => {
     try {
       setError("");
-      const response = await fetch("/api/admin/photography-services");
+      console.log("🔄 Fetching photography services from /api/admin/photography-services...");
+      const response = await fetch("/api/admin/photography-services", {
+        credentials: "include", // Ensure cookies are sent
+      });
+      
+      console.log("📡 Response status:", response.status, response.statusText);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log("✅ Services fetched successfully:", data.length, "items");
         setServices(Array.isArray(data) ? data : []);
       } else {
-        const errorData = await response.json().catch(() => ({ error: "Failed to fetch services" }));
-        setError(errorData.error || `Error ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({ 
+          error: `HTTP ${response.status}: ${response.statusText}` 
+        }));
+        const errorMessage = errorData.error || `Error ${response.status}: ${response.statusText}`;
+        console.error("❌ Error fetching services:", errorData);
+        setError(errorMessage);
       }
     } catch (error) {
-      console.error("Error fetching services:", error);
-      setError("Failed to fetch services. Please check your connection and try again.");
+      console.error("❌ Network error fetching services:", error);
+      const errorMessage = error instanceof Error 
+        ? `Network error: ${error.message}` 
+        : "Failed to fetch services. Please check your connection and try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
