@@ -365,9 +365,22 @@ export default function ProfilePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-sage/20 mb-6">
-              <User className="w-10 h-10 text-sage" />
-            </div>
+            {session.user.image ? (
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full overflow-hidden mb-6 ring-4 ring-white shadow-lg">
+                <Image
+                  src={session.user.image}
+                  alt={session.user.name || "Profile picture"}
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-sage/20 mb-6">
+                <User className="w-10 h-10 text-sage" />
+              </div>
+            )}
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
               My Profile
             </h1>
@@ -390,9 +403,22 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-sage/20 to-sand/20 flex items-center justify-center shadow-lg">
-                  <User className="w-16 h-16 text-sage" />
-                </div>
+                {session.user.image ? (
+                  <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg ring-4 ring-white">
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "Profile picture"}
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-sage/20 to-sand/20 flex items-center justify-center shadow-lg">
+                    <User className="w-16 h-16 text-sage" />
+                  </div>
+                )}
                 <button 
                   onClick={(e) => handleEditProfile(e)}
                   type="button"
