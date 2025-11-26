@@ -26,7 +26,20 @@ function SignInForm() {
   // Redirect if already logged in
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      const redirectUrl = callbackUrl || "/profile";
+      // Determine redirect URL based on user role
+      let redirectUrl = callbackUrl;
+      
+      // If no callback URL specified, redirect based on role
+      if (!redirectUrl) {
+        if (session.user.role && isAdmin(session.user.role)) {
+          redirectUrl = "/admin";
+          console.log("🔐 Already authenticated as admin, redirecting to /admin");
+        } else {
+          redirectUrl = "/profile";
+          console.log("👤 Already authenticated as user, redirecting to /profile");
+        }
+      }
+      
       console.log("✅ Already authenticated, redirecting to:", redirectUrl);
       window.location.href = redirectUrl;
     }

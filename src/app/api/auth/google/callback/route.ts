@@ -127,6 +127,8 @@ export async function GET(request: NextRequest) {
     } catch (e) {
       console.warn("⚠️ Could not parse state, using default callback");
     }
+    
+    // If no specific callback URL, we'll determine redirect based on user role in session route
 
     const redirectUri = `${baseUrl}/api/auth/google/callback`;
 

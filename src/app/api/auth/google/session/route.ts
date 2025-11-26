@@ -17,7 +17,17 @@ export async function GET(request: NextRequest) {
     const name = searchParams.get("name");
     const image = searchParams.get("image");
     const role = searchParams.get("role") || "USER";
-    const redirect = searchParams.get("redirect") || "/profile";
+    let redirect = searchParams.get("redirect") || "/profile";
+    
+    // If no specific redirect URL was provided, check if user is admin
+    // and redirect to admin dashboard instead of profile
+    if (!searchParams.get("redirect") || searchParams.get("redirect") === "/profile") {
+      // Check if user role is admin (any admin role)
+      if (role && role !== "USER") {
+        redirect = "/admin";
+        console.log("🔐 Google OAuth: Admin user detected, redirecting to /admin");
+      }
+    }
 
     // Get base URL for redirects - MUST match the same logic used in OAuth routes
     const getBaseUrl = () => {
