@@ -14,6 +14,7 @@
     "create-test-users": "npx tsx scripts/create-test-users.ts",
     "check-users": "npx tsx scripts/check-users.ts",
     "list-users": "npx tsx scripts/list-all-users.ts",
+    "reset-password": "npx tsx scripts/reset-password.ts",
     "verify-login": "npx tsx scripts/verify-login.ts",
     "test-db": "npx tsx scripts/test-db-connection.ts",
     "translate-all": "npx tsx scripts/translate-all.ts",
