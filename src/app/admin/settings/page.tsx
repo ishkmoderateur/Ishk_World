@@ -1,14 +1,75 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Settings as SettingsIcon, User, Shield, Bell, Lock } from "lucide-react";
+import { ArrowLeft, Settings as SettingsIcon, User, Shield, Bell, Lock, Save, CheckCircle, AlertCircle } from "lucide-react";
 import { getRoleDisplayName } from "@/lib/roles";
 
 export default function AdminSettings() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications" | "general">("profile");
+  
+  // Profile form state
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Load profile data
+  useEffect(() => {
+    if (session?.user) {
+      setProfileData({
+        name: session.user.name || "",
+        email: session.user.email || "",
+        phone: "",
+      });
+    }
+  }, [session]);
+  
+  // Handle profile update
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+    
+    try {
+      const response = await fetch("/api/admin/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setError(data.error || "Failed to update profile");
+        return;
+      }
+      
+      setSuccess(true);
+      
+      // Update the session to reflect changes
+      await update();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-white to-sage/5">
@@ -68,29 +129,59 @@ export default function AdminSettings() {
           <div className="lg:col-span-3">
             <div className="bg-white rounded-2xl p-8 border border-sage/10 shadow-sm">
               {activeTab === "profile" && (
-                <div>
+                <form onSubmit={handleSaveProfile}>
                   <h2 className="text-2xl font-heading font-bold text-charcoal mb-6">Profile Settings</h2>
+                  
+                  {/* Success/Error Messages */}
+                  {success && (
+                    <div className="mb-6 p-4 bg-green/10 border border-green/20 rounded-xl flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green" />
+                      <span className="text-green font-medium">Profile updated successfully!</span>
+                    </div>
+                  )}
+                  
+                  {error && (
+                    <div className="mb-6 p-4 bg-coral/10 border border-coral/20 rounded-xl flex items-center gap-3">
+                      <AlertCircle className="w-5 h-5 text-coral" />
+                      <span className="text-coral font-medium">{error}</span>
+                    </div>
+                  )}
+                  
                   <div className="space-y-6">
                     <div>
                       <label className="block text-sm font-medium text-charcoal mb-2">Name</label>
                       <input
                         type="text"
-                        defaultValue={session?.user?.name || ""}
+                        value={profileData.name}
+                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
-                        disabled
+                        placeholder="Your name"
                       />
-                      <p className="text-sm text-charcoal/60 mt-1">Name cannot be changed here</p>
                     </div>
+                    
                     <div>
                       <label className="block text-sm font-medium text-charcoal mb-2">Email</label>
                       <input
                         type="email"
-                        defaultValue={session?.user?.email || ""}
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
-                        disabled
+                        placeholder="your.email@example.com"
+                        required
                       />
-                      <p className="text-sm text-charcoal/60 mt-1">Email cannot be changed here</p>
                     </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal mb-2">Phone (Optional)</label>
+                      <input
+                        type="tel"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-sage/20 focus:outline-none focus:ring-2 focus:ring-sage"
+                        placeholder="+1234567890"
+                      />
+                    </div>
+                    
                     <div>
                       <label className="block text-sm font-medium text-charcoal mb-2">Role</label>
                       <div className="flex items-center gap-2 px-4 py-3 rounded-xl border border-sage/20 bg-sage/5">
@@ -99,9 +190,21 @@ export default function AdminSettings() {
                           {session?.user?.role ? getRoleDisplayName(session.user.role) : "User"}
                         </span>
                       </div>
+                      <p className="text-sm text-charcoal/60 mt-1">Role cannot be changed here</p>
+                    </div>
+                    
+                    <div className="flex justify-end pt-4 border-t border-sage/10">
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="px-6 py-3 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Save className="w-5 h-5" />
+                        {loading ? "Saving..." : "Save Changes"}
+                      </button>
                     </div>
                   </div>
-                </div>
+                </form>
               )}
 
               {activeTab === "security" && (
