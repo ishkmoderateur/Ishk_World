@@ -13,6 +13,7 @@
     "test:e2e:report": "playwright show-report",
     "create-test-users": "npx tsx scripts/create-test-users.ts",
     "check-users": "npx tsx scripts/check-users.ts",
+    "list-users": "npx tsx scripts/list-all-users.ts",
     "verify-login": "npx tsx scripts/verify-login.ts",
     "test-db": "npx tsx scripts/test-db-connection.ts",
     "translate-all": "npx tsx scripts/translate-all.ts",
