@@ -276,8 +276,41 @@ export default function ProfilePage() {
     { icon: Settings, label: "Settings", sectionId: "settings", color: "amber" },
   ];
 
-  const handleEditProfile = () => {
-    scrollToSection("settings");
+  const handleEditProfile = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
+    // Try to scroll to settings section
+    const section = document.getElementById("settings");
+    if (section) {
+      const yOffset = -120; // Offset for fixed navbar
+      const elementTop = section.getBoundingClientRect().top;
+      const elementPosition = elementTop + window.pageYOffset;
+      const offsetPosition = elementPosition + yOffset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    } else {
+      // Fallback: wait a bit and try again (in case section is still loading)
+      setTimeout(() => {
+        const retrySection = document.getElementById("settings");
+        if (retrySection) {
+          const yOffset = -120;
+          const elementTop = retrySection.getBoundingClientRect().top;
+          const elementPosition = elementTop + window.pageYOffset;
+          const offsetPosition = elementPosition + yOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
+        } else {
+          console.error("Settings section not found");
+        }
+      }, 500);
+    }
   };
 
   const handleViewAllOrders = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -361,7 +394,8 @@ export default function ProfilePage() {
                   <User className="w-16 h-16 text-sage" />
                 </div>
                 <button 
-                  onClick={handleEditProfile}
+                  onClick={(e) => handleEditProfile(e)}
+                  type="button"
                   className="absolute bottom-0 right-0 w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center shadow-lg hover:bg-sage/90 transition-colors"
                   title="Edit profile picture"
                 >
@@ -389,7 +423,8 @@ export default function ProfilePage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleEditProfile}
+                onClick={(e) => handleEditProfile(e)}
+                type="button"
                 className="px-6 py-3 border-2 border-sage/30 text-sage rounded-full font-medium hover:bg-sage/5 transition-colors flex items-center gap-2"
               >
                 <Edit className="w-5 h-5" />
