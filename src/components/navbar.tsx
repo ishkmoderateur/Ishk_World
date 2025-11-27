@@ -136,7 +136,7 @@ export default function Navbar() {
                 <motion.button
                   whileHover={{ y: -3 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={() => signOut({ callbackUrl: window.location.origin + "/" })}
                   className={`p-2.5 rounded-lg transition-colors duration-200 ${textColor} hover:text-coral`}
                   title="Logout"
                 >
@@ -237,7 +237,7 @@ export default function Navbar() {
                     className="flex items-center gap-3 w-full text-left px-4 py-3 text-charcoal hover:bg-cream transition-colors"
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      signOut({ callbackUrl: "/" });
+                      signOut({ callbackUrl: window.location.origin + "/" });
                     }}
                   >
                     <LogOut className="w-5 h-5" />

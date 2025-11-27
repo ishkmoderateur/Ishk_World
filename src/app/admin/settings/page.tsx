@@ -355,7 +355,7 @@ export default function AdminSettings() {
                         You are currently logged in as {session?.user?.email}
                       </p>
                       <button
-                        onClick={() => signOut({ callbackUrl: "/" })}
+                        onClick={() => signOut({ callbackUrl: window.location.origin + "/" })}
                         className="px-4 py-2 bg-coral text-white rounded-lg hover:bg-coral/90 transition-colors"
                       >
                         Sign Out

@@ -132,7 +132,7 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" });
+    await signOut({ callbackUrl: window.location.origin + "/" });
   };
 
   // Password change handler
@@ -214,7 +214,7 @@ export default function ProfilePage() {
       setEmailSuccess(true);
       // Sign out user after email change (they need to sign in with new email)
       setTimeout(() => {
-        signOut({ callbackUrl: "/auth/signin" });
+        signOut({ callbackUrl: window.location.origin + "/auth/signin" });
       }, 2000);
     } catch (error) {
       setEmailError("An error occurred. Please try again.");

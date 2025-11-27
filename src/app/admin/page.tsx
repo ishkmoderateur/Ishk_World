@@ -229,7 +229,7 @@ export default function AdminDashboard() {
                 Settings
               </Link>
               <button 
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={() => signOut({ callbackUrl: window.location.origin + "/" })}
                 className="px-4 py-2 text-coral hover:text-coral/80 transition-colors flex items-center gap-2"
               >
                 <LogOut className="w-5 h-5" />

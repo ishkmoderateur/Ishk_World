@@ -9,7 +9,11 @@ import Footer from "@/components/footer";
 
 function SignOutForm() {
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/";
+  const callbackUrlParam = params.get("callbackUrl") || "/";
+  // Ensure callbackUrl uses current origin, not NEXTAUTH_URL
+  const callbackUrl = callbackUrlParam.startsWith("http") 
+    ? callbackUrlParam 
+    : window.location.origin + callbackUrlParam;
 
   useEffect(() => {
     // Trigger sign out on mount, then redirect back
