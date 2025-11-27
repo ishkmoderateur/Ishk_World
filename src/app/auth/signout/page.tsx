@@ -10,15 +10,17 @@ import Footer from "@/components/footer";
 function SignOutForm() {
   const params = useSearchParams();
   const callbackUrlParam = params.get("callbackUrl") || "/";
-  // Ensure callbackUrl uses current origin, not NEXTAUTH_URL
-  const callbackUrl = callbackUrlParam.startsWith("http") 
-    ? callbackUrlParam 
-    : window.location.origin + callbackUrlParam;
 
   useEffect(() => {
+    // Ensure callbackUrl uses current origin, not NEXTAUTH_URL
+    // Only access window in useEffect (client-side only)
+    const callbackUrl = callbackUrlParam.startsWith("http") 
+      ? callbackUrlParam 
+      : (typeof window !== "undefined" ? window.location.origin : "") + callbackUrlParam;
+    
     // Trigger sign out on mount, then redirect back
     signOut({ callbackUrl });
-  }, [callbackUrl]);
+  }, [callbackUrlParam]);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-sage/5 via-cream to-white">
