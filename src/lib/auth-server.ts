@@ -9,27 +9,31 @@ export async function getAuthSession() {
   try {
     const session = await auth();
     
-    if (process.env.NODE_ENV === "development") {
-      console.log("🔐 Auth session check:", {
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userRole: session?.user?.role,
-        userId: session?.user?.id,
-      });
-    }
+    // Always log in production for debugging
+    console.log("🔐 Auth session check:", {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userRole: session?.user?.role,
+      userId: session?.user?.id,
+      nodeEnv: process.env.NODE_ENV,
+    });
     
     // Return null if there's no user
     if (!session || !session.user) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("🔐 No session or user found");
-      }
+      console.log("🔐 No session or user found");
       return null;
     }
     
     return session;
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("❌ Error getting session:", error);
+    // Always log errors in production
+    console.error("❌ Error getting session:", error);
+    if (error instanceof Error) {
+      console.error("Session error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     }
     return null;
   }
@@ -84,26 +88,31 @@ export async function requireSuperAdmin() {
 export async function requireSectionAccess(
   section: "news" | "party" | "boutique" | "association" | "photography"
 ) {
-  const session = await getAuthSession();
-  
-  if (!session?.user) {
-    if (process.env.NODE_ENV === "development") {
+  try {
+    const session = await getAuthSession();
+    
+    if (!session?.user) {
       console.log(`🔐 requireSectionAccess(${section}): No user in session`);
+      return null;
     }
-    return null;
-  }
-  
-  if (!canAccessSection(session.user.role, section)) {
-    if (process.env.NODE_ENV === "development") {
+    
+    if (!canAccessSection(session.user.role, section)) {
       console.log(`🔐 requireSectionAccess(${section}): Access denied. User role: ${session.user.role}`);
+      return null;
+    }
+    
+    console.log(`✅ requireSectionAccess(${section}): Access granted for role: ${session.user.role}`);
+    return session;
+  } catch (error) {
+    console.error(`❌ requireSectionAccess(${section}): Error:`, error);
+    if (error instanceof Error) {
+      console.error("requireSectionAccess error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
     }
     return null;
   }
-  
-  if (process.env.NODE_ENV === "development") {
-    console.log(`✅ requireSectionAccess(${section}): Access granted for role: ${session.user.role}`);
-  }
-  
-  return session;
 }
 

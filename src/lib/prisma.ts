@@ -1,22 +1,20 @@
-// CRITICAL: Override DATABASE_URL BEFORE importing PrismaClient
-// This ensures Prisma uses SQLite even if system env has PostgreSQL
+// CRITICAL: Only override DATABASE_URL in development if not set
+// In production, use the DATABASE_URL from environment variables
 import path from "path";
 
-// Only override if DATABASE_URL is not set or is not a SQLite file path
-if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith("file:")) {
-  if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith("file:")) {
-    console.warn("⚠️  Overriding non-SQLite DATABASE_URL with SQLite default");
-    console.warn(`   System had: ${process.env.DATABASE_URL.substring(0, 50)}...`);
-  }
-  // Get absolute path to prisma/dev.db
+// Only override in development if DATABASE_URL is not set
+if (process.env.NODE_ENV !== "production" && !process.env.DATABASE_URL) {
+  // Get absolute path to prisma/dev.db for local development
   const dbPath = path.resolve(process.cwd(), "prisma", "dev.db");
   const sqliteUrl = `file:${dbPath.replace(/\\/g, "/")}`; // Normalize path separators for SQLite
-  // Force SQLite for this project using absolute path
   process.env.DATABASE_URL = sqliteUrl;
-  console.log(`✅ DATABASE_URL set to: ${sqliteUrl}`);
+  console.log(`✅ Development: DATABASE_URL set to: ${sqliteUrl}`);
+} else if (process.env.DATABASE_URL) {
+  // Log the database URL (but mask password for security)
+  const maskedUrl = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ":****@");
+  console.log(`✅ DATABASE_URL configured: ${maskedUrl.substring(0, 80)}...`);
 } else {
-  // DATABASE_URL is already set to a file: path, use it as-is
-  console.log(`✅ DATABASE_URL already set: ${process.env.DATABASE_URL}`);
+  console.error("❌ DATABASE_URL is not set! This is required in production.");
 }
 
 import { PrismaClient } from "@prisma/client";
