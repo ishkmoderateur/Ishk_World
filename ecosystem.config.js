@@ -61,7 +61,7 @@ module.exports = {
     cwd: __dirname, // Use absolute path to project directory
     instances: 2, // Use 2 instances for load balancing (adjust based on CPU cores)
     exec_mode: 'cluster',
-    env_file: '.env', // Explicitly specify .env file
+    // Explicitly pass all environment variables (env_file doesn't always work reliably)
     env: {
       NODE_ENV: 'production',
       PORT: 3000,

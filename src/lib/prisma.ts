@@ -14,7 +14,10 @@ if (process.env.NODE_ENV !== "production" && !process.env.DATABASE_URL) {
   const maskedUrl = process.env.DATABASE_URL.replace(/:([^:@]+)@/, ":****@");
   console.log(`✅ DATABASE_URL configured: ${maskedUrl.substring(0, 80)}...`);
 } else {
-  console.error("❌ DATABASE_URL is not set! This is required in production.");
+  const errorMsg = "❌ DATABASE_URL is not set! This is required in production.";
+  console.error(errorMsg);
+  // Don't throw immediately - let Prisma Client initialization handle the error
+  // This prevents app crash on module load and allows proper error handling
 }
 
 import { PrismaClient } from "@prisma/client";

@@ -1,0 +1,21 @@
+fix: Resolve website not loading issues
+
+- Fix PM2 environment variable loading in ecosystem.config.js
+- Add database migration for missing currency column in products table
+- Improve error handling in prisma.ts to prevent startup crashes
+- Add comprehensive diagnostic and fix scripts:
+  - scripts/diagnose-server.sh - Full system diagnostics
+  - scripts/check-startup.sh - Application startup validation
+  - scripts/fix-database.sh - Database schema fixes
+  - scripts/fix-all.sh - Complete automated fix
+  - scripts/restart-app.sh - Safe application restart
+- Add troubleshooting documentation:
+  - IMMEDIATE-FIX.md - Quick fix guide
+  - FIX-WEBSITE-NOT-LOADING.md - Detailed fix instructions
+  - TROUBLESHOOTING.md - Comprehensive troubleshooting guide
+
+Fixes:
+- Port 3000 not listening (environment variables not loading)
+- Database schema mismatch (missing currency column)
+- Application crashes on startup
+
