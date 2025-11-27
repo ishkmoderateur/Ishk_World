@@ -30,10 +30,10 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { icon: Instagram, href: "#", label: t("footer.social.instagram") },
-    { icon: Facebook, href: "#", label: t("footer.social.facebook") },
-    { icon: Twitter, href: "#", label: t("footer.social.twitter") },
-    { icon: Mail, href: "mailto:hello@ishk.com", label: t("footer.social.email") },
+    { icon: Instagram, href: "https://instagram.com", label: t("footer.social.instagram"), external: true },
+    { icon: Facebook, href: "https://facebook.com", label: t("footer.social.facebook"), external: true },
+    { icon: Twitter, href: "https://x.com", label: t("footer.social.twitter"), external: true },
+    { icon: Mail, href: "/social/email", label: t("footer.social.email"), external: false },
   ];
 
   return (
@@ -49,15 +49,29 @@ export default function Footer() {
             <div className="flex gap-4">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
+                if (social.external) {
+                  return (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                      aria-label={social.label}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </a>
+                  );
+                }
                 return (
-                  <a
+                  <Link
                     key={social.label}
                     href={social.href}
                     className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
                     aria-label={social.label}
                   >
                     <Icon className="w-5 h-5" />
-                  </a>
+                  </Link>
                 );
               })}
             </div>

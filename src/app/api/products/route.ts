@@ -7,10 +7,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
+    const isIshkOriginal = searchParams.get("isIshkOriginal");
     
     const where: {
       category?: string;
       featured?: boolean;
+      isIshkOriginal?: boolean;
     } = {};
     
     // Sanitize and validate category input
@@ -28,6 +30,11 @@ export async function GET(request: NextRequest) {
     } else if (featured === "false") {
       where.featured = false;
     }
+    
+    // Handle isIshkOriginal parameter
+    if (isIshkOriginal === "true") {
+      where.isIshkOriginal = true;
+    }
 
     const products = await prisma.product.findMany({
       where,
@@ -39,11 +46,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(products);
   } catch (error: unknown) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error fetching products:", error);
-    }
+    console.error("Error fetching products:", error);
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { 
+        error: "Failed to fetch products",
+        details: process.env.NODE_ENV === "development" ? (error instanceof Error ? error.message : String(error)) : undefined
+      },
       { status: 500 }
     );
   }

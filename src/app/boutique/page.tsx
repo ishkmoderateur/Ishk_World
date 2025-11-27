@@ -18,27 +18,44 @@ function BoutiqueContent() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  
+  // Initialize category from URL filter if present
+  const initialCategory = searchParams?.get("filter") === "originals" ? "originals" : "all";
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   
   const categories = [
-    { name: t("boutique.categories.all"), icon: ShoppingBag, active: true },
-    { name: t("boutique.categories.homeLiving"), icon: Leaf },
-    { name: t("boutique.categories.wellness"), icon: Heart },
-    { name: t("boutique.categories.books"), icon: ShoppingBag },
-    { name: t("boutique.categories.originals"), icon: Star, highlight: true },
+    { id: "all", name: t("boutique.categories.all"), icon: ShoppingBag },
+    { id: "Home & Living", name: t("boutique.categories.homeLiving"), icon: Leaf },
+    { id: "Wellness", name: t("boutique.categories.wellness"), icon: Heart },
+    { id: "Books", name: t("boutique.categories.books"), icon: ShoppingBag },
+    { id: "originals", name: t("boutique.categories.originals"), icon: Star, highlight: true },
   ];
 
+  // Sync category with URL filter parameter
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const filter = searchParams?.get("filter");
+    if (filter === "originals") {
+      setSelectedCategory("originals");
+    } else if (!filter && selectedCategory === "originals") {
+      setSelectedCategory("all");
+    }
+  }, [searchParams]);
 
   const fetchProducts = async () => {
     try {
+      setLoading(true);
       const filter = searchParams?.get("filter");
-      let categoryParam = selectedCategory !== "all" ? `?category=${selectedCategory}` : "";
+      let categoryParam = "";
       
-      // If filter is "originals", filter by isIshkOriginal
-      if (filter === "originals") {
+      // Handle originals category specially
+      if (selectedCategory === "originals") {
+        categoryParam = "?isIshkOriginal=true";
+      } else if (selectedCategory !== "all") {
+        categoryParam = `?category=${encodeURIComponent(selectedCategory)}`;
+      }
+      
+      // If filter is "originals" from URL, filter by isIshkOriginal
+      if (filter === "originals" && selectedCategory !== "originals") {
         categoryParam = categoryParam ? `${categoryParam}&isIshkOriginal=true` : "?isIshkOriginal=true";
       }
       
@@ -48,14 +65,18 @@ function BoutiqueContent() {
         let filteredData = data;
         
         // Client-side filter for originals if needed
-        if (filter === "originals") {
+        if (filter === "originals" || selectedCategory === "originals") {
           filteredData = data.filter((p: any) => p.isIshkOriginal === true);
         }
         
         setProducts(filteredData);
+      } else {
+        console.error("Failed to fetch products:", response.status, response.statusText);
+        setProducts([]);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -268,11 +289,13 @@ function BoutiqueContent() {
             <div className="flex gap-2 overflow-x-auto pb-2">
               {categories.map((category) => {
                 const Icon = category.icon;
+                const isActive = selectedCategory === category.id;
                 return (
                   <button
-                    key={category.name}
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
                     className={`px-6 py-3 rounded-full border transition-all whitespace-nowrap flex items-center gap-2 ${
-                      category.active
+                      isActive
                         ? "bg-sage text-white border-sage"
                         : category.highlight
                         ? "bg-amber/10 text-amber border-amber/30 hover:bg-amber/20"
