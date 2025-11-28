@@ -173,27 +173,37 @@ export async function POST(request: NextRequest) {
 
     // Generate and send verification code via email
     let emailSent = false;
-    if (process.env.NODE_ENV === "development") {
-      console.log("📧 Starting email verification process for:", sanitizedEmail);
-    }
+    let emailError: string | null = null;
     
-    const verificationData = await createVerificationCode(sanitizedEmail);
-    if (verificationData) {
-      if (process.env.NODE_ENV === "development") {
+    console.log("📧 Starting email verification process for:", sanitizedEmail);
+    
+    // Check if email is configured
+    const { isEmailConfigured } = await import("@/lib/email");
+    if (!isEmailConfigured()) {
+      emailError = "Email service not configured. Please contact support.";
+      console.error("❌ Email service not configured");
+      console.error("   BREVO_SMTP_PASSWORD:", process.env.BREVO_SMTP_PASSWORD ? "SET" : "NOT SET");
+      console.error("   BREVO_SMTP_USER:", process.env.BREVO_SMTP_USER || "NOT SET");
+    } else {
+      const verificationData = await createVerificationCode(sanitizedEmail);
+      if (verificationData) {
         console.log("✅ Verification code created successfully");
         console.log("   Code:", verificationData.code);
-      }
-      emailSent = await sendVerificationEmail(sanitizedEmail, verificationData.token, verificationData.code);
-      if (process.env.NODE_ENV === "development") {
+        console.log("   Email:", sanitizedEmail);
+        
+        emailSent = await sendVerificationEmail(sanitizedEmail, verificationData.token, verificationData.code);
+        
         if (emailSent) {
           console.log("✅ Verification email with code sent successfully to:", sanitizedEmail);
+          console.log("   Code:", verificationData.code);
         } else {
+          emailError = "Failed to send verification email. Please try again or contact support.";
           console.error("❌ Failed to send verification email to:", sanitizedEmail);
-          console.error("   Check BREVO_SMTP_PASSWORD in .env file");
+          console.error("   Code was generated:", verificationData.code);
+          console.error("   Check server logs for SMTP errors");
         }
-      }
-    } else {
-      if (process.env.NODE_ENV === "development") {
+      } else {
+        emailError = "Failed to generate verification code. Please try again.";
         console.error("❌ Failed to create verification code");
       }
     }
@@ -201,8 +211,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         user,
-        message: "Account created successfully. Please check your email to verify your account.",
+        message: emailSent 
+          ? "Account created successfully. Please check your email for the verification code."
+          : "Account created successfully, but verification email could not be sent. " + (emailError || "Please contact support."),
         emailSent: emailSent,
+        emailError: emailError || undefined,
       },
       { status: 201 }
     );
