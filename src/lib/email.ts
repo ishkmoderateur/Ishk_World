@@ -97,12 +97,11 @@ export async function sendEmail(options: {
     const sender = options.from || getSender();
     const recipients = Array.isArray(options.to) ? options.to : [options.to];
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("📧 Attempting to send email:");
-      console.log("   From:", `${sender.name} <${sender.email}>`);
-      console.log("   To:", recipients.join(", "));
-      console.log("   Subject:", options.subject);
-    }
+    // Log in both development and production for debugging
+    console.log("📧 Attempting to send email:");
+    console.log("   From:", `${sender.name} <${sender.email}>`);
+    console.log("   To:", recipients.join(", "));
+    console.log("   Subject:", options.subject);
 
     const mailOptions = {
       from: `"${sender.name}" <${sender.email}>`,
@@ -114,32 +113,30 @@ export async function sendEmail(options: {
 
     const info = await transporter.sendMail(mailOptions);
 
-    if (process.env.NODE_ENV === "development") {
-      console.log("✅ Email sent successfully!");
-      console.log("   Message ID:", info.messageId);
-      console.log("   Response:", info.response);
-      if (info.accepted && info.accepted.length > 0) {
-        console.log("   Accepted:", info.accepted);
-      }
-      if (info.rejected && info.rejected.length > 0) {
-        console.log("   Rejected:", info.rejected);
-      }
+    // Log in both development and production for debugging
+    console.log("✅ Email sent successfully!");
+    console.log("   Message ID:", info.messageId);
+    console.log("   Response:", info.response);
+    if (info.accepted && info.accepted.length > 0) {
+      console.log("   Accepted:", info.accepted);
+    }
+    if (info.rejected && info.rejected.length > 0) {
+      console.log("   Rejected:", info.rejected);
     }
 
     return true;
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("❌ Error sending email:");
-      if (error instanceof Error) {
-        console.error("   Message:", error.message);
-        console.error("   Code:", (error as any).code);
-        console.error("   Command:", (error as any).command);
-        if (error.stack) {
-          console.error("   Stack:", error.stack);
-        }
-      } else {
-        console.error("   Error:", error);
+    // Log errors in both development and production
+    console.error("❌ Error sending email:");
+    if (error instanceof Error) {
+      console.error("   Message:", error.message);
+      console.error("   Code:", (error as any).code);
+      console.error("   Command:", (error as any).command);
+      if (error.stack) {
+        console.error("   Stack:", error.stack);
       }
+    } else {
+      console.error("   Error:", error);
     }
     return false;
   }
