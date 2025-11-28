@@ -96,6 +96,7 @@ const authConfig: NextAuthConfig = {
               email: true,
               name: true,
               image: true,
+              phone: true,
               password: true,
               role: true,
               emailVerified: true,
@@ -131,6 +132,7 @@ const authConfig: NextAuthConfig = {
             email: user.email,
             name: user.name,
             image: user.image,
+            phone: user.phone, // Include phone in user object
             role: user.role, // Include role in user object
             emailVerified: user.emailVerified, // Include email verification status
           };
@@ -220,6 +222,8 @@ const authConfig: NextAuthConfig = {
         token.role = (user as any).role || "USER";
         // Include email verification status
         token.emailVerified = (user as any).emailVerified || null;
+        // Include phone
+        token.phone = (user as any).phone || null;
       } else if (token.id && !token.role) {
         // If token exists but role is missing, fetch it
         try {
@@ -254,19 +258,23 @@ const authConfig: NextAuthConfig = {
         if (token.picture) {
           session.user.image = token.picture as string;
         }
+        if (token.phone !== undefined) {
+          session.user.phone = token.phone as string | null;
+        }
         
         // Fetch fresh user data from DB to ensure we have latest info
         if (token.id) {
           try {
             const dbUser = await prisma.user.findUnique({
               where: { id: token.id as string },
-              select: { name: true, image: true, email: true, role: true, emailVerified: true },
+              select: { name: true, image: true, email: true, phone: true, role: true, emailVerified: true },
             });
             if (dbUser) {
               session.user.name = dbUser.name || session.user.name;
               session.user.image = dbUser.image || session.user.image;
               session.user.email = dbUser.email || session.user.email;
               session.user.role = dbUser.role as UserRole;
+              session.user.phone = dbUser.phone || null;
               // Include email verification status in session
               (session.user as any).emailVerified = dbUser.emailVerified;
             }
