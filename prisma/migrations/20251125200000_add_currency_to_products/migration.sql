@@ -7,3 +7,4 @@
 -- Add currency column (will fail silently if already exists)
 ALTER TABLE "products" ADD COLUMN "currency" TEXT NOT NULL DEFAULT 'USD';
 
+

@@ -32,7 +32,10 @@ export const env = {
   STRIPE_WEBHOOK_SECRET: getEnvVar("STRIPE_WEBHOOK_SECRET", ""),
   
   // Email Service (optional)
-  RESEND_API_KEY: getEnvVar("RESEND_API_KEY", ""),
+  BREVO_SMTP_USER: getEnvVar("BREVO_SMTP_USER", "9cc0b2001@smtp-brevo.com"),
+  BREVO_SMTP_PASSWORD: getEnvVar("BREVO_SMTP_PASSWORD", ""),
+  BREVO_SENDER_EMAIL: getEnvVar("BREVO_SENDER_EMAIL", ""),
+  BREVO_SENDER_NAME: getEnvVar("BREVO_SENDER_NAME", ""),
   ADMIN_EMAIL: getEnvVar("ADMIN_EMAIL", ""),
   
   // Translation Service (optional)

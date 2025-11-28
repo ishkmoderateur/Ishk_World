@@ -8,6 +8,10 @@ import {
   sanitizeString,
   isValidPhone,
 } from "@/lib/validation";
+import {
+  createVerificationCode,
+  sendVerificationEmail,
+} from "@/lib/email-verification";
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,17 +75,66 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
-    const existing = await prisma.user.findUnique({ where: { email: sanitizedEmail } });
-    if (existing) {
-      const errorMsg = "An account with this email already exists";
-      if (process.env.NODE_ENV === "development") {
-        console.log("❌ Server: User already exists:", sanitizedEmail);
+    // Check if user already exists - if so, try to sign them in
+    const existing = await prisma.user.findUnique({ 
+      where: { email: sanitizedEmail },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        role: true,
+        emailVerified: true,
       }
-      return NextResponse.json(
-        { error: errorMsg },
-        { status: 409 }
-      );
+    });
+    
+    if (existing) {
+      // User exists - verify password and sign them in
+      if (!existing.password) {
+        // User exists but has no password (OAuth user)
+        return NextResponse.json(
+          { 
+            error: "An account with this email already exists. Please sign in with Google or use a different email.",
+            existingAccount: true,
+          },
+          { status: 409 }
+        );
+      }
+
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, existing.password);
+      
+      if (isValidPassword) {
+        // Password matches - return success with sign-in flag
+        if (process.env.NODE_ENV === "development") {
+          console.log("✅ Server: User exists with matching password - will sign in:", sanitizedEmail);
+        }
+        
+        return NextResponse.json(
+          {
+            user: {
+              id: existing.id,
+              email: existing.email,
+              name: existing.name,
+              role: existing.role,
+              emailVerified: existing.emailVerified,
+            },
+            message: "Account found. Signing you in...",
+            shouldSignIn: true, // Flag to tell frontend to sign in
+            existingAccount: true,
+          },
+          { status: 200 }
+        );
+      } else {
+        // Password doesn't match
+        return NextResponse.json(
+          { 
+            error: "An account with this email already exists. Please sign in or use a different email.",
+            existingAccount: true,
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Hash password
@@ -91,13 +144,14 @@ export async function POST(request: NextRequest) {
     const sanitizedName = name ? sanitizeString(name) : null;
     const sanitizedPhone = phone ? sanitizeString(phone) : null;
 
-    // Create user
+    // Create user (email not verified yet)
     const user = await prisma.user.create({
       data: {
         email: sanitizedEmail,
         password: hashed,
         name: sanitizedName,
         phone: sanitizedPhone,
+        // emailVerified is null by default - will be set after verification
       },
       select: {
         id: true,
@@ -105,6 +159,7 @@ export async function POST(request: NextRequest) {
         name: true,
         image: true,
         createdAt: true,
+        emailVerified: true,
       },
     });
 
@@ -116,7 +171,41 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ user }, { status: 201 });
+    // Generate and send verification code via email
+    let emailSent = false;
+    if (process.env.NODE_ENV === "development") {
+      console.log("📧 Starting email verification process for:", sanitizedEmail);
+    }
+    
+    const verificationData = await createVerificationCode(sanitizedEmail);
+    if (verificationData) {
+      if (process.env.NODE_ENV === "development") {
+        console.log("✅ Verification code created successfully");
+        console.log("   Code:", verificationData.code);
+      }
+      emailSent = await sendVerificationEmail(sanitizedEmail, verificationData.token, verificationData.code);
+      if (process.env.NODE_ENV === "development") {
+        if (emailSent) {
+          console.log("✅ Verification email with code sent successfully to:", sanitizedEmail);
+        } else {
+          console.error("❌ Failed to send verification email to:", sanitizedEmail);
+          console.error("   Check BREVO_SMTP_PASSWORD in .env file");
+        }
+      }
+    } else {
+      if (process.env.NODE_ENV === "development") {
+        console.error("❌ Failed to create verification code");
+      }
+    }
+
+    return NextResponse.json(
+      {
+        user,
+        message: "Account created successfully. Please check your email to verify your account.",
+        emailSent: emailSent,
+      },
+      { status: 201 }
+    );
   } catch (error: unknown) {
     if (process.env.NODE_ENV === "development") {
       console.error("Registration error:", error);

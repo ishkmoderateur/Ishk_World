@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
+import { sendEmail, isEmailConfigured } from "@/lib/email";
 import {
   validateAndSanitizeEmail,
   validateInteger,
@@ -9,10 +9,6 @@ import {
   sanitizeString,
   isValidPhone,
 } from "@/lib/validation";
-
-// Initialize Resend only if API key is available
-const resendApiKey = process.env.RESEND_API_KEY;
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // POST - Submit venue inquiry
 export async function POST(request: NextRequest) {
@@ -123,8 +119,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send email notification (if Resend is configured)
-    if (resend && process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL) {
+    // Send email notification (if Brevo is configured)
+    if (isEmailConfigured() && process.env.ADMIN_EMAIL) {
       try {
         // Sanitize all values for email HTML
         const safeVenueName = sanitizeString(venue.name);
@@ -138,8 +134,8 @@ export async function POST(request: NextRequest) {
         const safeInquiryId = inquiry.id;
         const safeBaseUrl = process.env.NEXTAUTH_URL || "";
 
-        await resend.emails.send({
-          from: "Ishk <noreply@ishk.com>",
+        // Send notification to admin
+        await sendEmail({
           to: process.env.ADMIN_EMAIL,
           subject: `New Venue Inquiry: ${safeVenueName}`,
           html: `
@@ -157,8 +153,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Send confirmation email to user
-        await resend.emails.send({
-          from: "Ishk <noreply@ishk.com>",
+        await sendEmail({
           to: sanitizedEmail,
           subject: "Thank you for your inquiry - Ishk",
           html: `

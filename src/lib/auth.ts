@@ -98,6 +98,7 @@ const authConfig: NextAuthConfig = {
               image: true,
               password: true,
               role: true,
+              emailVerified: true,
             },
           });
 
@@ -124,13 +125,14 @@ const authConfig: NextAuthConfig = {
 
           console.log("✅ Server: Authentication successful for:", email);
 
-          // Return user object with role for NextAuth v5
+          // Return user object with role and emailVerified for NextAuth v5
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             image: user.image,
             role: user.role, // Include role in user object
+            emailVerified: user.emailVerified, // Include email verification status
           };
         } catch (error) {
           if (process.env.NODE_ENV === "development") {
@@ -216,6 +218,8 @@ const authConfig: NextAuthConfig = {
         token.picture = user.image;
         // Use role from user object (now included in authorize return)
         token.role = (user as any).role || "USER";
+        // Include email verification status
+        token.emailVerified = (user as any).emailVerified || null;
       } else if (token.id && !token.role) {
         // If token exists but role is missing, fetch it
         try {
@@ -256,13 +260,15 @@ const authConfig: NextAuthConfig = {
           try {
             const dbUser = await prisma.user.findUnique({
               where: { id: token.id as string },
-              select: { name: true, image: true, email: true, role: true },
+              select: { name: true, image: true, email: true, role: true, emailVerified: true },
             });
             if (dbUser) {
               session.user.name = dbUser.name || session.user.name;
               session.user.image = dbUser.image || session.user.image;
               session.user.email = dbUser.email || session.user.email;
               session.user.role = dbUser.role as UserRole;
+              // Include email verification status in session
+              (session.user as any).emailVerified = dbUser.emailVerified;
             }
           } catch (error) {
             // Silently fail - use token data as fallback
@@ -270,6 +276,9 @@ const authConfig: NextAuthConfig = {
               console.error("Error fetching user data for session:", error);
             }
           }
+        } else if (token.emailVerified !== undefined) {
+          // Fallback to token data if DB fetch fails
+          (session.user as any).emailVerified = token.emailVerified;
         }
       }
       return session;
