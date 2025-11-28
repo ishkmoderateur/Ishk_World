@@ -149,7 +149,7 @@ export async function sendEmail(options: {
  * Check if Brevo SMTP is configured
  */
 export function isEmailConfigured(): boolean {
-  const hasPassword = smtpConfig.auth.pass && smtpConfig.auth.pass.trim().length > 0;
+  const hasPassword = !!(smtpConfig.auth.pass && smtpConfig.auth.pass.trim().length > 0);
   const hasTransporter = transporter !== null;
   
   if (process.env.NODE_ENV === "development") {
