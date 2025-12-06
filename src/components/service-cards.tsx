@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShoppingBag, Heart, Camera } from "lucide-react";
+import { ShoppingBag, Heart, Camera, PartyPopper } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function ServiceCards() {
@@ -39,6 +39,16 @@ export default function ServiceCards() {
       accent: "photo-accent",
       gradient: "from-gold/10 to-gold/5",
     },
+    {
+      id: "services",
+      icon: PartyPopper,
+      title: "Event Services",
+      subtitle: "Celebrate Your Special Moments",
+      description: "From intimate gatherings to grand celebrations, we provide comprehensive event planning and coordination services to make your special occasions unforgettable.",
+      href: "/party",
+      accent: "primary",
+      gradient: "from-purple-100/50 to-pink-100/50",
+    },
   ];
   return (
     <section id="services-section" className="py-24 px-4 md:px-8 bg-gradient-to-b from-cream to-white">
@@ -60,7 +70,7 @@ export default function ServiceCards() {
         </motion.div>
 
         {/* Service Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((service, index) => {
             const Icon = service.icon;
             

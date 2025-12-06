@@ -28,6 +28,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [togglingWishlist, setTogglingWishlist] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
 
   useEffect(() => {
     if (slug) {
@@ -103,6 +104,33 @@ export default function ProductDetailPage() {
       // Show error message
     } finally {
       setAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!product) return;
+
+    if (!session?.user) {
+      router.push(`/auth/signin?callbackUrl=/boutique/${slug}`);
+      return;
+    }
+
+    setBuyingNow(true);
+    try {
+      await addItem({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        size: selectedSize || undefined,
+        color: selectedColor || undefined,
+        image: getProductImage(product) || undefined,
+      });
+      router.push('/cart');
+    } catch (error) {
+      console.error("Error buying now:", error);
+    } finally {
+      setBuyingNow(false);
     }
   };
 
@@ -255,35 +283,51 @@ export default function ProductDetailPage() {
               )}
 
               {product.inStock && (
-                <div className="flex gap-4">
+                <div className="space-y-3">
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={handleAddToCart}
+                      disabled={addingToCart || !product.inStock}
+                      className="flex-1 px-8 py-4 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {addingToCart ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-5 h-5" />
+                          {t("boutique.products.addToCart")}
+                        </>
+                      )}
+                    </button>
+                    <button 
+                      onClick={handleToggleWishlist}
+                      disabled={togglingWishlist}
+                      className={`px-6 py-4 border rounded-xl transition-colors flex items-center justify-center ${
+                        isInWishlist
+                          ? "border-coral/30 bg-coral/10 text-coral hover:bg-coral/20"
+                          : "border-sage/20 text-charcoal hover:bg-sage/5"
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      <Heart className={`w-6 h-6 ${isInWishlist ? "fill-coral" : ""}`} />
+                    </button>
+                  </div>
                   <button 
-                    onClick={handleAddToCart}
-                    disabled={addingToCart || !product.inStock}
-                    className="flex-1 px-8 py-4 bg-sage text-white rounded-xl font-medium hover:bg-sage/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleBuyNow}
+                    disabled={buyingNow || !product.inStock}
+                    className="w-full px-8 py-4 bg-charcoal text-white rounded-xl font-medium hover:bg-charcoal/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {addingToCart ? (
+                    {buyingNow ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Adding...
+                        Processing...
                       </>
                     ) : (
-                      <>
-                        <ShoppingCart className="w-5 h-5" />
-                        {t("boutique.products.addToCart")}
-                      </>
+                      "Buy Now"
                     )}
-                  </button>
-                  <button 
-                    onClick={handleToggleWishlist}
-                    disabled={togglingWishlist}
-                    className={`px-6 py-4 border rounded-xl transition-colors flex items-center justify-center ${
-                      isInWishlist
-                        ? "border-coral/30 bg-coral/10 text-coral hover:bg-coral/20"
-                        : "border-sage/20 text-charcoal hover:bg-sage/5"
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    title={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-                  >
-                    <Heart className={`w-6 h-6 ${isInWishlist ? "fill-coral" : ""}`} />
                   </button>
                 </div>
               )}
