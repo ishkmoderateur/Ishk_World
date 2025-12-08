@@ -12,7 +12,7 @@ import Image from "next/image";
 import { signOut } from "next-auth/react";
 
 export default function ProfilePage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
@@ -23,7 +23,6 @@ export default function ProfilePage() {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showChangeEmail, setShowChangeEmail] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
   
   // Form states
   const [passwordForm, setPasswordForm] = useState({
@@ -34,10 +33,6 @@ export default function ProfilePage() {
   const [emailForm, setEmailForm] = useState({
     newEmail: "",
     password: "",
-  });
-  const [profileForm, setProfileForm] = useState({
-    name: "",
-    phone: "",
   });
   const [notificationPrefs, setNotificationPrefs] = useState({
     emailNotifications: true,
@@ -54,10 +49,6 @@ export default function ProfilePage() {
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSuccess, setEmailSuccess] = useState(false);
-  
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [profileSuccess, setProfileSuccess] = useState(false);
   
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [notificationError, setNotificationError] = useState<string | null>(null);
@@ -141,7 +132,7 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: window.location.origin + "/" });
+    await signOut({ callbackUrl: "/" });
   };
 
   // Password change handler
@@ -223,7 +214,7 @@ export default function ProfilePage() {
       setEmailSuccess(true);
       // Sign out user after email change (they need to sign in with new email)
       setTimeout(() => {
-        signOut({ callbackUrl: window.location.origin + "/auth/signin" });
+        signOut({ callbackUrl: "/auth/signin" });
       }, 2000);
     } catch (error) {
       setEmailError("An error occurred. Please try again.");
@@ -285,60 +276,8 @@ export default function ProfilePage() {
     { icon: Settings, label: "Settings", sectionId: "settings", color: "amber" },
   ];
 
-  const handleEditProfile = (e?: React.MouseEvent) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-    
-    // Update form with current session data
-    if (session?.user) {
-      setProfileForm({
-        name: session.user.name || "",
-        phone: session.user.phone || "",
-      });
-    }
-    setShowEditProfile(true);
-    setProfileError(null);
-    setProfileSuccess(false);
-  };
-
-  // Profile update handler
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setProfileError(null);
-    setProfileSuccess(false);
-
-    setProfileLoading(true);
-    try {
-      const response = await fetch("/api/profile/update", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: profileForm.name.trim() || null,
-          phone: profileForm.phone.trim() || null,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setProfileError(data.error || "Failed to update profile");
-        return;
-      }
-
-      setProfileSuccess(true);
-      
-      // Update session to reflect changes
-      await update();
-      
-      setTimeout(() => {
-        setShowEditProfile(false);
-        setProfileSuccess(false);
-      }, 2000);
-    } catch (error) {
-      setProfileError("An error occurred. Please try again.");
-    } finally {
-      setProfileLoading(false);
-    }
+  const handleEditProfile = () => {
+    scrollToSection("settings");
   };
 
   const handleViewAllOrders = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -393,22 +332,9 @@ export default function ProfilePage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-8"
           >
-            {session.user.image ? (
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full overflow-hidden mb-6 ring-4 ring-white shadow-lg">
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name || "Profile picture"}
-                  width={80}
-                  height={80}
-                  className="w-full h-full object-cover"
-                  unoptimized
-                />
-              </div>
-            ) : (
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-sage/20 mb-6">
-                <User className="w-10 h-10 text-sage" />
-              </div>
-            )}
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-sage/20 mb-6">
+              <User className="w-10 h-10 text-sage" />
+            </div>
             <h1 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
               My Profile
             </h1>
@@ -431,25 +357,11 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative">
-                {session.user.image ? (
-                  <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg ring-4 ring-white">
-                    <Image
-                      src={session.user.image}
-                      alt={session.user.name || "Profile picture"}
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover"
-                      unoptimized
-                    />
-                  </div>
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-gradient-to-br from-sage/20 to-sand/20 flex items-center justify-center shadow-lg">
-                    <User className="w-16 h-16 text-sage" />
-                  </div>
-                )}
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-sage/20 to-sand/20 flex items-center justify-center shadow-lg">
+                  <User className="w-16 h-16 text-sage" />
+                </div>
                 <button 
-                  onClick={(e) => handleEditProfile(e)}
-                  type="button"
+                  onClick={handleEditProfile}
                   className="absolute bottom-0 right-0 w-10 h-10 bg-sage text-white rounded-full flex items-center justify-center shadow-lg hover:bg-sage/90 transition-colors"
                   title="Edit profile picture"
                 >
@@ -477,8 +389,7 @@ export default function ProfilePage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={(e) => handleEditProfile(e)}
-                type="button"
+                onClick={handleEditProfile}
                 className="px-6 py-3 border-2 border-sage/30 text-sage rounded-full font-medium hover:bg-sage/5 transition-colors flex items-center gap-2"
               >
                 <Edit className="w-5 h-5" />
@@ -994,98 +905,6 @@ export default function ProfilePage() {
                   className="flex-1 px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {emailLoading ? "Changing..." : "Change Email"}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Edit Profile Modal */}
-      {showEditProfile && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-heading font-bold text-charcoal">Edit Profile</h3>
-              <button
-                onClick={() => {
-                  setShowEditProfile(false);
-                  setProfileError(null);
-                  setProfileSuccess(false);
-                }}
-                className="text-charcoal/60 hover:text-charcoal transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={profileForm.name}
-                  onChange={(e) =>
-                    setProfileForm({ ...profileForm, name: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
-                  placeholder="Enter your full name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={profileForm.phone}
-                  onChange={(e) =>
-                    setProfileForm({ ...profileForm, phone: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-sage/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-sage"
-                  placeholder="Enter your phone number (optional)"
-                />
-                <p className="text-xs text-charcoal/60 mt-1">
-                  Optional. Leave empty to remove phone number.
-                </p>
-              </div>
-
-              {profileError && (
-                <div className="p-3 bg-coral/10 text-coral rounded-lg text-sm">
-                  {profileError}
-                </div>
-              )}
-
-              {profileSuccess && (
-                <div className="p-3 bg-sage/10 text-sage rounded-lg text-sm">
-                  Profile updated successfully!
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEditProfile(false);
-                    setProfileError(null);
-                    setProfileSuccess(false);
-                  }}
-                  className="flex-1 px-4 py-2 border border-charcoal/20 text-charcoal rounded-lg hover:bg-cream/50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={profileLoading}
-                  className="flex-1 px-4 py-2 bg-sage text-white rounded-lg hover:bg-sage/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {profileLoading ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>

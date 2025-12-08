@@ -148,3 +148,5 @@ The application should:
 2. Look for specific error messages
 3. Most likely: Missing NEXTAUTH_SECRET or DATABASE_URL
 
+
+

@@ -1,0 +1,10 @@
+[33md432d4c[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix SSR error in signout page - Move window.location.origin access to useEffect
+[33m17fbc11[m Fix logout redirect to use current origin instead of NEXTAUTH_URL - Prevents redirecting to production URL in development
+[33m5d3163a[m Fix boutique category buttons and products API - Add isIshkOriginal parameter support to products API - Fix category filter buttons with onClick handlers - Update social media links to external URLs - Clean up repository (remove check scripts, backup files, personal photos) - Improve error handling in boutique page
+[33m71171c4[m Fix: Enable production logging and prevent DATABASE_URL override in production
+[33m9d46e54[m Add better error logging and credentials to fetch requests for admin panels
+[33maeda2c6[m Improve error logging for admin API endpoints to diagnose fetch failures
+[33m3b12043[m Add reset-password npm script
+[33m66910bc[m Add password reset script for admin users
+[33m6e07a8b[m Add list-users npm script
+[33m26de757[m Add script to list all users with roles for VPS admin checking

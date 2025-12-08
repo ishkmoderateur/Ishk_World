@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
-import { sendEmail, isEmailConfigured } from "@/lib/email";
+import { Resend } from "resend";
 import {
   validateAndSanitizeEmail,
   validateInteger,
@@ -9,6 +9,10 @@ import {
   sanitizeString,
   isValidPhone,
 } from "@/lib/validation";
+
+// Initialize Resend only if API key is available
+const resendApiKey = process.env.RESEND_API_KEY;
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 // POST - Submit party service inquiry
 export async function POST(request: NextRequest) {
@@ -132,26 +136,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send confirmation email if Brevo is configured
-    if (isEmailConfigured() && sanitizedEmail) {
+    // Send confirmation email if Resend is configured
+    if (resend && sanitizedEmail) {
       try {
-        await sendEmail({
+        await resend.emails.send({
+          from: process.env.ADMIN_EMAIL || "noreply@ishk.com",
           to: sanitizedEmail,
           subject: "Party Service Inquiry Received",
           html: `
             <h2>Thank you for your inquiry!</h2>
-            <p>Hi ${sanitizeString(sanitizedName)},</p>
+            <p>Hi ${sanitizedName},</p>
             <p>We've received your party service inquiry and will get back to you within 2 hours during business hours.</p>
             <p><strong>Event Date:</strong> ${eventDateObj.toLocaleDateString()}</p>
             <p><strong>Number of Guests:</strong> ${validatedGuestCount}</p>
-            ${sanitizedMessage ? `<p><strong>Your Message:</strong> ${sanitizeString(sanitizedMessage)}</p>` : ""}
+            ${sanitizedMessage ? `<p><strong>Your Message:</strong> ${sanitizedMessage}</p>` : ""}
             <p>Best regards,<br>ISHK Team</p>
           `,
         });
       } catch (emailError) {
-        if (process.env.NODE_ENV === "development") {
-          console.error("Error sending confirmation email:", emailError);
-        }
+        console.error("Error sending confirmation email:", emailError);
         // Don't fail the request if email fails
       }
     }

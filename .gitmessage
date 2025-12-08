@@ -19,3 +19,5 @@ Fixes:
 - Database schema mismatch (missing currency column)
 - Application crashes on startup
 
+
+

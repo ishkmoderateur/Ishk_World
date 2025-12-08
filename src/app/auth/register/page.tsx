@@ -23,8 +23,6 @@ function RegisterForm() {
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [verificationEmailSent, setVerificationEmailSent] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -91,38 +89,6 @@ function RegisterForm() {
       const data = await res.json().catch(() => ({}));
       console.log("🔐 Client: Registration response:", JSON.stringify({ status: res.status, ok: res.ok, error: data.error }, null, 2));
       
-      // Handle existing account with matching password - auto sign in
-      if (res.ok && data.shouldSignIn && data.existingAccount) {
-        console.log("✅ Client: Existing account found, signing in...");
-        
-        // Auto sign-in with credentials
-        try {
-          const signInRes = await signIn("credentials", {
-            redirect: false,
-            email: trimmedEmail.toLowerCase().trim(),
-            password: trimmedPassword,
-          });
-          
-          if (signInRes?.ok) {
-            console.log("✅ Client: Auto sign-in successful");
-            await update();
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            const redirectUrl = callbackUrl || "/profile";
-            console.log("✅ Client: Redirecting to:", redirectUrl);
-            window.location.href = redirectUrl;
-          } else {
-            setError("Account found but sign-in failed. Please try signing in manually.");
-            setLoading(false);
-          }
-        } catch (signInError) {
-          console.error("❌ Exception during auto sign-in:", signInError);
-          setError("Account found but sign-in failed. Please try signing in manually.");
-          setLoading(false);
-        }
-        return;
-      }
-      
       if (!res.ok) {
         setError(data.error || "Registration failed");
         setLoading(false);
@@ -131,23 +97,60 @@ function RegisterForm() {
       
       console.log("✅ Client: Registration successful");
       
-      // Show success message and email verification notice
-      setSuccess(true);
-      setVerificationEmailSent(data.emailSent || false);
-      setLoading(false);
+      // Wait a moment for database to be ready
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Store email for redirect before clearing form
-      const registeredEmail = trimmedEmail;
-      
-      // Clear form (but keep email for display in success message)
-      setName("");
-      setPassword("");
-      setConfirm("");
-      
-      // Redirect to code verification page after 3 seconds
-      setTimeout(() => {
-        router.push(`/auth/verify-code?email=${encodeURIComponent(registeredEmail)}`);
-      }, 3000);
+      // Auto sign-in after registration
+      try {
+        console.log("🔐 Client: Attempting auto sign-in with:", trimmedEmail);
+        const signInRes = await signIn("credentials", {
+          redirect: false,
+          email: trimmedEmail.toLowerCase().trim(),
+          password: trimmedPassword,
+        });
+        
+        console.log("🔐 Client: SignIn response:", JSON.stringify(signInRes, null, 2));
+        
+        if (signInRes?.error) {
+          console.error("❌ Auto sign-in error:", signInRes.error);
+          setError("Registration successful! Please sign in with your new account.");
+          setLoading(false);
+          setTimeout(() => {
+            window.location.href = `/auth/signin?email=${encodeURIComponent(trimmedEmail)}&callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`;
+          }, 2000);
+          return;
+        }
+        
+        if (signInRes?.ok) {
+          console.log("✅ Client: Auto sign-in successful");
+          
+          // Force session refresh
+          await update();
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Determine redirect URL
+          const redirectUrl = callbackUrl || "/profile";
+          console.log("✅ Client: Redirecting to:", redirectUrl);
+          
+          // Force full page reload to ensure session is set
+          setLoading(false);
+          window.location.href = redirectUrl;
+        } else {
+          console.warn("⚠️ Sign-in response unclear");
+          setError("Registration successful! Please sign in with your new account.");
+          setLoading(false);
+          setTimeout(() => {
+            window.location.href = `/auth/signin?email=${encodeURIComponent(trimmedEmail)}&callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`;
+          }, 2000);
+        }
+      } catch (signInError) {
+        console.error("❌ Exception during auto sign-in:", signInError);
+        setError("Registration successful! Please sign in with your new account.");
+        setLoading(false);
+        setTimeout(() => {
+          window.location.href = `/auth/signin?email=${encodeURIComponent(trimmedEmail)}&callbackUrl=${encodeURIComponent(callbackUrl || "/profile")}`;
+        }, 2000);
+      }
     } catch (err) {
       console.error("❌ Client: Registration error:", err);
       setError("Something went wrong. Please try again.");
@@ -195,25 +198,6 @@ function RegisterForm() {
             {error && (
               <div className="mb-4 rounded-lg border border-coral/30 bg-coral/10 text-coral px-3 py-2 text-sm">
                 {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="mb-4 rounded-lg border border-green-300 bg-green-50 text-green-800 px-4 py-3">
-                <h3 className="font-semibold mb-1">Account Created Successfully!</h3>
-                {verificationEmailSent ? (
-                  <p className="text-sm">
-                    We've sent a verification email to <strong>{email || "your email"}</strong>. 
-                    Please check your inbox and click the verification link to activate your account.
-                  </p>
-                ) : (
-                  <p className="text-sm">
-                    Your account has been created. Please verify your email address to continue.
-                  </p>
-                )}
-                <p className="text-sm mt-2">
-                  Redirecting to verification page...
-                </p>
               </div>
             )}
 
