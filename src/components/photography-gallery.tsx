@@ -151,7 +151,7 @@ export default function PhotographyGallery({
               const maxThumbnails = 10;
               const half = Math.floor(maxThumbnails / 2);
               let startIndex = Math.max(0, currentIndex - half);
-              let endIndex = Math.min(photos.length, startIndex + maxThumbnails);
+              const endIndex = Math.min(photos.length, startIndex + maxThumbnails);
               
               // Adjust if we're near the end
               if (endIndex - startIndex < maxThumbnails) {
@@ -196,4 +196,3 @@ export default function PhotographyGallery({
     </div>
   );
 }
-

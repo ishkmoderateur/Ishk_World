@@ -55,13 +55,23 @@ export default function Navbar() {
     "/admin",
   ];
 
+  // Pages with dark backgrounds that need white text
+  const darkBackgroundPages = [
+    "/news",
+  ];
+
   // Check if current page has a light background
   const hasLightBackground = lightBackgroundPages.some((page) => 
     pathname?.startsWith(page)
   );
 
-  // Use dark text if scrolled (white background) OR on light background pages
-  const textColor = (isScrolled || hasLightBackground) ? "text-charcoal" : "text-white";
+  // Check if current page has a dark background
+  const hasDarkBackground = darkBackgroundPages.some((page) => 
+    pathname?.startsWith(page)
+  );
+
+  // Use white text on dark pages, dark text on light pages or when scrolled
+  const textColor = (hasDarkBackground || hasLightBackground || isScrolled) ? "text-charcoal" : "text-white";
 
   return (
     <motion.nav
@@ -69,7 +79,11 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || hasLightBackground
+        isScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-md"
+          : hasDarkBackground
+          ? "bg-white/95 backdrop-blur-md shadow-md"
+          : hasLightBackground
           ? "bg-white/95 backdrop-blur-md shadow-md"
           : "bg-transparent"
       }`}
@@ -92,7 +106,7 @@ export default function Navbar() {
               <Link
                 key={`${link.href}-${link.label}-${index}`}
                 href={link.href}
-                className={`font-medium transition-colors hover:text-primary ${textColor}`}
+                className={`font-medium transition-colors ${textColor} hover:text-sage`}
               >
                 {link.label}
               </Link>
@@ -271,4 +285,3 @@ export default function Navbar() {
     </motion.nav>
   );
 }
-

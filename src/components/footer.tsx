@@ -37,7 +37,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-charcoal text-white">
+    <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           {/* Brand Column */}
@@ -56,7 +56,7 @@ export default function Footer() {
                       href={social.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                      className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-[#6B8E6F] transition-colors"
                       aria-label={social.label}
                     >
                       <Icon className="w-5 h-5" />
@@ -67,7 +67,7 @@ export default function Footer() {
                   <Link
                     key={social.label}
                     href={social.href}
-                    className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-primary transition-colors"
+                    className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-[#6B8E6F] transition-colors"
                     aria-label={social.label}
                   >
                     <Icon className="w-5 h-5" />
@@ -85,7 +85,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-white/70 hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-[#6B8E6F] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -102,7 +102,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-white/70 hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-[#6B8E6F] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -119,7 +119,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-white/70 hover:text-primary transition-colors"
+                    className="text-white/70 hover:text-[#6B8E6F] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -135,7 +135,7 @@ export default function Footer() {
             © {new Date().getFullYear()} ishk. {t("footer.copyright")}
           </p>
           <p className="text-white/60 text-sm flex items-center gap-2">
-            {t("footer.madeWith")} <Heart className="w-4 h-4 text-coral" /> {t("footer.forMindfulLiving")}
+            {t("footer.madeWith")} <Heart className="w-4 h-4 text-[#E07A5F]" /> {t("footer.forMindfulLiving")}
           </p>
         </div>
       </div>

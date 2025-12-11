@@ -12,43 +12,43 @@ export default function FeaturesSection() {
       icon: Globe,
       title: t("features.items.globalReach.title"),
       description: t("features.items.globalReach.description"),
-      color: "text-sky",
-      bgColor: "bg-sky/10",
+      color: "text-[#87CEEB]",
+      bgColor: "bg-[#87CEEB]/10",
     },
     {
       icon: Leaf,
       title: t("features.items.sustainable.title"),
       description: t("features.items.sustainable.description"),
-      color: "text-sage",
-      bgColor: "bg-sage/10",
+      color: "text-[#6B8E6F]",
+      bgColor: "bg-[#6B8E6F]/10",
     },
     {
       icon: Heart,
       title: t("features.items.communityDriven.title"),
       description: t("features.items.communityDriven.description"),
-      color: "text-coral",
-      bgColor: "bg-coral/10",
+      color: "text-[#E07A5F]",
+      bgColor: "bg-[#E07A5F]/10",
     },
     {
       icon: Sparkles,
       title: t("features.items.curatedQuality.title"),
       description: t("features.items.curatedQuality.description"),
-      color: "text-gold",
-      bgColor: "bg-gold/10",
+      color: "text-[#D4AF37]",
+      bgColor: "bg-[#D4AF37]/10",
     },
     {
       icon: Shield,
       title: t("features.items.trusted.title"),
       description: t("features.items.trusted.description"),
-      color: "text-forest",
-      bgColor: "bg-forest/10",
+      color: "text-[#2D5016]",
+      bgColor: "bg-[#2D5016]/10",
     },
     {
       icon: CheckCircle2,
       title: t("features.items.verified.title"),
       description: t("features.items.verified.description"),
-      color: "text-amber",
-      bgColor: "bg-amber/10",
+      color: "text-[#F59E0B]",
+      bgColor: "bg-[#F59E0B]/10",
     },
   ];
 
@@ -62,10 +62,10 @@ export default function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-heading font-bold text-charcoal mb-4">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold text-gray-900 mb-4">
             {t("features.title")}
           </h2>
-          <p className="text-lg text-stone max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             {t("features.subtitle")}
           </p>
         </motion.div>
@@ -83,14 +83,14 @@ export default function FeaturesSection() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative"
               >
-                <div className="bg-gradient-to-br from-cream to-white p-8 rounded-2xl border border-border hover:shadow-xl transition-all duration-300 h-full">
+                <div className="bg-gradient-to-br from-[#F5F1E8] to-white p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all duration-300 h-full">
                   <div className={`w-14 h-14 ${feature.bgColor} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <Icon className={`w-7 h-7 ${feature.color}`} strokeWidth={1.5} />
                   </div>
-                  <h3 className="text-xl font-heading font-semibold text-charcoal mb-3">
+                  <h3 className="text-xl font-heading font-semibold text-gray-900 mb-3">
                     {feature.title}
                   </h3>
-                  <p className="text-charcoal/60 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -121,10 +121,10 @@ export default function FeaturesSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="text-center"
             >
-              <div className="text-5xl md:text-6xl font-heading font-bold text-primary mb-2">
+              <div className="text-5xl md:text-6xl font-heading font-bold text-[#6B8E6F] mb-2">
                 {stat.number}
               </div>
-              <div className="text-charcoal/60 font-medium">{stat.label}</div>
+              <div className="text-gray-600 font-medium">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>

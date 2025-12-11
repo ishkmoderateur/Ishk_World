@@ -150,7 +150,6 @@ export async function GET(request: NextRequest) {
       const tempPassword = `google-oauth-${user.id}-${Date.now()}`;
       
       // Hash the temporary password
-      const bcrypt = require('bcryptjs');
       const hashedPassword = await bcrypt.hash(tempPassword, 10);
       
       // Temporarily set the password in the database
@@ -256,5 +255,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/signin?error=session_failed", errorBaseUrl));
   }
 }
-
 

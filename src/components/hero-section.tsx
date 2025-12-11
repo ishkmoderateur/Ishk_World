@@ -144,7 +144,7 @@ export default function HeroSection() {
                 servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }}
-            className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
+            className="group relative px-8 py-4 bg-[#6B8E6F] text-white rounded-2xl font-medium text-lg shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -167,7 +167,7 @@ export default function HeroSection() {
             
             {/* Animated background */}
             <motion.div
-              className="absolute inset-0 bg-primary/20"
+              className="absolute inset-0 bg-white/10"
               initial={{ scale: 0, opacity: 0 }}
               whileHover={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3 }}

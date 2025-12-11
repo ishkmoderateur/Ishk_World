@@ -23,25 +23,7 @@ function SuccessContent() {
   const [loading, setLoading] = useState(true);
   const [orderVerified, setOrderVerified] = useState(false);
 
-  useEffect(() => {
-    // Wait a bit for session to load after payment redirect
-    const timer = setTimeout(() => {
-      setLoading(false);
-      
-      // Try to verify order if we have session and orderId
-      if (orderId && status === "authenticated" && session?.user) {
-        if (paymentMethod === "paypal") {
-          verifyPayPalOrder();
-        } else {
-          verifyAndCreateOrder();
-        }
-      }
-    }, 1000); // Give NextAuth time to restore session
-
-    return () => clearTimeout(timer);
-  }, [session, status, orderId, paymentMethod]);
-
-  const verifyAndCreateOrder = async () => {
+  async function verifyAndCreateOrder() {
     if (!orderId || orderVerified) return;
     
     try {
@@ -67,9 +49,9 @@ function SuccessContent() {
       console.error("❌ Error verifying order:", error);
       // Still show success page
     }
-  };
+  }
 
-  const verifyPayPalOrder = async () => {
+  async function verifyPayPalOrder() {
     if (!orderId || orderVerified) return;
     
     try {
@@ -111,7 +93,25 @@ function SuccessContent() {
       console.error("❌ Error capturing PayPal order:", error);
       // Still show success page
     }
-  };
+  }
+
+  useEffect(() => {
+    // Wait a bit for session to load after payment redirect
+    const timer = setTimeout(() => {
+      setLoading(false);
+      
+      // Try to verify order if we have session and orderId
+      if (orderId && status === "authenticated" && session?.user) {
+        if (paymentMethod === "paypal") {
+          verifyPayPalOrder();
+        } else {
+          verifyAndCreateOrder();
+        }
+      }
+    }, 1000); // Give NextAuth time to restore session
+
+    return () => clearTimeout(timer);
+  }, [session, status, orderId, paymentMethod]);
 
   if (loading) {
     return (
@@ -203,4 +203,3 @@ export default function OrderSuccessPage() {
     </Suspense>
   );
 }
-
